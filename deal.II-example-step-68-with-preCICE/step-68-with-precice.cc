@@ -48,6 +48,8 @@
 
 #include <deal.II/particles/data_out.h>
 
+#include <precice/precice.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -59,6 +61,8 @@ namespace Step68
   {
   public:
     ParticleTrackingParameters();
+
+    std::string participant_role = "particle";
 
     std::string output_directory = "./";
 
@@ -75,6 +79,10 @@ namespace Step68
   ParticleTrackingParameters::ParticleTrackingParameters()
       : ParameterAcceptor("Particle Tracking Problem/")
   {
+    add_parameter("Role of this participant",
+                  participant_role,
+                  "Can be either \"particle\" or \"fluid\".");
+
     add_parameter(
         "Velocity degree", velocity_degree, "", prm, Patterns::Integer(1));
 
@@ -143,6 +151,7 @@ namespace Step68
     const ParticleTrackingParameters &par;
 
     MPI_Comm mpi_communicator;
+    precice::Participant participant;
     parallel::distributed::Triangulation<dim> background_triangulation;
     Particles::ParticleHandler<dim> particle_handler;
 
@@ -161,7 +170,12 @@ namespace Step68
   template <int dim>
   ParticleTracking<dim>::ParticleTracking(const ParticleTrackingParameters &par,
                                           const bool interpolated_velocity)
-      : par(par), mpi_communicator(MPI_COMM_WORLD),
+      : par(par),
+        mpi_communicator(MPI_COMM_WORLD),
+        participant(par.participant_role,
+                    "../precice-config.xml",
+                    Utilities::MPI::this_mpi_process(mpi_communicator),
+                    Utilities::MPI::n_mpi_processes(mpi_communicator)),
         background_triangulation(mpi_communicator),
         fluid_dh(background_triangulation),
         fluid_fe(FE_Q<dim>(par.velocity_degree) ^ dim),
@@ -481,18 +495,21 @@ int main(int argc, char *argv[])
     if (argc > 1)
       prm_file = argv[1];
     else
-      prm_file = "parameters.prm";
+      prm_file = "../particle.prm";
 
     ParticleTrackingParameters par;
     ParameterAcceptor::initialize(prm_file);
-    {
-      Step68::ParticleTracking<2> particle_tracking(par, false);
-      particle_tracking.run();
-    }
-    {
-      Step68::ParticleTracking<2> particle_tracking(par, true);
-      particle_tracking.run();
-    }
+    std::cout << "This participant has the " << par.participant_role << " role."
+              << std::endl;
+
+    // {
+    //   Step68::ParticleTracking<2> particle_tracking(par, false);
+    //   particle_tracking.run();
+    // }
+    // {
+    //   Step68::ParticleTracking<2> particle_tracking(par, true);
+    //   particle_tracking.run();
+    // }
   }
   catch (std::exception &exc)
   {
