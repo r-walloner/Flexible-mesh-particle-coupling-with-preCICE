@@ -1,20 +1,3 @@
-/* ------------------------------------------------------------------------
- *
- * SPDX-License-Identifier: LGPL-2.1-or-later
- * Copyright (C) 2020 - 2024 by the deal.II authors
- *
- * This file is part of the deal.II library.
- *
- * Part of the source code is dual licensed under Apache-2.0 WITH
- * LLVM-exception OR LGPL-2.1-or-later. Detailed license information
- * governing the source code and code contributions can be found in
- * LICENSE.md and CONTRIBUTING.md at the top level directory of deal.II.
- *
- * ------------------------------------------------------------------------
- *
- * Authors: Bruno Blais, Toni El Geitani Nehme, Rene Gassmoeller, Peter Munch
- */
-
 #include <deal.II/base/bounding_box.h>
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/discrete_time.h>
@@ -57,14 +40,28 @@ namespace Step68
 {
   using namespace dealii;
 
+  enum class ParticipantRole
+  {
+    Fluid,
+    Particle
+  };
+
+  ParticipantRole get_participant_role(const std::string &role)
+  {
+    if (role == "Fluid")
+      return ParticipantRole::Fluid;
+    else if (role == "Particle")
+      return ParticipantRole::Particle;
+    else
+      AssertThrow(false, ExcMessage("Unknown participant role"));
+  }
+
   class ParticleTrackingParameters : public ParameterAcceptor
   {
   public:
     ParticleTrackingParameters();
 
-    std::string participant_role = "particle";
-
-    std::string output_directory = "./";
+    std::string output_directory = "../solution/";
 
     unsigned int velocity_degree = 1;
     double time_step = 0.002;
@@ -73,16 +70,13 @@ namespace Step68
     unsigned int repartition_interval = 5;
 
     unsigned int fluid_refinement = 4;
+    unsigned int particle_refinement = 4;
     unsigned int particle_insertion_refinement = 3;
   };
 
   ParticleTrackingParameters::ParticleTrackingParameters()
       : ParameterAcceptor("Particle Tracking Problem/")
   {
-    add_parameter("Role of this participant",
-                  participant_role,
-                  "Can be either \"particle\" or \"fluid\".");
-
     add_parameter(
         "Velocity degree", velocity_degree, "", prm, Patterns::Integer(1));
 
@@ -114,6 +108,12 @@ namespace Step68
                   prm,
                   Patterns::Integer(0));
 
+    add_parameter("Particle grid refinement",
+                  particle_refinement,
+                  "Refinement level of the particle domain",
+                  prm,
+                  Patterns::Integer(0));
+
     add_parameter(
         "Particle insertion refinement",
         particle_insertion_refinement,
@@ -122,78 +122,196 @@ namespace Step68
         Patterns::Integer(0));
   }
 
+  /* ------------------------------------------------------------------------
+   * Fluid solver
+   *
+   *
+   *
+   *
+   * ------------------------------------------------------------------------
+   */
+
   template <int dim>
-  class ParticleTracking
+  class FluidSolver
   {
   public:
-    ParticleTracking(const ParticleTrackingParameters &par,
-                     const bool interpolated_velocity);
+    FluidSolver(const ParticleTrackingParameters &par);
     void run();
 
   private:
-    void generate_particles();
-
-    void setup_background_dofs();
-
+    void setup_dofs();
     void interpolate_function_to_field();
-
-    void euler_step_interpolated(const double dt);
-    void euler_step_analytical(const double dt);
-
-    unsigned int cell_weight(
-        const typename parallel::distributed::Triangulation<dim>::cell_iterator
-            &cell,
-        const CellStatus status) const;
-
-    void output_particles(const unsigned int it);
-    void output_background(const unsigned int it);
+    void output_field(const unsigned int it);
+    void solve(const double dt);
 
     const ParticleTrackingParameters &par;
 
     MPI_Comm mpi_communicator;
     precice::Participant participant;
-    parallel::distributed::Triangulation<dim> background_triangulation;
-    Particles::ParticleHandler<dim> particle_handler;
-
-    DoFHandler<dim> fluid_dh;
-    const FESystem<dim> fluid_fe;
-    MappingQ1<dim> mapping;
-    LinearAlgebra::distributed::Vector<double> velocity_field;
-
-    Functions::RayleighKotheVortex<dim> velocity;
-
     ConditionalOStream pcout;
 
-    bool interpolated_velocity;
+    parallel::distributed::Triangulation<dim> triangulation;
+    DoFHandler<dim> dh;
+    const FESystem<dim> fe;
+    MappingQ1<dim> mapping;
+
+    LinearAlgebra::distributed::Vector<double> velocity_field;
+    Functions::RayleighKotheVortex<dim> velocity;
   };
 
   template <int dim>
-  ParticleTracking<dim>::ParticleTracking(const ParticleTrackingParameters &par,
-                                          const bool interpolated_velocity)
+  FluidSolver<dim>::FluidSolver(const ParticleTrackingParameters &par)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
-        participant(par.participant_role,
+        participant("Fluid",
                     "../precice-config.xml",
                     Utilities::MPI::this_mpi_process(mpi_communicator),
                     Utilities::MPI::n_mpi_processes(mpi_communicator)),
-        background_triangulation(mpi_communicator),
-        fluid_dh(background_triangulation),
-        fluid_fe(FE_Q<dim>(par.velocity_degree) ^ dim),
-        velocity(4.0),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
-        interpolated_velocity(interpolated_velocity)
-
+        triangulation(mpi_communicator),
+        dh(triangulation),
+        fe(FE_Q<dim>(par.velocity_degree) ^ dim),
+        mapping(),
+        velocity(4.0)
   {
   }
 
   template <int dim>
-  unsigned int ParticleTracking<dim>::cell_weight(
-      const typename parallel::distributed::Triangulation<dim>::cell_iterator
-          &cell,
+  void FluidSolver<dim>::setup_dofs()
+  {
+    GridGenerator::hyper_cube(triangulation, 0, 1);
+    triangulation.refine_global(par.fluid_refinement);
+
+    dh.distribute_dofs(fe);
+    const IndexSet locally_owned_dofs = dh.locally_owned_dofs();
+    const IndexSet locally_relevant_dofs = DoFTools::extract_locally_relevant_dofs(dh);
+
+    velocity_field.reinit(locally_owned_dofs,
+                          locally_relevant_dofs,
+                          mpi_communicator);
+  }
+
+  template <int dim>
+  void FluidSolver<dim>::interpolate_function_to_field()
+  {
+    velocity_field.zero_out_ghost_values();
+    VectorTools::interpolate(mapping, dh, velocity, velocity_field);
+    velocity_field.update_ghost_values();
+  }
+
+  template <int dim>
+  void FluidSolver<dim>::output_field(const unsigned int it)
+  {
+    std::vector<std::string> solution_names(dim, "velocity");
+    std::vector<DataComponentInterpretation::DataComponentInterpretation>
+        data_component_interpretation(
+            dim, DataComponentInterpretation::component_is_part_of_vector);
+
+    DataOut<dim> data_out;
+
+    data_out.attach_dof_handler(dh);
+    data_out.add_data_vector(velocity_field,
+                             solution_names,
+                             DataOut<dim>::type_dof_data,
+                             data_component_interpretation);
+    Vector<float> subdomain(triangulation.n_active_cells());
+    for (unsigned int i = 0; i < subdomain.size(); ++i)
+      subdomain(i) = triangulation.locally_owned_subdomain();
+    data_out.add_data_vector(subdomain, "subdomain");
+
+    data_out.build_patches(mapping);
+
+    const std::string output_folder(par.output_directory);
+    const std::string file_name("fluid");
+
+    pcout << "Writing fluid field file: " << file_name << '-' << it
+          << std::endl;
+
+    data_out.write_vtu_with_pvtu_record(
+        output_folder, file_name, it, mpi_communicator, 6);
+  }
+
+  template <int dim>
+  void FluidSolver<dim>::run()
+  {
+    DiscreteTime time(0, par.final_time, par.time_step);
+
+    setup_dofs();
+
+    while (!time.is_at_end())
+    {
+      velocity.set_time(time.get_current_time());
+      interpolate_function_to_field();
+
+      if ((time.get_step_number() % par.output_interval) == 0)
+        output_field(time.get_step_number());
+
+      time.advance_time();
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+   * Particle solver
+   *
+   *
+   *
+   *
+   * ------------------------------------------------------------------------
+   */
+
+  template <int dim>
+  class ParticleSolver
+  {
+  public:
+    ParticleSolver(const ParticleTrackingParameters &par);
+    void run();
+
+  private:
+    void generate_particles();
+    void repartition();
+    void euler_step(const double dt);
+    void output_particles(const unsigned int it);
+
+    unsigned int cell_weight(
+        const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
+        const CellStatus status) const;
+
+    const ParticleTrackingParameters &par;
+
+    MPI_Comm mpi_communicator;
+    precice::Participant participant;
+    ConditionalOStream pcout;
+
+    parallel::distributed::Triangulation<dim> background_triangulation;
+    Particles::ParticleHandler<dim> ph;
+    MappingQ1<dim> mapping;
+  };
+
+  template <int dim>
+  ParticleSolver<dim>::ParticleSolver(const ParticleTrackingParameters &par)
+      : par(par),
+        mpi_communicator(MPI_COMM_WORLD),
+        participant("Particle",
+                    "../precice-config.xml",
+                    Utilities::MPI::this_mpi_process(mpi_communicator),
+                    Utilities::MPI::n_mpi_processes(mpi_communicator)),
+        pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
+        background_triangulation(mpi_communicator)
+  {
+    background_triangulation.signals.weight.connect(
+        [&](const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
+            const CellStatus status) -> unsigned int
+        {
+          return this->cell_weight(cell, status);
+        });
+  }
+
+  template <int dim>
+  unsigned int ParticleSolver<dim>::cell_weight(
+      const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
       const CellStatus status) const
   {
     const unsigned int base_weight = 1;
-
     const unsigned int particle_weight = 10;
 
     unsigned int n_particles_in_cell = 0;
@@ -201,7 +319,7 @@ namespace Step68
     {
     case CellStatus::cell_will_persist:
     case CellStatus::cell_will_be_refined:
-      n_particles_in_cell = particle_handler.n_particles_in_cell(cell);
+      n_particles_in_cell = ph.n_particles_in_cell(cell);
       break;
 
     case CellStatus::cell_invalid:
@@ -209,7 +327,7 @@ namespace Step68
 
     case CellStatus::children_will_be_coarsened:
       for (const auto &child : cell->child_iterators())
-        n_particles_in_cell += particle_handler.n_particles_in_cell(child);
+        n_particles_in_cell += ph.n_particles_in_cell(child);
       break;
 
     default:
@@ -220,20 +338,12 @@ namespace Step68
   }
 
   template <int dim>
-  void ParticleTracking<dim>::generate_particles()
+  void ParticleSolver<dim>::generate_particles()
   {
+    ph.initialize(background_triangulation, mapping, 1 + dim);
+
     GridGenerator::hyper_cube(background_triangulation, 0, 1);
-    background_triangulation.refine_global(par.fluid_refinement);
-
-    background_triangulation.signals.weight.connect(
-        [&](const typename parallel::distributed::Triangulation<
-                dim>::cell_iterator &cell,
-            const CellStatus status) -> unsigned int
-        {
-          return this->cell_weight(cell, status);
-        });
-
-    particle_handler.initialize(background_triangulation, mapping, 1 + dim);
+    background_triangulation.refine_global(par.particle_refinement);
 
     Point<dim> center;
     center[0] = 0.5;
@@ -244,9 +354,9 @@ namespace Step68
     const double outer_radius = 0.15;
     const double inner_radius = 0.01;
 
+    // Insert Particles using auxiliary triangulation
     parallel::distributed::Triangulation<dim> particle_triangulation(
         MPI_COMM_WORLD);
-
     GridGenerator::hyper_shell(
         particle_triangulation, center, inner_radius, outer_radius, 6);
     particle_triangulation.refine_global(par.particle_insertion_refinement);
@@ -263,46 +373,34 @@ namespace Step68
     Particles::Generators::quadrature_points(particle_triangulation,
                                              QMidpoint<dim>(),
                                              global_bounding_boxes,
-                                             particle_handler,
+                                             ph,
                                              mapping,
                                              properties);
 
     pcout << "Number of particles inserted: "
-          << particle_handler.n_global_particles() << std::endl;
+          << ph.n_global_particles() << std::endl;
   }
 
   template <int dim>
-  void ParticleTracking<dim>::setup_background_dofs()
+  void ParticleSolver<dim>::repartition()
   {
-    fluid_dh.distribute_dofs(fluid_fe);
-    const IndexSet locally_owned_dofs = fluid_dh.locally_owned_dofs();
-    const IndexSet locally_relevant_dofs =
-        DoFTools::extract_locally_relevant_dofs(fluid_dh);
-
-    velocity_field.reinit(locally_owned_dofs,
-                          locally_relevant_dofs,
-                          mpi_communicator);
+    ph.prepare_for_coarsening_and_refinement();
+    background_triangulation.repartition();
+    ph.unpack_after_coarsening_and_refinement();
   }
 
   template <int dim>
-  void ParticleTracking<dim>::interpolate_function_to_field()
+  void ParticleSolver<dim>::euler_step(const double dt)
   {
-    velocity_field.zero_out_ghost_values();
-    VectorTools::interpolate(mapping, fluid_dh, velocity, velocity_field);
-    velocity_field.update_ghost_values();
-  }
-
-  template <int dim>
-  void ParticleTracking<dim>::euler_step_analytical(const double dt)
-  {
-    const unsigned int this_mpi_rank =
-        Utilities::MPI::this_mpi_process(mpi_communicator);
+    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
     Vector<double> particle_velocity(dim);
 
-    for (auto &particle : particle_handler)
+    for (auto &particle : ph)
     {
       Point<dim> &particle_location = particle.get_location();
-      velocity.vector_value(particle_location, particle_velocity);
+      // TODO
+      // particle_velocity = get from preCICE...
+      particle_velocity = 0.0;
 
       for (int d = 0; d < dim; ++d)
         particle_location[d] += particle_velocity[d] * dt;
@@ -315,52 +413,7 @@ namespace Step68
   }
 
   template <int dim>
-  void ParticleTracking<dim>::euler_step_interpolated(const double dt)
-  {
-    Vector<double> local_dof_values(fluid_fe.dofs_per_cell);
-
-    FEPointEvaluation<dim, dim> evaluator(mapping, fluid_fe, update_values);
-    std::vector<Point<dim>> particle_positions;
-
-    auto particle = particle_handler.begin();
-    while (particle != particle_handler.end())
-    {
-      const auto cell = particle->get_surrounding_cell();
-      const auto dh_cell =
-          typename DoFHandler<dim>::cell_iterator(*cell, &fluid_dh);
-
-      dh_cell->get_dof_values(velocity_field, local_dof_values);
-
-      const auto pic = particle_handler.particles_in_cell(cell);
-      Assert(pic.begin() == particle, ExcInternalError());
-      particle_positions.clear();
-      for (auto &p : pic)
-        particle_positions.push_back(p.get_reference_location());
-
-      evaluator.reinit(cell, particle_positions);
-      evaluator.evaluate(make_array_view(local_dof_values),
-                         EvaluationFlags::values);
-
-      for (unsigned int particle_index = 0; particle != pic.end();
-           ++particle, ++particle_index)
-      {
-        Point<dim> &particle_location = particle->get_location();
-        const Tensor<1, dim> &particle_velocity =
-            evaluator.get_value(particle_index);
-        particle_location += particle_velocity * dt;
-
-        ArrayView<double> properties = particle->get_properties();
-        for (int d = 0; d < dim; ++d)
-          properties[d] = particle_velocity[d];
-
-        properties[dim] =
-            Utilities::MPI::this_mpi_process(mpi_communicator);
-      }
-    }
-  }
-
-  template <int dim>
-  void ParticleTracking<dim>::output_particles(const unsigned int it)
+  void ParticleSolver<dim>::output_particles(const unsigned int it)
   {
     Particles::DataOut<dim, dim> particle_output;
 
@@ -373,11 +426,11 @@ namespace Step68
     data_component_interpretation.push_back(
         DataComponentInterpretation::component_is_scalar);
 
-    particle_output.build_patches(particle_handler,
+    particle_output.build_patches(ph,
                                   solution_names,
                                   data_component_interpretation);
     const std::string output_folder(par.output_directory);
-    const std::string file_name(interpolated_velocity ? "interpolated-particles" : "analytical-particles");
+    const std::string file_name("particles");
 
     pcout << "Writing particle output file: " << file_name << '-' << it
           << std::endl;
@@ -387,99 +440,37 @@ namespace Step68
   }
 
   template <int dim>
-  void ParticleTracking<dim>::output_background(const unsigned int it)
+  void ParticleSolver<dim>::run()
   {
-    std::vector<std::string> solution_names(dim, "velocity");
-    std::vector<DataComponentInterpretation::DataComponentInterpretation>
-        data_component_interpretation(
-            dim, DataComponentInterpretation::component_is_part_of_vector);
-
-    DataOut<dim> data_out;
-
-    data_out.attach_dof_handler(fluid_dh);
-    data_out.add_data_vector(velocity_field,
-                             solution_names,
-                             DataOut<dim>::type_dof_data,
-                             data_component_interpretation);
-    Vector<float> subdomain(background_triangulation.n_active_cells());
-    for (unsigned int i = 0; i < subdomain.size(); ++i)
-      subdomain(i) = background_triangulation.locally_owned_subdomain();
-    data_out.add_data_vector(subdomain, "subdomain");
-
-    data_out.build_patches(mapping);
-
-    const std::string output_folder(par.output_directory);
-    const std::string file_name("background");
-
-    pcout << "Writing background field file: " << file_name << '-' << it
-          << std::endl;
-
-    data_out.write_vtu_with_pvtu_record(
-        output_folder, file_name, it, mpi_communicator, 6);
-  }
-
-  template <int dim>
-  void ParticleTracking<dim>::run()
-  {
-    DiscreteTime discrete_time(0, par.final_time, par.time_step);
+    DiscreteTime time(0, par.final_time, par.time_step);
 
     generate_particles();
 
-    pcout << "Repartitioning triangulation after particle generation"
-          << std::endl;
-
-    particle_handler.prepare_for_coarsening_and_refinement();
-    background_triangulation.repartition();
-    particle_handler.unpack_after_coarsening_and_refinement();
-
-    if (interpolated_velocity)
+    while (!time.is_at_end())
     {
-      setup_background_dofs();
-      interpolate_function_to_field();
-      euler_step_interpolated(0.);
-    }
-    else
-      euler_step_analytical(0.);
+      if ((time.get_step_number() % par.repartition_interval) == 0)
+        repartition();
 
-    output_particles(discrete_time.get_step_number());
-    if (interpolated_velocity)
-      output_background(discrete_time.get_step_number());
+      euler_step(time.get_current_time());
+      ph.sort_particles_into_subdomains_and_cells();
 
-    while (!discrete_time.is_at_end())
-    {
-      discrete_time.advance_time();
-      velocity.set_time(discrete_time.get_previous_time());
+      if ((time.get_step_number() % par.output_interval) == 0)
+        output_particles(time.get_step_number());
 
-      if ((discrete_time.get_step_number() % par.repartition_interval) == 0)
-      {
-        particle_handler.prepare_for_coarsening_and_refinement();
-        background_triangulation.repartition();
-        particle_handler.unpack_after_coarsening_and_refinement();
-
-        if (interpolated_velocity)
-          setup_background_dofs();
-      }
-
-      if (interpolated_velocity)
-      {
-        interpolate_function_to_field();
-        euler_step_interpolated(discrete_time.get_previous_step_size());
-      }
-      else
-        euler_step_analytical(discrete_time.get_previous_step_size());
-
-      particle_handler.sort_particles_into_subdomains_and_cells();
-
-      if ((discrete_time.get_step_number() % par.output_interval) == 0)
-      {
-        output_particles(discrete_time.get_step_number());
-        if (interpolated_velocity)
-          output_background(discrete_time.get_step_number());
-      }
+      time.advance_time();
     }
   }
 
 } // namespace Step68
+
+/* ------------------------------------------------------------------------
+ * main
+ *
+ *
+ *
+ *
+ * ------------------------------------------------------------------------
+ */
 
 int main(int argc, char *argv[])
 {
@@ -491,25 +482,36 @@ int main(int argc, char *argv[])
   {
     Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
+    // Read parameter file
     std::string prm_file;
-    if (argc > 1)
-      prm_file = argv[1];
+    if (argc > 2)
+      prm_file = argv[2];
     else
-      prm_file = "../particle.prm";
-
+      prm_file = "../parameters.prm";
     ParticleTrackingParameters par;
     ParameterAcceptor::initialize(prm_file);
-    std::cout << "This participant has the " << par.participant_role << " role."
-              << std::endl;
 
-    // {
-    //   Step68::ParticleTracking<2> particle_tracking(par, false);
-    //   particle_tracking.run();
-    // }
-    // {
-    //   Step68::ParticleTracking<2> particle_tracking(par, true);
-    //   particle_tracking.run();
-    // }
+    // Determine the participant role and run
+    if (argc <= 1)
+    {
+      std::cerr << "No participant role provided. Exiting..." << std::endl;
+      return 1;
+    }
+    switch (get_participant_role(argv[1]))
+    {
+    case ParticipantRole::Fluid:
+    {
+      FluidSolver<2> fluid_solver(par);
+      fluid_solver.run();
+      break;
+    }
+    case ParticipantRole::Particle:
+    {
+      ParticleSolver<2> particle_solver(par);
+      particle_solver.run();
+      break;
+    }
+    }
   }
   catch (std::exception &exc)
   {
