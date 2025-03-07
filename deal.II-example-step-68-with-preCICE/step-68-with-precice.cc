@@ -143,7 +143,7 @@ namespace Step68
   private:
     void setup_dofs();
     void setup_coupling();
-    void interpolate_function_to_field();
+    void solve();
     void output_field(const unsigned int it);
     void solve(const double dt);
 
@@ -154,6 +154,7 @@ namespace Step68
     ConditionalOStream pcout;
 
     parallel::distributed::Triangulation<dim> triangulation;
+    std::vector<precice::VertexID> precice_vertex_ids;
     DoFHandler<dim> dh;
     const FESystem<dim> fe;
     MappingQ1<dim> mapping;
@@ -197,32 +198,49 @@ namespace Step68
   template <int dim>
   void FluidSolver<dim>::setup_coupling()
   {
-    // Get the coordinates of the locally relevant support points.
-    std::map<types::global_dof_index, Point<dim>> support_point_map{
+    // Get the coordinates of the locally owned support points.
+    const IndexSet local_dofs{dh.locally_owned_dofs()};
+    const std::map<types::global_dof_index, Point<dim>> support_point_map{
         DoFTools::map_dofs_to_support_points(mapping, dh)};
 
-    // Transform deal.II Points into format expected by preCICE
-    std::vector<double> vertex_coordinates(support_point_map.size() * dim);
+    // Assemble data for preCICE coupling mesh
+    std::vector<double> vertex_coordinates(local_dofs.size() * dim);    
     unsigned int index = 0;
-    for (const auto &point_pair : support_point_map)
-    {
-      const Point<dim> &point = point_pair.second;
+    for (const auto &dof_index : local_dofs)
       for (unsigned int d = 0; d < dim; ++d)
-        vertex_coordinates[index++] = point[d];
-    }
+        vertex_coordinates[index++] = support_point_map.at(dof_index)[d];
 
     // Give preCICE the vertex coordinates and initialize the participant
-    std::vector<precice::VertexID> vertex_ids(support_point_map.size());
-    precice.setMeshVertices("Fluid-Mesh", vertex_coordinates, vertex_ids);
+    precice_vertex_ids.resize(support_point_map.size());
+    precice.setMeshVertices("Fluid-Mesh", vertex_coordinates, precice_vertex_ids);
     precice.initialize();
   }
 
   template <int dim>
-  void FluidSolver<dim>::interpolate_function_to_field()
+  void FluidSolver<dim>::solve()
   {
+    // Interpolate the solution to the analytical velocity function
     velocity_field.zero_out_ghost_values();
     VectorTools::interpolate(mapping, dh, velocity, velocity_field);
     velocity_field.update_ghost_values();
+
+    // Evaluate the solution at the support points and send that data to preCICE
+    std::vector<double> velocity_values(dh.n_locally_owned_dofs() * dim);
+    
+    const IndexSet local_dofs{dh.locally_owned_dofs()};
+    const std::map<types::global_dof_index, Point<dim>> support_point_map{
+        DoFTools::map_dofs_to_support_points(mapping, dh)};
+
+    Vector<double> local_velocity(dim);
+    unsigned int index = 0;
+    for (const auto &dof_index : local_dofs)
+    {
+      velocity.vector_value(support_point_map.at(dof_index), local_velocity);
+      for (unsigned int d = 0; d < dim; ++d)
+        velocity_values[index++] = local_velocity[d];
+    }
+
+    precice.writeData("Fluid-Mesh", "Velocity", precice_vertex_ids, velocity_values);
   }
 
   template <int dim>
@@ -268,9 +286,9 @@ namespace Step68
     while (precice.isCouplingOngoing())
     {
       time.set_desired_next_step_size(precice.getMaxTimeStepSize());
-      
+
       velocity.set_time(time.get_next_time());
-      interpolate_function_to_field();
+      solve();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_field(time.get_step_number());
