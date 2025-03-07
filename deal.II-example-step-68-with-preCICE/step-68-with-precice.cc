@@ -167,9 +167,9 @@ namespace Step68
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
         precice("Fluid",
-                    "../precice-config.xml",
-                    Utilities::MPI::this_mpi_process(mpi_communicator),
-                    Utilities::MPI::n_mpi_processes(mpi_communicator)),
+                "../precice-config.xml",
+                Utilities::MPI::this_mpi_process(mpi_communicator),
+                Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
         triangulation(mpi_communicator),
         dh(triangulation),
@@ -265,16 +265,21 @@ namespace Step68
     setup_dofs();
     setup_coupling();
 
-    while (!time.is_at_end())
+    while (precice.isCouplingOngoing())
     {
-      velocity.set_time(time.get_current_time());
+      time.set_desired_next_step_size(precice.getMaxTimeStepSize());
+      
+      velocity.set_time(time.get_next_time());
       interpolate_function_to_field();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_field(time.get_step_number());
 
       time.advance_time();
+      precice.advance(time.get_previous_step_size());
     }
+
+    precice.finalize();
   }
 
   /* ------------------------------------------------------------------------
@@ -320,9 +325,9 @@ namespace Step68
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
         precice("Particle",
-                    "../precice-config.xml",
-                    Utilities::MPI::this_mpi_process(mpi_communicator),
-                    Utilities::MPI::n_mpi_processes(mpi_communicator)),
+                "../precice-config.xml",
+                Utilities::MPI::this_mpi_process(mpi_communicator),
+                Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
         background_triangulation(mpi_communicator)
   {
@@ -449,14 +454,17 @@ namespace Step68
   void ParticleSolver<dim>::euler_step(const double dt)
   {
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
-    Vector<double> particle_velocity(dim);
+    std::vector<double> particle_velocity(dim);
 
     for (auto &particle : ph)
     {
       Point<dim> &particle_location = particle.get_location();
-      // TODO
-      // particle_velocity = get from preCICE...
-      particle_velocity = 0.0;
+
+      std::vector<double> particle_location_vec(dim);
+      for (int d = 0; d < dim; ++d)
+        particle_location_vec[d] = particle_location[d];
+      precice.mapAndReadData(
+          "Fluid-Mesh", "Velocity", particle_location_vec, 0, particle_velocity);
 
       for (int d = 0; d < dim; ++d)
         particle_location[d] += particle_velocity[d] * dt;
@@ -503,19 +511,24 @@ namespace Step68
     generate_particles();
     setup_coupling();
 
-    while (!time.is_at_end())
+    while (precice.isCouplingOngoing())
     {
+      time.set_desired_next_step_size(precice.getMaxTimeStepSize());
+
       if ((time.get_step_number() % par.repartition_interval) == 0)
         repartition();
 
-      euler_step(time.get_current_time());
+      euler_step(time.get_next_step_size());
       ph.sort_particles_into_subdomains_and_cells();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_particles(time.get_step_number());
 
       time.advance_time();
+      precice.advance(time.get_previous_step_size());
     }
+
+    precice.finalize();
   }
 
 } // namespace Step68
