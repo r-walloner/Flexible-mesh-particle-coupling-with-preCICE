@@ -150,7 +150,7 @@ namespace Step68
     const ParticleTrackingParameters &par;
 
     MPI_Comm mpi_communicator;
-    precice::Participant participant;
+    precice::Participant precice;
     ConditionalOStream pcout;
 
     parallel::distributed::Triangulation<dim> triangulation;
@@ -166,7 +166,7 @@ namespace Step68
   FluidSolver<dim>::FluidSolver(const ParticleTrackingParameters &par)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
-        participant("Fluid",
+        precice("Fluid",
                     "../precice-config.xml",
                     Utilities::MPI::this_mpi_process(mpi_communicator),
                     Utilities::MPI::n_mpi_processes(mpi_communicator)),
@@ -213,8 +213,8 @@ namespace Step68
 
     // Give preCICE the vertex coordinates and initialize the participant
     std::vector<precice::VertexID> vertex_ids(support_point_map.size());
-    participant.setMeshVertices("Fluid-Mesh", vertex_coordinates, vertex_ids);
-    participant.initialize();
+    precice.setMeshVertices("Fluid-Mesh", vertex_coordinates, vertex_ids);
+    precice.initialize();
   }
 
   template <int dim>
@@ -307,7 +307,7 @@ namespace Step68
     const ParticleTrackingParameters &par;
 
     MPI_Comm mpi_communicator;
-    precice::Participant participant;
+    precice::Participant precice;
     ConditionalOStream pcout;
 
     parallel::distributed::Triangulation<dim> background_triangulation;
@@ -319,7 +319,7 @@ namespace Step68
   ParticleSolver<dim>::ParticleSolver(const ParticleTrackingParameters &par)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
-        participant("Particle",
+        precice("Particle",
                     "../precice-config.xml",
                     Utilities::MPI::this_mpi_process(mpi_communicator),
                     Utilities::MPI::n_mpi_processes(mpi_communicator)),
@@ -427,12 +427,12 @@ namespace Step68
     }
 
     // Set the bounding box for the participant and initialize
-    participant.setMeshAccessRegion("Fluid-Mesh", bounding_box_vertices);
-    participant.initialize();
+    precice.setMeshAccessRegion("Fluid-Mesh", bounding_box_vertices);
+    precice.initialize();
 
     // Print some information about the received mesh
-    const int r_dim = participant.getMeshDimensions("Fluid-Mesh");
-    const int r_vertex_count = participant.getMeshVertexSize("Fluid-Mesh");
+    const int r_dim = precice.getMeshDimensions("Fluid-Mesh");
+    const int r_vertex_count = precice.getMeshVertexSize("Fluid-Mesh");
     pcout << "Received mesh has dimension " << r_dim
           << " and " << r_vertex_count << " vertices." << std::endl;
   }
