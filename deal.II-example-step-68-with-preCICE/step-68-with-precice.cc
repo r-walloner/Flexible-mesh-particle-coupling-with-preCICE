@@ -212,9 +212,8 @@ namespace Step68
     }
 
     // Give preCICE the vertex coordinates and initialize the participant
-    std::vector<int> vertex_ids(dh.n_locally_owned_dofs());
+    std::vector<precice::VertexID> vertex_ids(support_point_map.size());
     participant.setMeshVertices("Fluid-Mesh", vertex_coordinates, vertex_ids);
-
     participant.initialize();
   }
 
@@ -419,16 +418,23 @@ namespace Step68
             background_triangulation, IteratorFilters::LocallyOwnedCell(), 2, true, 1)
             .front()};
 
+    // Convert the bounding box to the format expected by preCICE
     std::vector<double> bounding_box_vertices(dim * 2);
     for (unsigned int d = 0; d < dim; ++d)
     {
-      bounding_box_vertices[d] = bounding_box.lower_bound(d);
-      bounding_box_vertices[dim + d] = bounding_box.upper_bound(d);
+      bounding_box_vertices[2 * d] = bounding_box.lower_bound(d);
+      bounding_box_vertices[2 * d + 1] = bounding_box.upper_bound(d);
     }
 
+    // Set the bounding box for the participant and initialize
     participant.setMeshAccessRegion("Fluid-Mesh", bounding_box_vertices);
-
     participant.initialize();
+
+    // Print some information about the received mesh
+    const int r_dim = participant.getMeshDimensions("Fluid-Mesh");
+    const int r_vertex_count = participant.getMeshVertexSize("Fluid-Mesh");
+    pcout << "Received mesh has dimension " << r_dim
+          << " and " << r_vertex_count << " vertices." << std::endl;
   }
 
   template <int dim>
