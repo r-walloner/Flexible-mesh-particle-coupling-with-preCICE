@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Fluid Solver",
+            "name": "Fluid",
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
@@ -29,7 +29,7 @@
             ]
         },
         {
-            "name": "Debug Particle Solver",
+            "name": "Particle",
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
