@@ -9,6 +9,7 @@
   <participant name="Fluid">
     <provide-mesh name="Fluid-Mesh" />
     <write-data name="Velocity" mesh="Fluid-Mesh" />
+    <export:vtu every-n-time-windows="1" directory="../solution/" />
   </participant>
 
   <participant name="Particle">

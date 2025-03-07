@@ -35,6 +35,8 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
+#include <map>
 
 namespace Step68
 {
@@ -140,6 +142,7 @@ namespace Step68
 
   private:
     void setup_dofs();
+    void setup_coupling();
     void interpolate_function_to_field();
     void output_field(const unsigned int it);
     void solve(const double dt);
@@ -192,6 +195,30 @@ namespace Step68
   }
 
   template <int dim>
+  void FluidSolver<dim>::setup_coupling()
+  {
+    // Get the coordinates of the locally relevant support points.
+    std::map<types::global_dof_index, Point<dim>> support_point_map{
+        DoFTools::map_dofs_to_support_points(mapping, dh)};
+
+    // Transform deal.II Points into format expected by preCICE
+    std::vector<double> vertex_coordinates(support_point_map.size() * dim);
+    unsigned int index = 0;
+    for (const auto &point_pair : support_point_map)
+    {
+      const Point<dim> &point = point_pair.second;
+      for (unsigned int d = 0; d < dim; ++d)
+        vertex_coordinates[index++] = point[d];
+    }
+
+    // Give preCICE the vertex coordinates and initialize the participant
+    std::vector<int> vertex_ids(dh.n_locally_owned_dofs());
+    participant.setMeshVertices("Fluid-Mesh", vertex_coordinates, vertex_ids);
+
+    participant.initialize();
+  }
+
+  template <int dim>
   void FluidSolver<dim>::interpolate_function_to_field()
   {
     velocity_field.zero_out_ghost_values();
@@ -237,6 +264,7 @@ namespace Step68
     DiscreteTime time(0, par.final_time, par.time_step);
 
     setup_dofs();
+    setup_coupling();
 
     while (!time.is_at_end())
     {
@@ -268,6 +296,7 @@ namespace Step68
 
   private:
     void generate_particles();
+    void setup_coupling();
     void repartition();
     void euler_step(const double dt);
     void output_particles(const unsigned int it);
@@ -382,6 +411,27 @@ namespace Step68
   }
 
   template <int dim>
+  void ParticleSolver<dim>::setup_coupling()
+  {
+    // TODO: fine-tune and verify this bounding box computation
+    const BoundingBox<dim> bounding_box{
+        GridTools::compute_mesh_predicate_bounding_box(
+            background_triangulation, IteratorFilters::LocallyOwnedCell(), 2, true, 1)
+            .front()};
+
+    std::vector<double> bounding_box_vertices(dim * 2);
+    for (unsigned int d = 0; d < dim; ++d)
+    {
+      bounding_box_vertices[d] = bounding_box.lower_bound(d);
+      bounding_box_vertices[dim + d] = bounding_box.upper_bound(d);
+    }
+
+    participant.setMeshAccessRegion("Fluid-Mesh", bounding_box_vertices);
+
+    participant.initialize();
+  }
+
+  template <int dim>
   void ParticleSolver<dim>::repartition()
   {
     ph.prepare_for_coarsening_and_refinement();
@@ -445,6 +495,7 @@ namespace Step68
     DiscreteTime time(0, par.final_time, par.time_step);
 
     generate_particles();
+    setup_coupling();
 
     while (!time.is_at_end())
     {
