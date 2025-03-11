@@ -1,3 +1,4 @@
-build/
-solution/
+**/build/
+**/solution*/
+**/precice_export*/
 compile_commands.json
