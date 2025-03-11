@@ -285,7 +285,9 @@ namespace Step68
 
     while (precice.isCouplingOngoing())
     {
-      time.set_desired_next_step_size(precice.getMaxTimeStepSize());
+      time.set_next_step_size(precice.getMaxTimeStepSize());
+
+      pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
 
       velocity.set_time(time.get_next_time());
       solve();
@@ -531,7 +533,9 @@ namespace Step68
 
     while (precice.isCouplingOngoing())
     {
-      time.set_desired_next_step_size(precice.getMaxTimeStepSize());
+      time.set_next_step_size(precice.getMaxTimeStepSize());
+
+      pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
 
       if ((time.get_step_number() % par.repartition_interval) == 0)
         repartition();
