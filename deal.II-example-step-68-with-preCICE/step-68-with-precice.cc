@@ -64,6 +64,7 @@ namespace Step68
     ParticleTrackingParameters();
 
     std::string output_directory = "../solution/";
+    std::string output_basename = "";
 
     unsigned int velocity_degree = 1;
     double time_step = 0.002;
@@ -95,6 +96,8 @@ namespace Step68
                   Patterns::Integer(1));
 
     add_parameter("Output directory", output_directory);
+
+    add_parameter("Output basename", output_basename);
 
     add_parameter("Time step", time_step, "", prm, Patterns::Double());
 
@@ -204,7 +207,7 @@ namespace Step68
         DoFTools::map_dofs_to_support_points(mapping, dh)};
 
     // Assemble data for preCICE coupling mesh
-    std::vector<double> vertex_coordinates(local_dofs.size() * dim);    
+    std::vector<double> vertex_coordinates(local_dofs.size() * dim);
     unsigned int index = 0;
     for (const auto &dof_index : local_dofs)
       for (unsigned int d = 0; d < dim; ++d)
@@ -226,7 +229,7 @@ namespace Step68
 
     // Evaluate the solution at the support points and send that data to preCICE
     std::vector<double> velocity_values(dh.n_locally_owned_dofs() * dim);
-    
+
     const IndexSet local_dofs{dh.locally_owned_dofs()};
     const std::map<types::global_dof_index, Point<dim>> support_point_map{
         DoFTools::map_dofs_to_support_points(mapping, dh)};
@@ -266,7 +269,7 @@ namespace Step68
     data_out.build_patches(mapping);
 
     const std::string output_folder(par.output_directory);
-    const std::string file_name("fluid");
+    const std::string file_name = par.output_basename + "fluid";
 
     pcout << "Writing fluid field file: " << file_name << '-' << it
           << std::endl;
@@ -298,6 +301,10 @@ namespace Step68
       time.advance_time();
       precice.advance(time.get_previous_step_size());
     }
+
+    // Output last frame
+    if ((time.get_step_number() % par.output_interval) == 0)
+        output_field(time.get_step_number());
 
     precice.finalize();
   }
@@ -514,7 +521,7 @@ namespace Step68
                                   solution_names,
                                   data_component_interpretation);
     const std::string output_folder(par.output_directory);
-    const std::string file_name("particles");
+    const std::string file_name = par.output_basename + "particles";
 
     pcout << "Writing particle output file: " << file_name << '-' << it
           << std::endl;
@@ -549,6 +556,10 @@ namespace Step68
       time.advance_time();
       precice.advance(time.get_previous_step_size());
     }
+
+    // Output last frame
+    if ((time.get_step_number() % par.output_interval) == 0)
+      output_particles(time.get_step_number());
 
     precice.finalize();
   }
