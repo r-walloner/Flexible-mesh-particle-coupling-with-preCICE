@@ -207,14 +207,21 @@ namespace Step68
         DoFTools::map_dofs_to_support_points(mapping, dh)};
 
     // Assemble data for preCICE coupling mesh
-    std::vector<double> vertex_coordinates(local_dofs.size() * dim);
+    std::vector<double> vertex_coordinates(local_dofs.size() / 2 * dim);
     unsigned int index = 0;
-    for (const auto &dof_index : local_dofs)
+    auto dof_iterator = local_dofs.begin();
+    while (dof_iterator != local_dofs.end())
+    {
       for (unsigned int d = 0; d < dim; ++d)
-        vertex_coordinates[index++] = support_point_map.at(dof_index)[d];
+        vertex_coordinates[index++] = support_point_map.at(*dof_iterator)[d];
+
+      // we increment by 2 since there are 2 dofs at every vertex. This is verry hacky, but it works 😅
+      dof_iterator++;
+      dof_iterator++;
+    }
 
     // Give preCICE the vertex coordinates and initialize the participant
-    precice_vertex_ids.resize(support_point_map.size());
+    precice_vertex_ids.resize(vertex_coordinates.size() / dim);
     precice.setMeshVertices("Fluid-Mesh", vertex_coordinates, precice_vertex_ids);
     precice.initialize();
   }
@@ -228,7 +235,7 @@ namespace Step68
     velocity_field.update_ghost_values();
 
     // Evaluate the solution at the support points and send that data to preCICE
-    std::vector<double> velocity_values(dh.n_locally_owned_dofs() * dim);
+    std::vector<double> velocity_values(dh.n_locally_owned_dofs() / 2 * dim);
 
     const IndexSet local_dofs{dh.locally_owned_dofs()};
     const std::map<types::global_dof_index, Point<dim>> support_point_map{
@@ -236,11 +243,16 @@ namespace Step68
 
     Vector<double> local_velocity(dim);
     unsigned int index = 0;
-    for (const auto &dof_index : local_dofs)
+    auto dof_iterator = local_dofs.begin();
+    while (dof_iterator != local_dofs.end())
     {
-      velocity.vector_value(support_point_map.at(dof_index), local_velocity);
+      velocity.vector_value(support_point_map.at(*dof_iterator), local_velocity);
       for (unsigned int d = 0; d < dim; ++d)
         velocity_values[index++] = local_velocity[d];
+
+      // we increment by 2 since there are 2 dofs at every vertex. This is verry hacky, but it works 😅
+      dof_iterator++;
+      dof_iterator++;
     }
 
     precice.writeData("Fluid-Mesh", "Velocity", precice_vertex_ids, velocity_values);
