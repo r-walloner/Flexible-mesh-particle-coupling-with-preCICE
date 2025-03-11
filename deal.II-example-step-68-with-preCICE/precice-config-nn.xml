@@ -15,12 +15,7 @@
   <participant name="Particle">
     <receive-mesh name="Fluid-Mesh" from="Fluid" api-access="true" />
     <read-data name="Velocity" mesh="Fluid-Mesh" />
-    <mapping:rbf-pum-direct
-      direction="read"
-      from="Fluid-Mesh"
-      constraint="consistent">
-      <basis-function:compact-polynomial-c2 support-radius="0.2" />
-    </mapping:rbf-pum-direct>
+    <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
   </participant>
 
   <m2n:sockets acceptor="Fluid" connector="Particle" />
