@@ -1,4 +1,5 @@
 **/build/
 **/solution*/
 **/precice_export*/
+**/__pycache__/
 compile_commands.json

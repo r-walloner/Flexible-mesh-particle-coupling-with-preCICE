@@ -140,7 +140,9 @@ namespace Step68
   class FluidSolver
   {
   public:
-    FluidSolver(const ParticleTrackingParameters &par);
+    FluidSolver(
+        const ParticleTrackingParameters &par,
+        std::string precice_config_file);
     void run();
 
   private:
@@ -167,11 +169,13 @@ namespace Step68
   };
 
   template <int dim>
-  FluidSolver<dim>::FluidSolver(const ParticleTrackingParameters &par)
+  FluidSolver<dim>::FluidSolver(
+      const ParticleTrackingParameters &par,
+      std::string precice_config_file)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
         precice("Fluid",
-                "../precice-config.xml",
+                precice_config_file,
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
@@ -334,7 +338,9 @@ namespace Step68
   class ParticleSolver
   {
   public:
-    ParticleSolver(const ParticleTrackingParameters &par);
+    ParticleSolver(
+        const ParticleTrackingParameters &par,
+        std::string precice_config_file);
     void run();
 
   private:
@@ -365,11 +371,13 @@ namespace Step68
   };
 
   template <int dim>
-  ParticleSolver<dim>::ParticleSolver(const ParticleTrackingParameters &par)
+  ParticleSolver<dim>::ParticleSolver(
+    const ParticleTrackingParameters &par,
+    std::string precice_config_file)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
         precice("Particle",
-                "../precice-config.xml",
+                precice_config_file,
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
@@ -669,6 +677,13 @@ int main(int argc, char *argv[])
     ParticleTrackingParameters par;
     ParameterAcceptor::initialize(prm_file);
 
+    // Read preCICE configuration file
+    std::string precice_config_file;
+    if (argc > 3)
+      precice_config_file = argv[3];
+    else
+      precice_config_file = "../precice-config.xml";
+
     // Determine the participant role and run
     if (argc <= 1)
     {
@@ -679,13 +694,13 @@ int main(int argc, char *argv[])
     {
     case ParticipantRole::Fluid:
     {
-      FluidSolver<2> fluid_solver(par);
+      FluidSolver<2> fluid_solver(par, precice_config_file);
       fluid_solver.run();
       break;
     }
     case ParticipantRole::Particle:
     {
-      ParticleSolver<2> particle_solver(par);
+      ParticleSolver<2> particle_solver(par, precice_config_file);
       particle_solver.run();
       break;
     }
