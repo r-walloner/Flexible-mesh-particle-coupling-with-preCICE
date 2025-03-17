@@ -4,6 +4,7 @@ The functions in this file are used by the scripts in the `runs` directory to
 generate simulation runs, run them, and postprocess the results."""
 
 import pathlib
+import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
@@ -35,6 +36,21 @@ def generate_run(
         return
 
     path.mkdir(parents=True)
+    (path / "solution").mkdir()
+
+    # Write parameters.json (used by postprocessing scripts)
+    with open(path / "parameters.json", "w") as file:
+        json.dump(
+            {
+                "refinement": refinement,
+                "mapping": mapping,
+                "basis_function": basis_function,
+                "support_radius": support_radius,
+                "constraint": constraint,
+            },
+            file,
+            indent=2,
+        )
 
     # Write precice-config.xml
     with open(path / "precice-config.xml", "w") as file:
@@ -90,7 +106,7 @@ subsection Particle Tracking Problem
   # Refinement level of the fluid domain
   set Fluid refinement              = {refinement}
   set Output basename               = {path.name}_
-  set Output directory              = {path.parent.resolve()}/
+  set Output directory              = {(path / "solution").resolve()}/
 
   # Iteration interval between which output results are written
   set Output interval               = 10
@@ -194,7 +210,7 @@ def run(path: pathlib.Path):
 def find_runs(path: pathlib.Path) -> list[pathlib.Path]:
     """Recursively finds all runs in the given directory.
     Returns a list of paths to the individual runs."""
-    runs = []
+    run_paths = []
 
     for path in path.iterdir():
         if path.name in ["__pycache__"]:
@@ -203,12 +219,12 @@ def find_runs(path: pathlib.Path) -> list[pathlib.Path]:
         if (path / "precice-config.xml").is_file() and (
             path / "parameters.prm"
         ).is_file():
-            runs.append(path)
+            run_paths.append(path)
 
         elif path.is_dir():
-            runs.extend(find_runs(path))
+            run_paths.extend(find_runs(path))
 
-    return runs
+    return run_paths
 
 
 def run_all(path: pathlib.Path, threads: int = 1):
