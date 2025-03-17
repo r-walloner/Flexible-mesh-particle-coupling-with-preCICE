@@ -1,5 +1,7 @@
 import pathlib
 
+script_path = pathlib.Path(__file__).resolve()
+
 def generate_run(path: pathlib.Path,
                  refinement=4, 
                  mapping="rbf-pum-direct", 
@@ -13,7 +15,7 @@ def generate_run(path: pathlib.Path,
     configuration files are generated with the given parameters."""
 
     if path.exists():
-        print(f"Not generating run {path.name}: Directory already exists")
+        print(f"Not generating run {path.relative_to(script_path.parent)}: Directory already exists")
         return
     
     path.mkdir(parents=True)

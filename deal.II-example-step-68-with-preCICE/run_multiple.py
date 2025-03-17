@@ -12,26 +12,36 @@ if not executable_path.is_file():
 def run(path: pathlib.Path):
     """Execute one run with the config files in the given directory."""
     try:
-        print(f"Running {path}")
+        print(f"Running {path.relative_to(script_path.parent)}")
 
         # Check if config files exist
         solver_config_path = path / "parameters.prm"
         if not solver_config_path.is_file():
-            raise FileNotFoundError(f"Solver config {solver_config_path} not found")
+            raise FileNotFoundError(
+                f"Solver config {solver_config_path.relative_to(script_path.parent)} not found"
+            )
 
         precice_config_path = path / "precice-config.xml"
         if not precice_config_path.is_file():
-            raise FileNotFoundError(f"Solver config {precice_config_path} not found")
+            raise FileNotFoundError(
+                f"Solver config {precice_config_path.relative_to(script_path.parent)} not found"
+            )
 
         # Create log files
         fluid_log_path = path / "fluid.log"
         if fluid_log_path.exists():
-            raise FileExistsError(f"Log file {fluid_log_path} already exists")
+            print(
+                f"Log file {fluid_log_path.relative_to(script_path.parent)} already exists. Skipping run."
+            )
+            return
         fluid_log_path.touch()
 
         particle_log_path = path / "particle.log"
         if particle_log_path.exists():
-            raise FileExistsError(f"Log file {particle_log_path} already exists")
+            print(
+                f"Log file {particle_log_path.relative_to(script_path.parent)} already exists. Skipping run."
+            )
+            return
         particle_log_path.touch()
 
         # Run participants
@@ -75,11 +85,10 @@ def run(path: pathlib.Path):
                     f"Particle process failed with code {particle_process.returncode}"
                 )
 
-            print(f"Finished {path}")
+            print(f"Finished {path.relative_to(script_path.parent)}")
 
     except Exception as e:
-        print(f"Error in {path}")
-        print(e)
+        print(f"Error in {path.relative_to(script_path.parent)}: {e}")
 
 
 def find_runs(path: pathlib.Path) -> list[pathlib.Path]:
