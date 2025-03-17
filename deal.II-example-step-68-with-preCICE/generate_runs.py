@@ -45,7 +45,10 @@ def generate_run(path: pathlib.Path,
     </mapping:{mapping}>
   </participant>
 
-  <m2n:sockets acceptor="Fluid" connector="Particle" />
+  <m2n:sockets
+    acceptor="Fluid"
+    connector="Particle"
+    exchange-directory="{path.resolve()}" />
 
   <coupling-scheme:serial-explicit>
     <participants first="Fluid" second="Particle" />
