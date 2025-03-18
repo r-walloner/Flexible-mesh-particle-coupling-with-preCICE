@@ -12,7 +12,7 @@ support_radius = 0.5  # only used for rbf
 
 # Iterate over variable parameters
 for mapping in ["nearest-neighbor", "rbf-pum-direct"]:
-    for refinement in range(0, 7, 1):
+    for refinement in range(0, 10, 1):
         for basis_function in [
             "compact-polynomial-c0",
             "compact-polynomial-c2",
