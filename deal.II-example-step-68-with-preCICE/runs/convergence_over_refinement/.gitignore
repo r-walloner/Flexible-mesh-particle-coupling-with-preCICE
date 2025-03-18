@@ -2,4 +2,4 @@
 !.gitignore
 !generate.py
 !run.py
-!postprocess.py
+!postprocess.ipynb
