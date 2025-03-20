@@ -341,10 +341,10 @@ namespace ParticleTracing
         location[d] += velocity[d] * dt;
         properties[d] = velocity[d];
       }
-      properties[3 * dim] = this_mpi_rank;
-
-      particle_handler.sort_particles_into_subdomains_and_cells();
+      properties[dim] = this_mpi_rank;
     }
+
+    particle_handler.sort_particles_into_subdomains_and_cells();
   }
 
   /**
