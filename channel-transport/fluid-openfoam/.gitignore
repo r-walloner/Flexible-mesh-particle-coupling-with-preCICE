@@ -1,3 +1,9 @@
+*
+!0/
+!constant/
 constant/polyMesh/
-*.log
-*.foam
+!system/
+
+!.gitignore
+!clean.sh
+!run.sh
