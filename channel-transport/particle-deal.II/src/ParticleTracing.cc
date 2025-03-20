@@ -372,7 +372,7 @@ namespace ParticleTracing
         data_component_interpretation[p] =
             DataComponentInterpretation::component_is_part_of_vector;
       }
-      else if (p == 3 * dim)
+      else if (p == dim)
       {
         data_component_name[p] = "process_id";
         data_component_interpretation[p] =
@@ -410,7 +410,7 @@ namespace ParticleTracing
 
     while (precice.isCouplingOngoing())
     {
-      time.set_next_step_size(
+      time.set_desired_next_step_size(
           std::min(parameters.time_step, precice.getMaxTimeStepSize()));
       pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
 
