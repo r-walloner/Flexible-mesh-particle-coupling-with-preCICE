@@ -1,7 +1,11 @@
 **/build/
 **/solution*/
-**/precice_export*/
+**/precice-export*/
 **/precice-profiling/
 **/precice-run/
 **/__pycache__/
-compile_commands.json
+**/compile_commands.json
+
+
+simpleFoam/
+tools/
