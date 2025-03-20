@@ -33,7 +33,7 @@ namespace ParticleTracing
   public:
     Parameters();
 
-    std::string precice_config_file = "../precice_config.xml";
+    std::string precice_config_file = "../precice-config.xml";
     std::string precice_participant_name = "Particle";
     std::string precice_mesh_name = "Fluid-Mesh";
     std::string precice_data_name = "Velocity";
