@@ -75,6 +75,8 @@ namespace Step68
     unsigned int fluid_refinement = 4;
     unsigned int particle_refinement = 4;
     unsigned int particle_insertion_refinement = 3;
+
+    std::string method = "euler_explicit";
   };
 
   ParticleTrackingParameters::ParticleTrackingParameters()
@@ -125,6 +127,8 @@ namespace Step68
         "Refinement of the volumetric mesh used to insert the particles",
         prm,
         Patterns::Integer(0));
+
+    add_parameter("Method", method);
   }
 
   /* ------------------------------------------------------------------------
@@ -347,7 +351,10 @@ namespace Step68
     void generate_particles();
     void setup_coupling();
     void repartition();
-    void euler_step(const double dt);
+    void step(const double dt);
+    void step_euler_explicit(const double dt);
+    void step_euler_implicit(const double dt);
+    void step_trapezoidal(const double dt);
     void output_particles(const unsigned int it);
 
     unsigned int cell_weight(
@@ -359,6 +366,8 @@ namespace Step68
     MPI_Comm mpi_communicator;
     precice::Participant precice;
     ConditionalOStream pcout;
+
+    DiscreteTime time;
 
     parallel::distributed::Triangulation<dim> background_triangulation;
     Particles::ParticleHandler<dim> ph;
@@ -372,8 +381,8 @@ namespace Step68
 
   template <int dim>
   ParticleSolver<dim>::ParticleSolver(
-    const ParticleTrackingParameters &par,
-    std::string precice_config_file)
+      const ParticleTrackingParameters &par,
+      std::string precice_config_file)
       : par(par),
         mpi_communicator(MPI_COMM_WORLD),
         precice("Particle",
@@ -381,6 +390,7 @@ namespace Step68
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
+        time(0, par.final_time, par.time_step),
         background_triangulation(mpi_communicator),
         fluid_velocity(4.0)
   {
@@ -520,11 +530,24 @@ namespace Step68
   }
 
   template <int dim>
-  void ParticleSolver<dim>::euler_step(const double dt)
+  void ParticleSolver<dim>::step(const double dt)
+  {
+    if (par.method == "euler_explicit")
+      step_euler_explicit(dt);
+    else if (par.method == "euler_implicit")
+      step_euler_implicit(dt);
+    else if (par.method == "trapezoidal")
+      step_trapezoidal(dt);
+    else
+      AssertThrow(false, ExcMessage("Unknown method"));
+  }
+
+  template <int dim>
+  void ParticleSolver<dim>::step_euler_explicit(const double dt)
   {
     std::vector<double> location_vec(dim);
     std::vector<double> velocity(dim);
-    Point<dim> analytical_location(dim);
+    Point<dim> analytical_location{};
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
@@ -543,6 +566,7 @@ namespace Step68
       // get fluid velocity from preCICE and analytically
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, 0, velocity);
+      fluid_velocity.set_time(time.get_current_time());
       fluid_velocity.vector_value(analytical_location, analytical_velocity);
 
       // update particle location and analytical location
@@ -558,6 +582,125 @@ namespace Step68
         properties[d] = velocity[d];
         properties[dim + d] = analytical_location[d];
         properties[2 * dim + d] = analytical_velocity[d];
+      }
+      properties[3 * dim] = this_mpi_rank;
+    }
+  }
+
+  template <int dim>
+  void ParticleSolver<dim>::step_euler_implicit(const double dt)
+  {
+    std::vector<double> location_vec(dim);
+    std::vector<double> velocity(dim);
+    Point<dim> analytical_location{};
+    Vector<double> analytical_velocity(dim);
+    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
+
+    for (auto &particle : ph)
+    {
+      ArrayView<double> properties = particle.get_properties();
+
+      // get location and analytical location
+      Point<dim> &location = particle.get_location();
+      for (int d = 0; d < dim; ++d)
+      {
+        location_vec[d] = location[d];
+        analytical_location[d] = properties[dim + d];
+      }
+
+      // get fluid velocity from preCICE and analytically
+      precice.mapAndReadData(
+          "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
+      fluid_velocity.set_time(time.get_current_time() + dt);
+      fluid_velocity.vector_value(analytical_location, analytical_velocity);
+
+      // update particle location and analytical location
+      for (int d = 0; d < dim; ++d)
+      {
+        location[d] += velocity[d] * dt;
+        analytical_location[d] += analytical_velocity[d] * dt;
+      }
+
+      // Update particle properties
+      for (int d = 0; d < dim; ++d)
+      {
+        properties[d] = velocity[d];
+        properties[dim + d] = analytical_location[d];
+        properties[2 * dim + d] = analytical_velocity[d];
+      }
+      properties[3 * dim] = this_mpi_rank;
+    }
+  }
+
+  template <int dim>
+  void ParticleSolver<dim>::step_trapezoidal(const double dt)
+  {
+    // We need to get velocities for all particles (first at t_n and then at t_n+1),
+    // to utilize preCICE's caching. (see: https://precice.org/couple-your-code-just-in-time-mapping.html)
+    std::map<types::particle_index, std::vector<double>> velocities_t0;
+    std::map<types::particle_index, std::vector<double>> velocities_t1;
+
+    for (Particles::ParticleAccessor<dim> &particle : ph)
+    {
+      const types::particle_index particle_id = particle.get_id();
+
+      // get location
+      std::vector<double> location_vec(dim);
+      Point<dim> &location = particle.get_location();
+      for (int d = 0; d < dim; ++d)
+        location_vec[d] = location[d];
+
+      // get fluid velocity from preCICE
+      std::vector<double> velocity_t0(dim, 0.);
+      std::vector<double> velocity_t1(dim, 0.);
+      precice.mapAndReadData(
+          "Fluid-Mesh", "Velocity", location_vec, 0, velocity_t0);
+      precice.mapAndReadData(
+          "Fluid-Mesh", "Velocity", location_vec, dt, velocity_t1);
+
+      // store the velocities
+      velocities_t0.insert({particle_id, velocity_t0});
+      velocities_t1.insert({particle_id, velocity_t1});
+    }
+
+    // Now we can proceed to update each particle as usual
+    Point<dim> analytical_location{};
+    Vector<double> analytical_velocity_t0(dim);
+    Vector<double> analytical_velocity_t1(dim);
+    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
+
+    for (auto &particle : ph)
+    {
+      ArrayView<double> properties = particle.get_properties();
+      types::particle_index particle_id = particle.get_id();
+
+      // get analytical location
+      Point<dim> &location = particle.get_location();
+      for (int d = 0; d < dim; ++d)
+        analytical_location[d] = properties[dim + d];
+
+      // get fluid velocity analytically
+      fluid_velocity.set_time(time.get_current_time());
+      fluid_velocity.vector_value(analytical_location, analytical_velocity_t0);
+      fluid_velocity.set_time(time.get_current_time() + dt);
+      fluid_velocity.vector_value(analytical_location, analytical_velocity_t1);
+
+      // update particle location and analytical location
+      for (int d = 0; d < dim; ++d)
+      {
+        location[d] += (dt / 2) * (velocities_t0.at(particle_id)[d] +
+                                   velocities_t1.at(particle_id)[d]);
+
+        analytical_location[d] += (dt / 2) * (analytical_velocity_t0[d] +
+                                              analytical_velocity_t1[d]);
+      }
+
+      // Update particle properties
+      for (int d = 0; d < dim; ++d)
+      {
+        properties[d] = velocities_t1.at(particle_id)[d];
+        properties[dim + d] = analytical_location[d];
+        properties[2 * dim + d] = analytical_velocity_t1[d];
       }
       properties[3 * dim] = this_mpi_rank;
     }
@@ -618,8 +761,6 @@ namespace Step68
   template <int dim>
   void ParticleSolver<dim>::run()
   {
-    DiscreteTime time(0, par.final_time, par.time_step);
-
     generate_particles();
     setup_coupling();
 
@@ -632,8 +773,7 @@ namespace Step68
       if ((time.get_step_number() % par.repartition_interval) == 0)
         repartition();
 
-      fluid_velocity.set_time(time.get_next_time());
-      euler_step(time.get_next_step_size());
+      step(time.get_next_step_size());
       ph.sort_particles_into_subdomains_and_cells();
 
       if ((time.get_step_number() % par.output_interval) == 0)

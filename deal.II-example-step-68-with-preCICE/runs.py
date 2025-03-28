@@ -22,6 +22,7 @@ def generate_run(
     basis_function="compact_polynomial-c6",
     support_radius=0.5,
     constraint="consisent",
+    method="euler_explicit",
 ):
     """Generate a new run directory with the given parameters.
 
@@ -47,6 +48,7 @@ def generate_run(
                 "basis_function": basis_function,
                 "support_radius": support_radius,
                 "constraint": constraint,
+                "method": method,
             },
             file,
             indent=2,
@@ -121,6 +123,8 @@ subsection Particle Tracking Problem
   set Repartition interval          = 5
   set Time step                     = 0.002
   set Velocity degree               = 1
+
+  set Method = {method}
 end
 """)
 
