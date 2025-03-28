@@ -10,29 +10,29 @@ from runs import generate_run  # noqa: E402
 constraint = "consistent"
 support_radius = 0.5  # only used for rbf
 
+# where to generate the runs
+base_path = script_path.parent
+
 # Iterate over variable parameters
 for method in [
     "euler_explicit",
     # "euler_implicit",
-    # "trapezoidal",
+    "trapezoidal",
 ]:
     for mapping in [
-        "nearest-neighbor",
+        # "nearest-neighbor",
         "rbf-pum-direct",
     ]:
-        for refinement in range(0, 12, 1):
-            # generate additional finer runs only for nn
-            if refinement > 9 and mapping != "nearest-neighbor":
-                continue
+        for refinement in range(0, 5, 1):
 
             for basis_function in [
-                "compact-polynomial-c0",
-                "compact-polynomial-c2",
+                # "compact-polynomial-c0",
+                # "compact-polynomial-c2",
                 "compact-polynomial-c4",
-                "compact-polynomial-c6",
-                "compact-polynomial-c8",
+                # "compact-polynomial-c6",
+                # "compact-polynomial-c8",
             ]:
-                path = script_path.parent / mapping
+                path = base_path / method / mapping
                 if mapping == "rbf-pum-direct":
                     path = path / basis_function / str(support_radius)
                 path = path / f"refinement-{refinement}"
