@@ -36,6 +36,8 @@ def generate_run(
         )
         return
 
+    print(f"Generating run {path.relative_to(script_path.parent)}")
+
     path.mkdir(parents=True)
     (path / "solution").mkdir()
 
