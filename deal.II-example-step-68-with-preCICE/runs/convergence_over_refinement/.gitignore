@@ -1,6 +1,0 @@
-*
-!.gitignore
-!generate.py
-!run.py
-!plot_error_over_time.ipynb
-!plot_error_over_grid_spacing.ipynb
