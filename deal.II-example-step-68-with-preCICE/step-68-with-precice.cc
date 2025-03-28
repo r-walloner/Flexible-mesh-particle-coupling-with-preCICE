@@ -483,19 +483,22 @@ namespace Step68
   template <int dim>
   void ParticleSolver<dim>::setup_coupling()
   {
-    // TODO: fine-tune and verify this bounding box computation
-    const BoundingBox<dim> bounding_box{
-        GridTools::compute_mesh_predicate_bounding_box(
-            background_triangulation, IteratorFilters::LocallyOwnedCell(), 2, true, 1)
-            .front()};
+    // // TODO: fine-tune and verify this bounding box computation
+    // const BoundingBox<dim> bounding_box{
+    //     GridTools::compute_mesh_predicate_bounding_box(
+    //         background_triangulation, IteratorFilters::LocallyOwnedCell(), 2, true, 1)
+    //         .front()};
 
-    // Convert the bounding box to the format expected by preCICE
-    std::vector<double> bounding_box_vertices(dim * 2);
-    for (unsigned int d = 0; d < dim; ++d)
-    {
-      bounding_box_vertices[2 * d] = bounding_box.lower_bound(d);
-      bounding_box_vertices[2 * d + 1] = bounding_box.upper_bound(d);
-    }
+    // // Convert the bounding box to the format expected by preCICE
+    // std::vector<double> bounding_box_vertices(dim * 2);
+    // for (unsigned int d = 0; d < dim; ++d)
+    // {
+    //   bounding_box_vertices[2 * d] = bounding_box.lower_bound(d);
+    //   bounding_box_vertices[2 * d + 1] = bounding_box.upper_bound(d);
+    // }
+
+    // Use the whole domain as the bounding box for now
+    std::vector<double> bounding_box_vertices{0.0, 1.0, 0.0, 1.0};
 
     // Set the bounding box for the participant and initialize
     precice.setMeshAccessRegion("Fluid-Mesh", bounding_box_vertices);
