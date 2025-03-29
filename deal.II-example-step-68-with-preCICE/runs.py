@@ -23,6 +23,7 @@ def generate_run(
     support_radius=0.5,
     constraint="consisent",
     method="euler_explicit",
+    final_time=4.0,
 ):
     """Generate a new run directory with the given parameters.
 
@@ -51,6 +52,7 @@ def generate_run(
                 "support_radius": support_radius,
                 "constraint": constraint,
                 "method": method,
+                "final_time": final_time,
             },
             file,
             indent=2,
@@ -90,7 +92,7 @@ def generate_run(
 
   <coupling-scheme:serial-explicit>
     <participants first="Fluid" second="Particle" />
-    <max-time value="4.0" />
+    <max-time value="{final_time}" />
     <time-window-size value="0.002" />
     <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
   </coupling-scheme:serial-explicit>
@@ -105,7 +107,7 @@ def generate_run(
 # ---------------------
 subsection Particle Tracking Problem
   # End time of the simulation
-  set Final time                    = 4
+  set Final time                    = {final_time}
 
   # Refinement level of the fluid domain
   set Fluid refinement              = {refinement}
