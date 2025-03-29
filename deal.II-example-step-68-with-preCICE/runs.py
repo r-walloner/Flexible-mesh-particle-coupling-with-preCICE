@@ -218,7 +218,7 @@ def find_runs(path: pathlib.Path) -> list[pathlib.Path]:
     Returns a list of paths to the individual runs."""
     run_paths = []
 
-    for path in path.iterdir():
+    for path in sorted(path.iterdir(), key=lambda p: p.name):
         if path.name in ["__pycache__"]:
             continue
 
