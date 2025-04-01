@@ -573,8 +573,13 @@ namespace Step68
       }
 
       // get fluid velocity from preCICE and analytically
+      /* TODO This works, but shouldn't. We want to read the data at the beginning
+      of the timestep (v_n). This is what the explicit euler method calls for.
+      However, in actuality we instruct preCICE to read the data at the end of the
+      timestep (`relativeReadTime = dt`). This yields the correct results, even
+      though it shouldn't */
       precice.mapAndReadData(
-          "Fluid-Mesh", "Velocity", location_vec, 0, velocity);
+          "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
       fluid_velocity.set_time(time.get_current_time());
       fluid_velocity.vector_value(analytical_location, analytical_velocity);
 
