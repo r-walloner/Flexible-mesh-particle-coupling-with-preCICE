@@ -305,20 +305,22 @@ namespace Step68
 
     setup_dofs();
     setup_coupling();
+    output_field(0);
 
     while (precice.isCouplingOngoing())
     {
       time.set_next_step_size(precice.getMaxTimeStepSize());
-
       pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
 
-      velocity.set_time(time.get_next_time());
+      velocity.set_time(time.get_current_time());
+      pcout << "setting velocity function time to " << time.get_current_time()
+            << std::endl;
       solve();
+      time.advance_time();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_field(time.get_step_number());
 
-      time.advance_time();
       precice.advance(time.get_previous_step_size());
     }
 
@@ -540,16 +542,23 @@ namespace Step68
       step_trapezoidal(dt);
     else
       AssertThrow(false, ExcMessage("Unknown method"));
+
+    ph.sort_particles_into_subdomains_and_cells();
   }
 
   template <int dim>
   void ParticleSolver<dim>::step_euler_explicit(const double dt)
   {
+    pcout << "step_euler_explicit" << std::endl;
+
     std::vector<double> location_vec(dim);
     std::vector<double> velocity(dim);
     Point<dim> analytical_location{};
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
+
+    pcout << "setting velocity function time to " << time.get_current_time()
+          << std::endl;
 
     for (auto &particle : ph)
     {
@@ -590,6 +599,8 @@ namespace Step68
   template <int dim>
   void ParticleSolver<dim>::step_euler_implicit(const double dt)
   {
+    pcout << "step_euler_implicit" << std::endl;
+
     std::vector<double> location_vec(dim);
     std::vector<double> velocity(dim);
     Point<dim> analytical_location{};
@@ -635,6 +646,8 @@ namespace Step68
   template <int dim>
   void ParticleSolver<dim>::step_trapezoidal(const double dt)
   {
+    pcout << "step_trapezoidal" << std::endl;
+
     // We need to get velocities for all particles (first at t_n and then at t_n+1),
     // to utilize preCICE's caching. (see: https://precice.org/couple-your-code-just-in-time-mapping.html)
     std::map<types::particle_index, std::vector<double>> velocities_t0;
@@ -762,24 +775,24 @@ namespace Step68
   void ParticleSolver<dim>::run()
   {
     generate_particles();
+    repartition();
+    output_particles(0);
     setup_coupling();
 
     while (precice.isCouplingOngoing())
     {
       time.set_next_step_size(precice.getMaxTimeStepSize());
-
       pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
 
-      if ((time.get_step_number() % par.repartition_interval) == 0)
-        repartition();
-
       step(time.get_next_step_size());
-      ph.sort_particles_into_subdomains_and_cells();
+      time.advance_time();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_particles(time.get_step_number());
 
-      time.advance_time();
+      if ((time.get_step_number() % par.repartition_interval) == 0)
+        repartition();
+
       precice.advance(time.get_previous_step_size());
     }
 
