@@ -583,23 +583,8 @@ namespace Step68
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
-    double fluid_time = t - dt;
-    double relative_read_time = 0 * dt;
-
-    fluid_velocity.set_time(fluid_time);
-    pcout << "setting velocity function time to " << fluid_time
-          << std::endl;
-    pcout << "realtive read time is " << relative_read_time
-          << std::endl;
-    pcout << "absolute read time is " << (t - dt + relative_read_time)
-          << std::endl;
-
-    std::vector<double> read_time(1);
-    std::vector<double> time_coordinates = {0.0, 0.0};
-    precice.mapAndReadData(
-        "Fluid-Mesh", "Time", time_coordinates, relative_read_time, read_time);
-    pcout << "time read from the fluid participant is " << read_time.at(0)
-          << std::endl;
+    // we sample at the beginning of the time step (euler explicit)
+    fluid_velocity.set_time(t - dt);
 
     for (auto &particle : ph)
     {
@@ -614,8 +599,9 @@ namespace Step68
       }
 
       // get fluid velocity from preCICE and analytically
+      // we sample at the beginning of the time step (euler explicit)
       precice.mapAndReadData(
-          "Fluid-Mesh", "Velocity", location_vec, relative_read_time, velocity);
+          "Fluid-Mesh", "Velocity", location_vec, 0, velocity);
       fluid_velocity.vector_value(location, analytical_velocity);
 
       // update particle location and analytical location
@@ -647,6 +633,9 @@ namespace Step68
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
+    // we sample at the end of the time step (euler implicit)
+    fluid_velocity.set_time(t);
+
     for (auto &particle : ph)
     {
       ArrayView<double> properties = particle.get_properties();
@@ -660,9 +649,9 @@ namespace Step68
       }
 
       // get fluid velocity from preCICE and analytically
+      // we sample at the end of the time step (euler implicit)
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
-      fluid_velocity.set_time(t + dt);
       fluid_velocity.vector_value(location, analytical_velocity);
 
       // update particle location and analytical location
@@ -733,9 +722,9 @@ namespace Step68
         analytical_location[d] = properties[dim + d];
 
       // get fluid velocity analytically
-      fluid_velocity.set_time(t);
+      fluid_velocity.set_time(t - dt);
       fluid_velocity.vector_value(location, analytical_velocity_t0);
-      fluid_velocity.set_time(t + dt);
+      fluid_velocity.set_time(t);
       fluid_velocity.vector_value(location, analytical_velocity_t1);
 
       // update particle location and analytical location
