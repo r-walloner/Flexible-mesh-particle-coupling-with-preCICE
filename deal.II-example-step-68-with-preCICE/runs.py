@@ -25,6 +25,7 @@ def generate_run(
     method="euler_explicit",
     time_step=0.002,
     final_time=4.0,
+    output_interval=10,
 ):
     """Generate a new run directory with the given parameters.
 
@@ -55,6 +56,7 @@ def generate_run(
                 "method": method,
                 "time_step": time_step,
                 "final_time": final_time,
+                "output_interval": output_interval,
             },
             file,
             indent=2,
@@ -122,7 +124,7 @@ subsection Particle Tracking Problem
   set Output directory              = {(path / "solution").resolve()}/
 
   # Iteration interval between which output results are written
-  set Output interval               = 10
+  set Output interval               = {output_interval}
 
   # Refinement level of the particle domain
   set Particle grid refinement      = {refinement}
