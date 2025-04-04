@@ -623,8 +623,8 @@ namespace Step68
       // get fluid velocity from preCICE and analytically
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, relative_read_time, velocity);
-      fluid_velocity.vector_value(analytical_location, analytical_velocity);
-      // test_fluid_velocity.vector_value(analytical_location, analytical_velocity);
+      fluid_velocity.vector_value(location, analytical_velocity);
+      // test_fluid_velocity.vector_value(location, analytical_velocity);
 
       // update particle location and analytical location
       for (int d = 0; d < dim; ++d)
@@ -669,7 +669,7 @@ namespace Step68
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
       fluid_velocity.set_time(t + dt);
-      fluid_velocity.vector_value(analytical_location, analytical_velocity);
+      fluid_velocity.vector_value(location, analytical_velocity);
 
       // update particle location and analytical location
       for (int d = 0; d < dim; ++d)
@@ -738,9 +738,9 @@ namespace Step68
 
       // get fluid velocity analytically
       fluid_velocity.set_time(t);
-      fluid_velocity.vector_value(analytical_location, analytical_velocity_t0);
+      fluid_velocity.vector_value(location, analytical_velocity_t0);
       fluid_velocity.set_time(t + dt);
-      fluid_velocity.vector_value(analytical_location, analytical_velocity_t1);
+      fluid_velocity.vector_value(location, analytical_velocity_t1);
 
       // update particle location and analytical location
       for (int d = 0; d < dim; ++d)
@@ -752,7 +752,7 @@ namespace Step68
                                               analytical_velocity_t1[d]);
       }
 
-
+      
       // Update particle properties
       for (int d = 0; d < dim; ++d)
       {
@@ -807,7 +807,7 @@ namespace Step68
       {
         data_component_name[p] = "analytical_location";
         data_component_interpretation[p] =
-            DataComponentInterpretation::component_is_part_of_vector;
+        DataComponentInterpretation::component_is_part_of_vector;
       }
       else if (p < 2 * dim)
       {
