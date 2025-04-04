@@ -273,15 +273,12 @@ namespace Step68
     const std::map<types::global_dof_index, Point<dim>> support_point_map{
         DoFTools::map_dofs_to_support_points(mapping, dh)};
 
-    Functions::ConstantFunction<dim> test_velocity(fluid_time, dim);
-
     Vector<double> local_velocity(dim);
     unsigned int index = 0;
     auto dof_iterator = local_dofs.begin();
     while (dof_iterator != local_dofs.end())
     {
       velocity.vector_value(support_point_map.at(*dof_iterator), local_velocity);
-      // test_velocity.vector_value(support_point_map.at(*dof_iterator), local_velocity);
       for (unsigned int d = 0; d < dim; ++d)
         velocity_values[index++] = local_velocity[d];
 
@@ -604,8 +601,6 @@ namespace Step68
     pcout << "time read from the fluid participant is " << read_time.at(0)
           << std::endl;
 
-    Functions::ConstantFunction<dim> test_fluid_velocity(fluid_time, dim);
-
     for (auto &particle : ph)
     {
       ArrayView<double> properties = particle.get_properties();
@@ -622,7 +617,6 @@ namespace Step68
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, relative_read_time, velocity);
       fluid_velocity.vector_value(location, analytical_velocity);
-      // test_fluid_velocity.vector_value(location, analytical_velocity);
 
       // update particle location and analytical location
       for (int d = 0; d < dim; ++d)
@@ -754,10 +748,6 @@ namespace Step68
                                               analytical_velocity_t1[d]);
       }
 
-<<<<<<< HEAD
-      
-=======
->>>>>>> parent of 78be173 (Add error computation for particle properties directly in CPP)
       // Update particle properties
       for (int d = 0; d < dim; ++d)
       {
