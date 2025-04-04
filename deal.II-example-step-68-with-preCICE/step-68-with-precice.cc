@@ -382,6 +382,7 @@ namespace Step68
     void step_euler_explicit(const double dt);
     void step_euler_implicit(const double dt);
     void step_trapezoidal(const double dt);
+    void compute_error();
     void output_particles(const unsigned int it);
 
     unsigned int cell_weight(
@@ -467,7 +468,7 @@ namespace Step68
   template <int dim>
   void ParticleSolver<dim>::generate_particles()
   {
-    ph.initialize(background_triangulation, mapping, 3 * dim + 1);
+    ph.initialize(background_triangulation, mapping, 5 * dim + 1);
 
     GridGenerator::hyper_cube(background_triangulation, 0, 1);
     background_triangulation.refine_global(par.particle_refinement);
@@ -514,7 +515,7 @@ namespace Step68
       const Point<dim> &location = particle.get_location();
       ArrayView<double> properties = particle.get_properties();
       for (int d = 0; d < dim; ++d)
-        properties[dim + d] = location[d];
+        properties[d] = location[d];
     }
 
     pcout << "Number of particles inserted: "
@@ -572,6 +573,8 @@ namespace Step68
     else
       AssertThrow(false, ExcMessage("Unknown method"));
 
+    compute_error();
+
     ph.sort_particles_into_subdomains_and_cells();
   }
 
@@ -584,7 +587,6 @@ namespace Step68
     std::vector<double> velocity(dim);
     Point<dim> analytical_location{};
     Vector<double> analytical_velocity(dim);
-    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
     double fluid_time = t - dt;
     double relative_read_time = 0 * dt;
@@ -615,7 +617,7 @@ namespace Step68
       for (int d = 0; d < dim; ++d)
       {
         location_vec[d] = location[d];
-        analytical_location[d] = properties[dim + d];
+        analytical_location[d] = properties[d];
       }
 
       // get fluid velocity from preCICE and analytically
@@ -634,11 +636,10 @@ namespace Step68
       // Update particle properties
       for (int d = 0; d < dim; ++d)
       {
-        properties[d] = velocity[d];
-        properties[dim + d] = analytical_location[d];
-        properties[2 * dim + d] = analytical_velocity[d];
+        properties[d] = analytical_location[d];
+        properties[2 * dim + d] = velocity[d];
+        properties[3 * dim + d] = analytical_velocity[d];
       }
-      properties[3 * dim] = this_mpi_rank;
     }
   }
 
@@ -651,7 +652,6 @@ namespace Step68
     std::vector<double> velocity(dim);
     Point<dim> analytical_location{};
     Vector<double> analytical_velocity(dim);
-    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
     for (auto &particle : ph)
     {
@@ -662,7 +662,7 @@ namespace Step68
       for (int d = 0; d < dim; ++d)
       {
         location_vec[d] = location[d];
-        analytical_location[d] = properties[dim + d];
+        analytical_location[d] = properties[d];
       }
 
       // get fluid velocity from preCICE and analytically
@@ -681,11 +681,10 @@ namespace Step68
       // Update particle properties
       for (int d = 0; d < dim; ++d)
       {
-        properties[d] = velocity[d];
-        properties[dim + d] = analytical_location[d];
-        properties[2 * dim + d] = analytical_velocity[d];
+        properties[d] = analytical_location[d];
+        properties[2 * dim + d] = velocity[d];
+        properties[3 * dim + d] = analytical_velocity[d];
       }
-      properties[3 * dim] = this_mpi_rank;
     }
   }
 
@@ -726,7 +725,6 @@ namespace Step68
     Point<dim> analytical_location{};
     Vector<double> analytical_velocity_t0(dim);
     Vector<double> analytical_velocity_t1(dim);
-    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
     for (auto &particle : ph)
     {
@@ -736,7 +734,7 @@ namespace Step68
       // get analytical location
       Point<dim> &location = particle.get_location();
       for (int d = 0; d < dim; ++d)
-        analytical_location[d] = properties[dim + d];
+        analytical_location[d] = properties[d];
 
       // get fluid velocity analytically
       fluid_velocity.set_time(t);
@@ -754,15 +752,42 @@ namespace Step68
                                               analytical_velocity_t1[d]);
       }
 
+
       // Update particle properties
       for (int d = 0; d < dim; ++d)
       {
-        properties[d] = velocities_t1.at(particle_id)[d];
-        properties[dim + d] = analytical_location[d];
-        properties[2 * dim + d] = analytical_velocity_t1[d];
+        properties[d] = analytical_location[d];
+        properties[2 * dim + d] = velocities_t1.at(particle_id)[d];
+        properties[3 * dim + d] = analytical_velocity_t1[d];
       }
-      properties[3 * dim] = this_mpi_rank;
     }
+  }
+
+  template<int dim>
+  void ParticleSolver<dim>::compute_error()
+  {
+    const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
+
+    for (Particles::ParticleAccessor<dim> particle : ph)
+    {
+      Point<dim> &location = particle.get_location();
+      ArrayView<double> properties = particle.get_properties();
+
+      for (int d = 0; d < dim; ++d)
+      {
+        // see output_particle() for how properties are interpreted
+        //
+        // location_error   = location    - analytical_location
+        properties[dim + d] = location[d] - properties[d];
+        // velocity_error       = velocity                - analytical_velocity
+        properties[4 * dim + d] = properties[2 * dim + d] - properties[3 * dim + d];
+      }
+      
+      // process_id       = this_mpi_rank
+      properties[5 * dim] = this_mpi_rank;
+    }
+
+
   }
 
   template <int dim>
@@ -780,23 +805,35 @@ namespace Step68
     {
       if (p < dim)
       {
-        data_component_name[p] = "velocity";
+        data_component_name[p] = "analytical_location";
         data_component_interpretation[p] =
             DataComponentInterpretation::component_is_part_of_vector;
       }
       else if (p < 2 * dim)
       {
-        data_component_name[p] = "analytical_location";
+        data_component_name[p] = "location_error";
         data_component_interpretation[p] =
             DataComponentInterpretation::component_is_part_of_vector;
       }
       else if (p < 3 * dim)
       {
+        data_component_name[p] = "velocity";
+        data_component_interpretation[p] =
+            DataComponentInterpretation::component_is_part_of_vector;
+      }
+      else if (p < 4 * dim)
+      {
         data_component_name[p] = "analytical_velocity";
         data_component_interpretation[p] =
             DataComponentInterpretation::component_is_part_of_vector;
       }
-      else if (p == 3 * dim)
+      else if (p < 5 * dim)
+      {
+        data_component_name[p] = "velocity_error";
+        data_component_interpretation[p] =
+            DataComponentInterpretation::component_is_part_of_vector;
+      }
+      else if (p == 5 * dim)
       {
         data_component_name[p] = "process_id";
         data_component_interpretation[p] =
