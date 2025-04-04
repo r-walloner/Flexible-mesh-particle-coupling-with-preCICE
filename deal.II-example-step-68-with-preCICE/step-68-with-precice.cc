@@ -328,7 +328,7 @@ namespace Step68
   {
     setup_dofs();
     setup_coupling();
-    output_field(0);
+    // output_field(0);
 
     while (precice.isCouplingOngoing())
     {
@@ -344,8 +344,8 @@ namespace Step68
 
       solve();
 
-      if ((step_number % par.output_interval) == 0)
-        output_field(step_number);
+      // if ((step_number % par.output_interval) == 0)
+      //   output_field(step_number);
 
       precice.advance(dt);
     }
