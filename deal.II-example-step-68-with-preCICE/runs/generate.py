@@ -23,17 +23,17 @@ for method in [
     # "trapezoidal",
 ]:
     for mapping in [
-        # "nearest-neighbor",
+        "nearest-neighbor",
         "rbf-pum-direct",
     ]:
         for refinement in range(2, 8, 1):
 
             for basis_function in [
-                # "compact-polynomial-c0",
+                "compact-polynomial-c0",
                 # "compact-polynomial-c2",
                 "compact-polynomial-c4",
                 # "compact-polynomial-c6",
-                # "compact-polynomial-c8",
+                "compact-polynomial-c8",
             ]:
                 path = base_path / method / mapping
                 if mapping == "rbf-pum-direct":
