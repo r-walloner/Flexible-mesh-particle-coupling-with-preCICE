@@ -64,19 +64,23 @@ def generate_run(
 <precice-configuration experimental="true">
 
   <data:vector name="Velocity" />
+  <data:scalar name="Time" />
 
   <mesh name="Fluid-Mesh" dimensions="2">
     <use-data name="Velocity" />
+    <use-data name="Time" />
   </mesh>
 
   <participant name="Fluid">
     <provide-mesh name="Fluid-Mesh" />
     <write-data name="Velocity" mesh="Fluid-Mesh" />
+    <write-data name="Time" mesh="Fluid-Mesh" />
   </participant>
 
   <participant name="Particle">
     <receive-mesh name="Fluid-Mesh" from="Fluid" api-access="true" />
     <read-data name="Velocity" mesh="Fluid-Mesh" />
+    <read-data name="Time" mesh="Fluid-Mesh" />
     <mapping:{mapping}
       direction="read"
       from="Fluid-Mesh"
@@ -95,6 +99,7 @@ def generate_run(
     <max-time value="{final_time}" />
     <time-window-size value="0.002" />
     <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
+    <exchange data="Time" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
   </coupling-scheme:serial-explicit>
 
 </precice-configuration>

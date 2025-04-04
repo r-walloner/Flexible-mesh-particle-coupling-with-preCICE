@@ -7,7 +7,8 @@ sys.path.append(str(script_path.parents[1]))
 from runs import generate_run  # noqa: E402
 
 # Set constant parameters
-final_time = 0.5 # timestep 250, which we evaluate in the error plots
+final_time = 0.14 # timestep 70, which we evaluate in the error plots
+# final_time = 4.0 # one full period of the velocity function
 constraint = "consistent"
 support_radius = 0.5  # only used for rbf
 
@@ -17,14 +18,14 @@ base_path = script_path.parent
 # Iterate over variable parameters
 for method in [
     "euler_explicit",
-    "euler_implicit",
-    "trapezoidal",
+    # "euler_implicit",
+    # "trapezoidal",
 ]:
     for mapping in [
         # "nearest-neighbor",
         "rbf-pum-direct",
     ]:
-        for refinement in range(2, 6, 1):
+        for refinement in range(2, 8, 1):
 
             for basis_function in [
                 # "compact-polynomial-c0",

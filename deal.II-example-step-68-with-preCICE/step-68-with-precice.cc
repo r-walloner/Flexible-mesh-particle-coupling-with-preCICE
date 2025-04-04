@@ -162,6 +162,8 @@ namespace Step68
     precice::Participant precice;
     ConditionalOStream pcout;
 
+    DiscreteTime time;
+
     parallel::distributed::Triangulation<dim> triangulation;
     std::vector<precice::VertexID> precice_vertex_ids;
     DoFHandler<dim> dh;
@@ -183,6 +185,7 @@ namespace Step68
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
+        time(0, par.final_time, par.time_step),
         triangulation(mpi_communicator),
         dh(triangulation),
         fe(FE_Q<dim>(par.velocity_degree) ^ dim),
@@ -245,6 +248,23 @@ namespace Step68
     // Evaluate the solution at the support points and send that data to preCICE
     std::vector<double> velocity_values(dh.n_locally_owned_dofs() / 2 * dim);
 
+    double fluid_time = time.get_next_time();
+    /*
+      write(get_previous): initial, v_0, v_1
+        -> works with read(dt) and get_previous
+      write(get_current):  initial, v_1, v_2
+        -> read(dt) and get_current: works
+        -> read(dt) and get_previous: small error
+        -> read(0) and get_curent: large error
+        -> read(0) and get_previous: large error
+      */
+
+    velocity.set_time(fluid_time);
+    pcout << "setting velocity function time to " << fluid_time
+          << std::endl;
+    std::vector<double> time_values(dh.n_locally_owned_dofs() / 2);
+    std::fill(time_values.begin(), time_values.end(), fluid_time);
+
     const IndexSet local_dofs{dh.locally_owned_dofs()};
     const std::map<types::global_dof_index, Point<dim>> support_point_map{
         DoFTools::map_dofs_to_support_points(mapping, dh)};
@@ -264,6 +284,7 @@ namespace Step68
     }
 
     precice.writeData("Fluid-Mesh", "Velocity", precice_vertex_ids, velocity_values);
+    precice.writeData("Fluid-Mesh", "Time", precice_vertex_ids, time_values);
   }
 
   template <int dim>
@@ -301,8 +322,6 @@ namespace Step68
   template <int dim>
   void FluidSolver<dim>::run()
   {
-    DiscreteTime time(0, par.final_time, par.time_step);
-
     setup_dofs();
     setup_coupling();
     output_field(0);
@@ -311,12 +330,9 @@ namespace Step68
     {
       time.set_next_step_size(precice.getMaxTimeStepSize());
       pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
-
-      velocity.set_time(time.get_current_time());
-      pcout << "setting velocity function time to " << time.get_current_time()
-            << std::endl;
-      solve();
       time.advance_time();
+
+      solve();
 
       if ((time.get_step_number() % par.output_interval) == 0)
         output_field(time.get_step_number());
@@ -557,7 +573,22 @@ namespace Step68
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
-    pcout << "setting velocity function time to " << time.get_current_time()
+    double fluid_time = time.get_current_time();
+    double relative_read_time = 0 * dt;
+
+    fluid_velocity.set_time(fluid_time);
+    pcout << "setting velocity function time to " << fluid_time
+          << std::endl;
+    pcout << "realtive read time is " << relative_read_time
+          << std::endl;
+    pcout << "absolute read time is " << (time.get_previous_time() + relative_read_time)
+          << std::endl;
+
+    std::vector<double> read_time(1);
+    std::vector<double> time_coordinates = {0.0, 0.0};
+    precice.mapAndReadData(
+        "Fluid-Mesh", "Time", time_coordinates, relative_read_time, read_time);
+    pcout << "time read from the fluid participant is " << read_time.at(0)
           << std::endl;
 
     for (auto &particle : ph)
@@ -573,14 +604,8 @@ namespace Step68
       }
 
       // get fluid velocity from preCICE and analytically
-      /* TODO This works, but shouldn't. We want to read the data at the beginning
-      of the timestep (v_n). This is what the explicit euler method calls for.
-      However, in actuality we instruct preCICE to read the data at the end of the
-      timestep (`relativeReadTime = dt`). This yields the correct results, even
-      though it shouldn't */
       precice.mapAndReadData(
-          "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
-      fluid_velocity.set_time(time.get_current_time());
+          "Fluid-Mesh", "Velocity", location_vec, relative_read_time, velocity);
       fluid_velocity.vector_value(analytical_location, analytical_velocity);
 
       // update particle location and analytical location
@@ -788,15 +813,15 @@ namespace Step68
     {
       time.set_next_step_size(precice.getMaxTimeStepSize());
       pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
-
-      step(time.get_next_step_size());
       time.advance_time();
 
-      if ((time.get_step_number() % par.output_interval) == 0)
-        output_particles(time.get_step_number());
+      step(time.get_previous_step_size());
 
       if ((time.get_step_number() % par.repartition_interval) == 0)
         repartition();
+
+      if ((time.get_step_number() % par.output_interval) == 0)
+        output_particles(time.get_step_number());
 
       precice.advance(time.get_previous_step_size());
     }
