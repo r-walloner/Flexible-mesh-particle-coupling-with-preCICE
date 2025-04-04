@@ -1,6 +1,5 @@
 #include <deal.II/base/bounding_box.h>
 #include <deal.II/base/conditional_ostream.h>
-#include <deal.II/base/discrete_time.h>
 #include <deal.II/base/function_lib.h>
 #include <deal.II/base/mpi.h>
 #include <deal.II/base/parameter_acceptor.h>
@@ -33,6 +32,7 @@
 
 #include <precice/precice.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -162,7 +162,9 @@ namespace Step68
     precice::Participant precice;
     ConditionalOStream pcout;
 
-    DiscreteTime time;
+    double t;
+    double dt;
+    int step_number;
 
     parallel::distributed::Triangulation<dim> triangulation;
     std::vector<precice::VertexID> precice_vertex_ids;
@@ -185,7 +187,9 @@ namespace Step68
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
-        time(0, par.final_time, par.time_step),
+        t(0),
+        dt(par.time_step),
+        step_number(0),
         triangulation(mpi_communicator),
         dh(triangulation),
         fe(FE_Q<dim>(par.velocity_degree) ^ dim),
@@ -248,7 +252,7 @@ namespace Step68
     // Evaluate the solution at the support points and send that data to preCICE
     std::vector<double> velocity_values(dh.n_locally_owned_dofs() / 2 * dim);
 
-    double fluid_time = time.get_next_time();
+    double fluid_time = t;
     /*
       write(get_previous): initial, v_0, v_1
         -> works with read(dt) and get_previous
@@ -328,21 +332,23 @@ namespace Step68
 
     while (precice.isCouplingOngoing())
     {
-      time.set_next_step_size(precice.getMaxTimeStepSize());
-      pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
-      time.advance_time();
+      dt = std::min(par.time_step, precice.getMaxTimeStepSize());
+      t += dt;
+      ++step_number;
+      pcout << "step number " << step_number
+            << "\n\tstepping " << dt
+            << "\n\ttime is now at " << t
+            << "\n\tdesired timestep was " << par.time_step
+            << "\n\tprecice max timestep was " << precice.getMaxTimeStepSize()
+            << std::endl;
 
       solve();
 
-      if ((time.get_step_number() % par.output_interval) == 0)
-        output_field(time.get_step_number());
+      if ((step_number % par.output_interval) == 0)
+        output_field(step_number);
 
-      precice.advance(time.get_previous_step_size());
+      precice.advance(dt);
     }
-
-    // Output last frame
-    if ((time.get_step_number() % par.output_interval) == 0)
-      output_field(time.get_step_number());
 
     precice.finalize();
   }
@@ -385,7 +391,9 @@ namespace Step68
     precice::Participant precice;
     ConditionalOStream pcout;
 
-    DiscreteTime time;
+    double t;
+    double dt;
+    int step_number;
 
     parallel::distributed::Triangulation<dim> background_triangulation;
     Particles::ParticleHandler<dim> ph;
@@ -408,7 +416,9 @@ namespace Step68
                 Utilities::MPI::this_mpi_process(mpi_communicator),
                 Utilities::MPI::n_mpi_processes(mpi_communicator)),
         pcout(std::cout, Utilities::MPI::this_mpi_process(mpi_communicator) == 0),
-        time(0, par.final_time, par.time_step),
+        t(0),
+        dt(par.time_step),
+        step_number(0),
         background_triangulation(mpi_communicator),
         fluid_velocity(4.0)
   {
@@ -573,7 +583,7 @@ namespace Step68
     Vector<double> analytical_velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_communicator);
 
-    double fluid_time = time.get_current_time();
+    double fluid_time = t - dt;
     double relative_read_time = 0 * dt;
 
     fluid_velocity.set_time(fluid_time);
@@ -581,7 +591,7 @@ namespace Step68
           << std::endl;
     pcout << "realtive read time is " << relative_read_time
           << std::endl;
-    pcout << "absolute read time is " << (time.get_previous_time() + relative_read_time)
+    pcout << "absolute read time is " << (t - dt + relative_read_time)
           << std::endl;
 
     std::vector<double> read_time(1);
@@ -652,7 +662,7 @@ namespace Step68
       // get fluid velocity from preCICE and analytically
       precice.mapAndReadData(
           "Fluid-Mesh", "Velocity", location_vec, dt, velocity);
-      fluid_velocity.set_time(time.get_current_time() + dt);
+      fluid_velocity.set_time(t + dt);
       fluid_velocity.vector_value(analytical_location, analytical_velocity);
 
       // update particle location and analytical location
@@ -723,9 +733,9 @@ namespace Step68
         analytical_location[d] = properties[dim + d];
 
       // get fluid velocity analytically
-      fluid_velocity.set_time(time.get_current_time());
+      fluid_velocity.set_time(t);
       fluid_velocity.vector_value(analytical_location, analytical_velocity_t0);
-      fluid_velocity.set_time(time.get_current_time() + dt);
+      fluid_velocity.set_time(t + dt);
       fluid_velocity.vector_value(analytical_location, analytical_velocity_t1);
 
       // update particle location and analytical location
@@ -811,24 +821,26 @@ namespace Step68
 
     while (precice.isCouplingOngoing())
     {
-      time.set_next_step_size(precice.getMaxTimeStepSize());
-      pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
-      time.advance_time();
+      dt = std::min(par.time_step, precice.getMaxTimeStepSize());
+      t += dt;
+      ++step_number;
+      pcout << "step number " << step_number
+            << "\n\tstepping " << dt
+            << "\n\ttime is now at " << t
+            << "\n\tdesired timestep was " << par.time_step
+            << "\n\tprecice max timestep was " << precice.getMaxTimeStepSize()
+            << std::endl;
 
-      step(time.get_previous_step_size());
+      step(dt);
 
-      if ((time.get_step_number() % par.repartition_interval) == 0)
+      if ((step_number % par.repartition_interval) == 0)
         repartition();
 
-      if ((time.get_step_number() % par.output_interval) == 0)
-        output_particles(time.get_step_number());
+      if ((step_number % par.output_interval) == 0)
+        output_particles(step_number);
 
-      precice.advance(time.get_previous_step_size());
+      precice.advance(dt);
     }
-
-    // Output last frame
-    if ((time.get_step_number() % par.output_interval) == 0)
-      output_particles(time.get_step_number());
 
     precice.finalize();
   }
