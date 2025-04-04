@@ -7,6 +7,7 @@ sys.path.append(str(script_path.parents[1]))
 from runs import generate_run  # noqa: E402
 
 # Set constant parameters
+time_step=0.002
 final_time = 0.14 # timestep 70, which we evaluate in the error plots
 # final_time = 4.0 # one full period of the velocity function
 constraint = "consistent"
@@ -47,6 +48,7 @@ for method in [
                     support_radius=support_radius,
                     constraint=constraint,
                     method=method,
+                    time_step=time_step,
                     final_time=final_time
                 )
 

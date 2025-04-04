@@ -23,6 +23,7 @@ def generate_run(
     support_radius=0.5,
     constraint="consisent",
     method="euler_explicit",
+    time_step=0.002,
     final_time=4.0,
 ):
     """Generate a new run directory with the given parameters.
@@ -52,6 +53,7 @@ def generate_run(
                 "support_radius": support_radius,
                 "constraint": constraint,
                 "method": method,
+                "time_step": time_step,
                 "final_time": final_time,
             },
             file,
@@ -97,7 +99,7 @@ def generate_run(
   <coupling-scheme:serial-explicit>
     <participants first="Fluid" second="Particle" />
     <max-time value="{final_time}" />
-    <time-window-size value="0.002" />
+    <time-window-size value="{time_step}" />
     <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
     <exchange data="Time" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
   </coupling-scheme:serial-explicit>
@@ -130,7 +132,7 @@ subsection Particle Tracking Problem
 
   # Iteration interval at which the mesh is load balanced
   set Repartition interval          = 5
-  set Time step                     = 0.002
+  set Time step                     = {time_step}
   set Velocity degree               = 1
 
   set Method = {method}
