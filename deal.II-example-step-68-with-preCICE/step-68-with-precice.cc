@@ -194,7 +194,7 @@ namespace Step68
         dh(triangulation),
         fe(FE_Q<dim>(par.velocity_degree) ^ dim),
         mapping(),
-        velocity(4.0)
+        velocity(2.0)
   {
   }
 
@@ -420,7 +420,7 @@ namespace Step68
         dt(par.time_step),
         step_number(0),
         background_triangulation(mpi_communicator),
-        fluid_velocity(4.0)
+        fluid_velocity(2.0)
   {
     background_triangulation.signals.weight.connect(
         [&](const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
@@ -765,7 +765,7 @@ namespace Step68
       {
         data_component_name[p] = "velocity";
         data_component_interpretation[p] =
-        DataComponentInterpretation::component_is_part_of_vector;
+            DataComponentInterpretation::component_is_part_of_vector;
       }
       else if (p < 2 * dim)
       {
