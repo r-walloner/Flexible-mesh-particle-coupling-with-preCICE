@@ -524,13 +524,13 @@ namespace ParticleTracing
 
     while (precice.isCouplingOngoing())
     {
-      dt = std::min(par.time_step, precice.getMaxTimeStepSize());
+      dt = std::min(parameters.time_step, precice.getMaxTimeStepSize());
       t += dt;
       ++step_number;
       pcout << "step number " << step_number
             << "\n\tstepping " << dt
             << "\n\ttime is now at " << t
-            << "\n\tdesired timestep was " << par.time_step
+            << "\n\tdesired timestep was " << parameters.time_step
             << "\n\tprecice max timestep was " << precice.getMaxTimeStepSize()
             << std::endl;
 
