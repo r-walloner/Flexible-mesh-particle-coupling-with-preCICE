@@ -461,11 +461,11 @@ namespace ParticleTracing
   void ParticleTracing<dim>::print_lost_particle_statistics()
   {
     pcout << "Lost particles in the last step: "
-              << Utilities::MPI::sum(n_recently_lost_particles, mpi_comm)
-              << std::endl;
+          << Utilities::MPI::sum(n_recently_lost_particles, mpi_comm)
+          << std::endl;
     pcout << "Total lost particles: "
-              << Utilities::MPI::sum(n_total_lost_particles, mpi_comm)
-              << std::endl;
+          << Utilities::MPI::sum(n_total_lost_particles, mpi_comm)
+          << std::endl;
     n_recently_lost_particles = 0;
   }
 
@@ -493,7 +493,7 @@ namespace ParticleTracing
 
       step(time.get_next_step_size());
       time.advance_time();
-      
+
       if ((time.get_step_number() % parameters.output_interval) == 0)
       {
         output_grid(time.get_step_number());
