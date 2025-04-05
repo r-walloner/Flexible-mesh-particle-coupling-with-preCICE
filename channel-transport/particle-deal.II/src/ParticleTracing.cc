@@ -125,10 +125,15 @@ namespace ParticleTracing
     void repartition();
     void step(const double dt);
     void output_particles(const unsigned int time_step) const;
+    void print_lost_particle_statistics();
 
     unsigned int cell_weight(
         const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
         const CellStatus &status) const;
+
+    void track_lost_particle(
+        const typename Particles::ParticleIterator<dim> &particle,
+        const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell);
 
     const Parameters &parameters;
 
@@ -140,6 +145,9 @@ namespace ParticleTracing
     parallel::distributed::Triangulation<dim> grid;
     Particles::ParticleHandler<dim> particle_handler;
     MappingQ1<dim> mapping;
+
+    unsigned int n_recently_lost_particles;
+    unsigned int n_total_lost_particles;
   };
 
   template <int dim>
@@ -156,13 +164,22 @@ namespace ParticleTracing
         pcout(
             std::cout,
             Utilities::MPI::this_mpi_process(mpi_comm) == 0),
-        grid(mpi_comm)
+        grid(mpi_comm),
+        n_recently_lost_particles(0),
+        n_total_lost_particles(0)
   {
     grid.signals.weight.connect(
         [&](const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell,
             const CellStatus status) -> unsigned int
         {
           return this->cell_weight(cell, status);
+        });
+
+    particle_handler.signals.particle_lost.connect(
+        [&](const typename Particles::ParticleIterator<dim> &particle,
+            const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell)
+        {
+          this->track_lost_particle(particle, cell);
         });
   }
 
@@ -206,6 +223,22 @@ namespace ParticleTracing
     }
 
     return base_weight + particle_weight * n_particles_in_cell;
+  }
+
+  /**
+   * @brief Gather statistics about particles lost during the simulation.
+   *
+   * @tparam dim
+   * @param particle The lost particle.
+   * @param cell The cell in which the particle was last located.
+   */
+  template <int dim>
+  void ParticleTracing<dim>::track_lost_particle(
+      const typename Particles::ParticleIterator<dim> &particle,
+      const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell)
+  {
+    ++n_recently_lost_particles;
+    ++n_total_lost_particles;
   }
 
   /**
@@ -416,6 +449,7 @@ namespace ParticleTracing
 
       step(time.get_next_step_size());
       time.advance_time();
+      print_lost_particle_statistics();
 
       if ((time.get_step_number() % parameters.repartition_interval) == 0)
         repartition();
