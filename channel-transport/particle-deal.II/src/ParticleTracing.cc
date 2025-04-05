@@ -210,7 +210,7 @@ namespace ParticleTracing
       const CellStatus &status) const
   {
     const unsigned int base_weight = 1;
-    const unsigned int particle_weight = 100;
+    const unsigned int particle_weight = 1000;
 
     unsigned int n_particles_in_cell = 0;
     switch (status)

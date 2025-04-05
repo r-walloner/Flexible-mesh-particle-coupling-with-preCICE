@@ -5,7 +5,7 @@ subsection ParticleTracing
   set output_basename               = 
   set output_directory              = ../solution/
   set output_interval               = 1
-  set particle_grid_refinement      = 4
+  set particle_grid_refinement      = 5
   set particle_insertion_radius     = 0.5
   set particle_insertion_refinement = 3
   set particle_insertion_x          = 1
