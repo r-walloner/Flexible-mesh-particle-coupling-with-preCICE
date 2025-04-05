@@ -36,7 +36,7 @@
   <coupling-scheme:parallel-explicit>
     <participants first="Fluid" second="Particle" />
     <time-window-size value="0.005" />
-    <max-time value="1.0" />
+    <max-time value="0.5" />
     <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
   </coupling-scheme:parallel-explicit>
 </precice-configuration>
