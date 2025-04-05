@@ -355,6 +355,8 @@ namespace ParticleTracing
     std::vector<double> velocity(dim);
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_comm);
 
+    pcout << "updating particles" << std::endl;
+
     for (auto &particle : particle_handler)
     {
       ArrayView<double> properties = particle.get_properties();
@@ -381,6 +383,7 @@ namespace ParticleTracing
       properties[dim] = this_mpi_rank;
     }
 
+    pcout << "sorting particles into subdomains and cells" << std::endl;
     particle_handler.sort_particles_into_subdomains_and_cells();
   }
 
@@ -514,6 +517,9 @@ int main(int argc, char *argv[])
   try
   {
     dealii::Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+    std::cout << "i am rank " << dealii::Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
+              << " of " << dealii::Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD)
+              << std::endl;
 
     // Read parameter file
     std::string parameter_file;
