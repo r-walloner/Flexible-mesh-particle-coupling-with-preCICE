@@ -45,11 +45,11 @@ namespace ParticleTracing
 
     int particle_grid_refinement = 4;
 
-    double particle_insertion_x = 0.0;
-    double particle_insertion_y = 0.0;
+    double particle_insertion_x = 1.0;
+    double particle_insertion_y = 1.0;
     double particle_insertion_z = 0.0;
-    double particle_insertion_radius = 0.1;
-    int particle_insertion_count = 1000;
+    double particle_insertion_radius = 0.5;
+    int particle_insertion_refinement = 4;
 
     double start_time = 0.0;
     double final_time = 1.0;
@@ -72,7 +72,7 @@ namespace ParticleTracing
     add_parameter("particle_insertion_y", particle_insertion_y);
     add_parameter("particle_insertion_z", particle_insertion_z);
     add_parameter("particle_insertion_radius", particle_insertion_radius);
-    add_parameter("particle_insertion_count", particle_insertion_count);
+    add_parameter("particle_insertion_refinement", particle_insertion_refinement);
     add_parameter("start_time", start_time);
     add_parameter("final_time", final_time);
     add_parameter("time_step", time_step);
@@ -309,8 +309,7 @@ namespace ParticleTracing
   }
 
   /**
-   * @brief Create particles in the domain according to a probability density
-   * function.
+   * @brief Create particles in the domain using auxiliary triangulation.
    *
    * @tparam dim
    */
@@ -322,18 +321,30 @@ namespace ParticleTracing
     center[1] = parameters.particle_insertion_y;
     if (dim == 3)
       center[2] = parameters.particle_insertion_z;
-
     const double radius = parameters.particle_insertion_radius;
 
-    // insert particles in using probability density function
-    Particles::Generators::probabilistic_locations(
-        grid,
-        InsertionDensityFunction<dim>(center, radius),
-        /*random_cell_selection=*/false,
-        parameters.particle_insertion_count,
-        particle_handler,
-        mapping,
-        /*random_number_seed=*/161);
+    parallel::distributed::Triangulation<dim> insertion_grid(mpi_comm);
+
+    // Create grid for inserting particles
+    GridGenerator::hyper_ball_balanced(insertion_grid, center, radius);
+    insertion_grid.refine_global(parameters.particle_insertion_refinement);
+
+    // Output Grid for debugging
+    DataOut<dim> grid_output;
+    grid_output.attach_triangulation(insertion_grid);
+    grid_output.build_patches();
+    const std::string output_folder(parameters.output_directory);
+    const std::string file_name = parameters.output_basename + "insertion_grid";
+    grid_output.write_vtu_with_pvtu_record(output_folder, file_name, 0, mpi_comm, 6);
+
+    // Insert the particles in a distributed way
+    const auto my_bounding_box = GridTools::compute_mesh_predicate_bounding_box(
+        grid, IteratorFilters::LocallyOwnedCell());
+    const auto global_bounding_boxes =
+        Utilities::MPI::all_gather(MPI_COMM_WORLD, my_bounding_box);
+    Particles::Generators::quadrature_points(
+        insertion_grid, QMidpoint<dim>(), global_bounding_boxes, particle_handler,
+        mapping);
 
     // set properties of each particle
     for (auto &particle : particle_handler)
