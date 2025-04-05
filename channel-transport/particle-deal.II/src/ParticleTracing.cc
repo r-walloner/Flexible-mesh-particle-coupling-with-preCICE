@@ -13,6 +13,8 @@
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/grid_tools.h>
 
+#include <deal.II/numerics/data_out.h>
+
 #include <deal.II/particles/data_out.h>
 #include <deal.II/particles/generators.h>
 #include <deal.II/particles/particle_handler.h>
@@ -125,6 +127,7 @@ namespace ParticleTracing
     void repartition();
     void step(const double dt);
     void output_particles(const unsigned int time_step) const;
+    void output_grid(const unsigned int time_step) const;
     void print_lost_particle_statistics();
 
     unsigned int cell_weight(
@@ -426,6 +429,42 @@ namespace ParticleTracing
         output_folder, file_name, time_step, mpi_comm, 6);
   }
 
+  template <int dim>
+  void ParticleTracing<dim>::output_grid(const unsigned int time_step) const
+  {
+    DataOut<dim> grid_output;
+    grid_output.attach_triangulation(grid);
+
+    // Add process ID as a cell data
+    Vector<float> process_id(grid.n_active_cells());
+    for (unsigned int i = 0; i < process_id.size(); ++i)
+      process_id(i) = grid.locally_owned_subdomain();
+    grid_output.add_data_vector(process_id, "process_id");
+
+    grid_output.build_patches();
+
+    const std::string output_folder(parameters.output_directory);
+    const std::string file_name = parameters.output_basename + "grid";
+
+    pcout << "Writing grid output file: " << file_name << '-' << time_step
+          << std::endl;
+
+    grid_output.write_vtu_with_pvtu_record(
+        output_folder, file_name, time_step, mpi_comm, 6);
+  }
+
+  template <int dim>
+  void ParticleTracing<dim>::print_lost_particle_statistics()
+  {
+    pcout << "Lost particles in the last step: "
+              << Utilities::MPI::sum(n_recently_lost_particles, mpi_comm)
+              << std::endl;
+    pcout << "Total lost particles: "
+              << Utilities::MPI::sum(n_total_lost_particles, mpi_comm)
+              << std::endl;
+    n_recently_lost_particles = 0;
+  }
+
   /**
    * @brief Run the particle tracing.
    *
@@ -439,6 +478,7 @@ namespace ParticleTracing
     initialize();
     insert_particles();
     repartition();
+    output_grid(0);
     output_particles(0);
 
     while (precice.isCouplingOngoing())
@@ -449,13 +489,16 @@ namespace ParticleTracing
 
       step(time.get_next_step_size());
       time.advance_time();
+      
+      if ((time.get_step_number() % parameters.output_interval) == 0)
+      {
+        output_grid(time.get_step_number());
+        output_particles(time.get_step_number());
+      }
       print_lost_particle_statistics();
 
       if ((time.get_step_number() % parameters.repartition_interval) == 0)
         repartition();
-
-      if ((time.get_step_number() % parameters.output_interval) == 0)
-        output_particles(time.get_step_number());
 
       precice.advance(time.get_previous_step_size());
     }
