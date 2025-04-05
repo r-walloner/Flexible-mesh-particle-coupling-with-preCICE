@@ -49,10 +49,10 @@ vertices
 
 
 // Grading
-h1 16;
-h2 8;
-h3 24;
-v1 8;
+h1 32; // Increased from 16 to 32
+h2 16; // Increased from 8 to 16
+h3 48; // Increased from 24 to 48
+v1 16; // Increased from 8 to 16
 
 blocks
 (
