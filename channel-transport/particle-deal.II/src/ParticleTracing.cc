@@ -1,7 +1,6 @@
 #include <deal.II/base/array_view.h>
 #include <deal.II/base/bounding_box.h>
 #include <deal.II/base/conditional_ostream.h>
-#include <deal.II/base/discrete_time.h>
 #include <deal.II/base/function.h>
 #include <deal.II/base/mpi.h>
 #include <deal.II/base/parameter_acceptor.h>
@@ -21,6 +20,7 @@
 
 #include <precice/precice.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -149,6 +149,10 @@ namespace ParticleTracing
     Particles::ParticleHandler<dim> particle_handler;
     MappingQ1<dim> mapping;
 
+    double t;
+    double dt;
+    int step_number;
+
     unsigned int n_recently_lost_particles;
     unsigned int n_total_lost_particles;
   };
@@ -168,6 +172,9 @@ namespace ParticleTracing
             std::cout,
             Utilities::MPI::this_mpi_process(mpi_comm) == 0),
         grid(mpi_comm),
+        t(0),
+        dt(parameters.time_step),
+        step_number(0),
         n_recently_lost_particles(0),
         n_total_lost_particles(0)
   {
@@ -509,8 +516,6 @@ namespace ParticleTracing
   template <int dim>
   void ParticleTracing<dim>::run()
   {
-    DiscreteTime time(parameters.start_time, parameters.final_time);
-
     initialize();
     insert_particles();
     repartition();
@@ -519,24 +524,30 @@ namespace ParticleTracing
 
     while (precice.isCouplingOngoing())
     {
-      time.set_desired_next_step_size(
-          std::min(parameters.time_step, precice.getMaxTimeStepSize()));
-      pcout << "stepping dt = " << time.get_next_step_size() << std::endl;
+      dt = std::min(par.time_step, precice.getMaxTimeStepSize());
+      t += dt;
+      ++step_number;
+      pcout << "step number " << step_number
+            << "\n\tstepping " << dt
+            << "\n\ttime is now at " << t
+            << "\n\tdesired timestep was " << par.time_step
+            << "\n\tprecice max timestep was " << precice.getMaxTimeStepSize()
+            << std::endl;
 
-      step(time.get_next_step_size());
-      time.advance_time();
+      step(dt);
 
-      if ((time.get_step_number() % parameters.output_interval) == 0)
+      if ((step_number % parameters.repartition_interval) == 0)
+        repartition();
+
+      if ((step_number % parameters.output_interval) == 0)
       {
-        output_grid(time.get_step_number());
-        output_particles(time.get_step_number());
+        output_grid(step_number);
+        output_particles(step_number);
       }
       print_lost_particle_statistics();
 
-      if ((time.get_step_number() % parameters.repartition_interval) == 0)
-        repartition();
 
-      precice.advance(time.get_previous_step_size());
+      precice.advance(dt);
     }
 
     precice.finalize();
