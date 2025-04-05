@@ -254,12 +254,23 @@ namespace ParticleTracing
   {
     particle_handler.initialize(grid, mapping, dim + 1);
 
-    // TODO: Read the grid boundary from a file and refine it
-    GridGenerator::hyper_cube(grid, 0, 6);
+    // generate the grid
+    Point<dim> p1, p2;
+    p1[0] = 0;
+    p1[1] = 0;
+    if (dim == 3)
+      p1[2] = 0;
+    p2[0] = 6;
+    p2[1] = 2;
+    if (dim == 3)
+      p2[2] = 0.5;
+
+    GridGenerator::hyper_rectangle(grid, p1, p2);
     grid.refine_global(parameters.particle_grid_refinement);
 
     // Set up communication through preCICE
-    // TODO: fine-tune and verify this bounding box computation
+    // TODO: actually compute local bounding box and set precice mesh access region.
+    // This needs to be done after every repartitioning.
     // const BoundingBox<dim> bounding_box{
     //     GridTools::compute_mesh_predicate_bounding_box(
     //         grid,
@@ -267,13 +278,23 @@ namespace ParticleTracing
     //         .front()};
 
     // Convert the bounding box to the format expected by preCICE
-    std::vector<double> bounding_box_vertices(dim * 2);
-    bounding_box_vertices = {0.0, 6.0, 0.0, 6.0};
     // for (unsigned int d = 0; d < dim; ++d)
     // {
     //   bounding_box_vertices[2 * d] = bounding_box.lower_bound(d);
     //   bounding_box_vertices[2 * d + 1] = bounding_box.upper_bound(d);
     // }
+
+    // Set bounding box to entire domain for now
+    std::vector<double> bounding_box_vertices(dim * 2);
+    bounding_box_vertices[0] = p1[0];
+    bounding_box_vertices[1] = p2[0];
+    bounding_box_vertices[2] = p1[1];
+    bounding_box_vertices[3] = p2[1];
+    if (dim == 3)
+    {
+      bounding_box_vertices[4] = p1[2];
+      bounding_box_vertices[5] = p2[2];
+    }
 
     // Set the bounding box for the participant and initialize
     const std::string mesh_name = parameters.precice_mesh_name;
