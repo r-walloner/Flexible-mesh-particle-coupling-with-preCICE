@@ -53,7 +53,7 @@ namespace ParticleTracing
 
     double start_time = 0.0;
     double final_time = 1.0;
-    double time_step = 0.005;
+    double time_step = 0.0005;
     int output_interval = 10;
     int repartition_interval = 10;
   };
