@@ -831,6 +831,8 @@ namespace Step68
       precice.advance(dt);
     }
 
+    output_particles(999999);
+
     precice.finalize();
   }
 
