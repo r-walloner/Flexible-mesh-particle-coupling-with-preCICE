@@ -21,7 +21,7 @@ def generate_run(
     mapping="rbf-pum-direct",
     basis_function="compact_polynomial-c6",
     support_radius=0.5,
-    constraint="consisent",
+    constraint="consistent",
     method="euler_explicit",
     time_step=0.002,
     final_time=4.0,
