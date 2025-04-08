@@ -2,4 +2,4 @@
 
 mkdir -p ../solution
 
-mpirun -np 6 ../build/particle-deal.II
+mpirun -np 2 ../build/particle-deal.II
