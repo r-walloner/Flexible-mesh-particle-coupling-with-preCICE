@@ -3,6 +3,7 @@
 **/precice-export*/
 **/precice-profiling/
 **/precice-run/
+**/.venv/
 **/__pycache__/
 **/compile_commands.json
 
