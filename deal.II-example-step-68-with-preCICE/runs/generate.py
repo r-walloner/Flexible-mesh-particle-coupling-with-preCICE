@@ -21,13 +21,17 @@ for method in [
     # "euler_implicit",
     # "trapezoidal",
 ]:
-    for time_step in [2**-i for i in range(1, 13)]:
+    for time_step in [2**-i for i in range(1, 11)]:
+        time_step = 2**-10
+
         output_interval = int(max(1, final_time / time_step / 100))
         for mapping in [
             "nearest-neighbor",
-            # "rbf-pum-direct",
+            "rbf-pum-direct",
         ]:
-            for refinement in range(2, 9, 2):
+            for refinement in range(2, 9, 1):
+                # refinement = 
+
                 for basis_function in [
                     "compact-polynomial-c0",
                     # "compact-polynomial-c2",
