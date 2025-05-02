@@ -1,4 +1,0 @@
-{
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "cmake.sourceDirectory": "/home/robin/uni/ba-repo/deal.II-example-step-68-with-preCICE"
-}
