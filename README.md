@@ -1,5 +1,7 @@
 # Flexible mesh-particle coupling with preCICE
-This repository contains the code and other artifacts for my thesis on flexible mesh-particle coupling with preCICE.
+This repository contains the code and other artifacts required to reproduce the results of the thesis "Flexible mesh-particle coupling with preCICE" (author: Robin Walloner).
+
+Instructions for running the individual experiments can be found in the `README.md` of the respective folders.
 
 ## Contents
 ### [`particle_tracing_rayleigh_kothe_vortex/`](particle_tracing_rayleigh_kothe_vortex/)
