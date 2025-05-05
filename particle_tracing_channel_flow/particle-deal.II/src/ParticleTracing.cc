@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
       parameter_file = argv[2];
     else
-      parameter_file = "../parameters.prm";
+      parameter_file = "./parameters.prm";
     ParticleTracing::Parameters parameters;
     ParticleTracing::ParameterAcceptor::initialize(parameter_file);
 

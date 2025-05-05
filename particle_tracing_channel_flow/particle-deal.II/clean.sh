@@ -2,4 +2,4 @@
 
 rm -rf precice-profiling
 rm -rf ../precice-run
-rm -rf ../solution
+rm -rf ./solution

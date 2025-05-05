@@ -1,5 +1,5 @@
 #!/bin/sh
 
-mkdir -p ../solution
+mkdir -p ./solution
 
-mpirun -np 2 ../build/particle-deal.II
+mpirun ../build/particle-deal.II
