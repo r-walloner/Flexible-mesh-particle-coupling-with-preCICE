@@ -140,7 +140,7 @@ end
 def run(path: pathlib.Path):
     """Execute the run in the given directory."""
 
-    executable_path = script_path.parents[1] / "build" / "step-68-with-precice"
+    executable_path = script_path.parents[1] / "build" / "ParticleTracing"
     if not executable_path.is_file():
         print(
             f"Executable {executable_path.relative_to(script_path.parent)} not found. Please build the project first."

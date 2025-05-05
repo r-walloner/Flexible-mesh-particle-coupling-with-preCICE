@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 
-set(TARGET "step-68-with-precice")
+set(TARGET "ParticleTracing")
 
 find_package(deal.II 9.6.0 REQUIRED
   HINTS ${DEAL_II_DIR} ../ ../../ $ENV{DEAL_II_DIR}
