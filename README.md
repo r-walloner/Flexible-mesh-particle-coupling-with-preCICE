@@ -2,7 +2,7 @@
 This repository contains the code and other artifacts for my thesis on flexible mesh-particle coupling with preCICE.
 
 ## Contents
-### `particle_tracing_rayleigh_kothe_vortex/`
+### [`particle_tracing_rayleigh_kothe_vortex/`](particle_tracing_rayleigh_kothe_vortex/)
 The first one-way coupled prototype.
 
 This prototype focuses on evaluating the mapping and tracking errors of our one-way coupled particle tracing scheme.
@@ -11,7 +11,7 @@ Both participants are implemented using the deal.II library.
 
 <img src="particle_tracing_rayleigh_kothe_vortex/figures/flow_field_frames/flow_field.0000.png" height="200">
 
-### `particle_tracing_channel_flow/`
+### [`particle_tracing_channel_flow/`](particle_tracing_channel_flow/)
 The second one-way coupled prototype.
 
 This prototype focuses on establishing a load balancing strategy for the particle participant.
@@ -20,8 +20,8 @@ The particle participant is based on the one from the first prototype, but exten
 
 <img src="particle_tracing_channel_flow/figures/flow_field.png" height="200">
 
-### `liggghts_adapter/`
+### [`liggghts_adapter/`](liggghts_adapter/)
 The preCICE adapter for the LIGGGHTS particle simulation software.
 
-### `other/`
+### [`other/`](other/)
 Other artifacts that are not relevant for the thesis itself.
