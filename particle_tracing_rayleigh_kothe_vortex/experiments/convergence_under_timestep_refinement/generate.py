@@ -12,9 +12,9 @@ constraint = "consistent"
 support_radius = 0.5  # only used for rbf
 
 method = "euler_explicit"
-refinement = 8
+refinement = 6
 
-for time_step in [2**-i for i in range(1, 14)]:
+for time_step in [2**-i for i in range(1, 12)]:
     output_interval = int(max(1, final_time / time_step / 100))
 
     for mapping in [
