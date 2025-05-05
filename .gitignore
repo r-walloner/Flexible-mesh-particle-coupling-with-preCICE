@@ -6,6 +6,7 @@
 **/.venv/
 **/__pycache__/
 **/compile_commands.json
+**/*.tar.zstd
 
 other/simpleFoam/
 other/tools/
