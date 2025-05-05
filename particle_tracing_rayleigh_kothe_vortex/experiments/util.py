@@ -1,7 +1,7 @@
 """This file contains utility functions to automate the process of running
-multiple instances (called runs) of the simulation with different parameters.
+multiple instances (called runs) of the particle tracing with different parameters.
 The functions in this file are used by the scripts in the `runs` directory to
-generate simulation runs, run them, and postprocess the results."""
+generate tracing runs, run them, and postprocess the results."""
 
 import pathlib
 import json
@@ -9,11 +9,6 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
 script_path = pathlib.Path(__file__).resolve()
-
-executable_path = script_path.parent / "build" / "step-68-with-precice"
-if not executable_path.is_file():
-    raise FileNotFoundError(f"Executable {executable_path} not found")
-
 
 def generate_run(
     path: pathlib.Path,
@@ -27,7 +22,7 @@ def generate_run(
     final_time=4.0,
     output_interval=10,
 ):
-    """Generate a new run directory with the given parameters.
+    """Generate a new run with the given parameters.
 
     This function creates the directory specified by `path` and writes the
     configuration files `precice-config.xml` and `parameters.prm` to it. The
@@ -144,18 +139,32 @@ end
 
 def run(path: pathlib.Path):
     """Execute the run in the given directory."""
+
+    executable_path = script_path.parents[1] / "build" / "step-68-with-precice"
+    if not executable_path.is_file():
+        print(
+            f"Executable {executable_path.relative_to(script_path.parent)} not found. Please build the project first."
+        )
+        raise FileNotFoundError(f"Executable {executable_path} not found")
+
     try:
         print(f"Running {path.relative_to(script_path.parent)}")
 
         # Check if config files exist
         solver_config_path = path / "parameters.prm"
         if not solver_config_path.is_file():
+            print(
+                f"Solver config {solver_config_path.relative_to(script_path.parent)} not found"
+            )
             raise FileNotFoundError(
                 f"Solver config {solver_config_path.relative_to(script_path.parent)} not found"
             )
 
         precice_config_path = path / "precice-config.xml"
         if not precice_config_path.is_file():
+            print(
+                f"Solver config {precice_config_path.relative_to(script_path.parent)} not found"
+            )
             raise FileNotFoundError(
                 f"Solver config {precice_config_path.relative_to(script_path.parent)} not found"
             )
@@ -208,12 +217,18 @@ def run(path: pathlib.Path):
             # Wait for both processes to finish and check return codes
             fluid_process.wait()
             if fluid_process.returncode != 0:
+                print(
+                    f"Fluid process failed with code {fluid_process.returncode}"
+                )
                 raise RuntimeError(
                     f"Fluid process failed with code {fluid_process.returncode}"
                 )
 
             particle_process.wait()
             if particle_process.returncode != 0:
+                print(
+                    f"Particle process failed with code {particle_process.returncode}"
+                )
                 raise RuntimeError(
                     f"Particle process failed with code {particle_process.returncode}"
                 )

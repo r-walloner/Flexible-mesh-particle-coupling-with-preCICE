@@ -1,0 +1,5 @@
+*
+!.gitignore
+!generate.py
+!run.py
+!clean.sh
