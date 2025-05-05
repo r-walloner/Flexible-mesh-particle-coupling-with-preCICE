@@ -79,5 +79,11 @@
         "variant": "cpp",
         "codecvt": "cpp",
         "fstream": "cpp"
+    },
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
     }
 }
