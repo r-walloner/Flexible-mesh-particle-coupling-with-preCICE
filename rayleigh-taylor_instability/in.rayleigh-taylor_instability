@@ -1,0 +1,53 @@
+# Single particle sedimentation test
+
+units si
+
+atom_style granular
+newton off
+# TODO configure neighbors
+neighbor 0.05 bin
+neigh_modify delay 0
+
+timestep 0.00001
+
+# Define simulation domain
+processors * * 1
+boundary m m m
+region domain block 0 0.004 0 0.004 0 0.006
+create_box 1 domain
+
+# Define and insert particles
+# TODO insert using latice instead of distribution
+fix p_template_1 all particletemplate/sphere 11587 &
+    density constant 2500 &
+    radius constant 0.0002
+
+fix p_distribution_1 all particledistribution/discrete 11593 1 p_template_1 1.0
+
+region insertion_region_1 block 0 0.004 0 0.004 0.003 0.006
+fix insertion_1 all insert/pack &
+    seed 11597 &
+    distributiontemplate p_distribution_1 &
+    verbose yes &
+    insert_every once &
+    region insertion_region_1 &
+    volumefraction_region 0.4 &
+    check_dist_from_subdomain_border yes
+
+# Define forces
+fix gravity all gravity 9.81 vector 0 0 -1
+
+fix 		m1 all property/global youngsModulus peratomtype 5.e6
+fix 		m2 all property/global poissonsRatio peratomtype 0.45
+fix 		m3 all property/global coefficientRestitution peratomtypepair 1 0.9
+fix 		m4 all property/global coefficientFriction peratomtypepair 1 0.05
+fix 		m5 all property/global characteristicVelocity scalar 2.
+communicate   single vel yes
+pair_style gran model hooke tangential history #Hooke without cohesion
+pair_coeff	* *
+
+fix integr all nve/sphere
+
+dump	dmp all custom/vtk 200 post/rti_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+
+run 10000
