@@ -17,22 +17,12 @@ region domain block 0 0.004 0 0.004 0 0.006
 create_box 1 domain
 
 # Define and insert particles
-# TODO insert using latice instead of distribution
-fix p_template_1 all particletemplate/sphere 11587 &
-    density constant 2500 &
-    radius constant 0.0002
-
-fix p_distribution_1 all particledistribution/discrete 11593 1 p_template_1 1.0
-
-region insertion_region_1 block 0 0.004 0 0.004 0.003 0.006
-fix insertion_1 all insert/pack &
-    seed 11597 &
-    distributiontemplate p_distribution_1 &
-    verbose yes &
-    insert_every once &
-    region insertion_region_1 &
-    volumefraction_region 0.4 &
-    check_dist_from_subdomain_border yes
+# TODO calculate latice spacing based on initial porosity
+region insertion_region block 0 0.004 0 0.004 0.003 0.006
+lattice sc 0.00045
+create_atoms 1 region insertion_region all_in 0.0000000001
+set group all diameter 0.0004
+set group all density 2500
 
 # Define forces
 fix gravity all gravity 9.81 vector 0 0 -1
