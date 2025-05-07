@@ -15,6 +15,11 @@ boundary p p m
 region domain block 0 0.004 0 0.004 0 0.006
 create_box 1 domain
 
+# TODO use propper interaction model
+fix ground all wall/gran &
+    model hooke tangential history &
+    primitive type 1 zplane 0
+
 # Define and insert particles
 # TODO calculate latice spacing based on initial porosity
 region insertion_region block 0 0.004 0 0.004 0.003 0.006
@@ -26,6 +31,7 @@ set group all density 2500
 # Define forces
 fix gravity all gravity 9.81 vector 0 0 -1
 
+# TODO user propper interaction model
 fix 		m1 all property/global youngsModulus peratomtype 5.e6
 fix 		m2 all property/global poissonsRatio peratomtype 0.45
 fix 		m3 all property/global coefficientRestitution peratomtypepair 1 0.9
