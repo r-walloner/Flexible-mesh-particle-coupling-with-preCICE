@@ -12,7 +12,7 @@ timestep 0.00001
 
 # Define simulation domain
 processors * * 1
-boundary m m m
+boundary p p m
 region domain block 0 0.004 0 0.004 0 0.006
 create_box 1 domain
 
