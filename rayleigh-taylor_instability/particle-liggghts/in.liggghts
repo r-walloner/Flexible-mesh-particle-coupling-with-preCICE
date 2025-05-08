@@ -45,4 +45,4 @@ fix integr all nve/sphere
 
 dump	dmp all custom/vtk 200 post/rti_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
 
-run 10000
+#run 10000

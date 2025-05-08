@@ -14,6 +14,7 @@ lig.file(in_file)
 n_atoms = lig.extract_global("nlocal", 0)
 
 atom_ids = lig.extract_atom("id", 0)
+atom_id_list = [atom_ids[i] for i in range(n_atoms)]
 
 atom_radiuses = lig.extract_atom("radius", 2)
 atom_radiuses[0] = 0.0001
