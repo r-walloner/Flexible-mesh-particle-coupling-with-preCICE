@@ -1,0 +1,16 @@
+{
+    "participant": "Fluid",
+    "startdt": "1",
+    "meshes": [
+        {
+            "mesh": "Fluid-Mesh",
+            "meshfileprefix": "./meshes/Fluid-Mesh",
+            "write-data": {
+                "vector": [
+                    "Force"
+                ]
+            }
+        }
+    ],
+    "precice-config": "../precice-config.xml"
+}
