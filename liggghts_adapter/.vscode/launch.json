@@ -11,11 +11,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/../rayleigh-taylor_instability",
+            "cwd": "${workspaceFolder}/../rayleigh-taylor_instability/particle-liggghts",
             "args": [
                 "Particle",
                 "in.liggghts",
-                "precice-config.xml",
+                "../precice-config.xml",
             ],
         }
     ]
