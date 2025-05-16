@@ -20,30 +20,18 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    inlet
+    bottom
     {
         type            fixedValue;
-        value           uniform (10 0 0);
+        value           uniform (0 0 10);
     }
-
-    outlet
+    top
     {
         type            zeroGradient;
     }
-
-    upperWall
+    walls
     {
         type            noSlip;
-    }
-
-    lowerWall
-    {
-        type            noSlip;
-    }
-
-    frontAndBack
-    {
-        type            empty;
     }
 }
 

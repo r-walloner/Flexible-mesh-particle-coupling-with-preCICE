@@ -20,32 +20,19 @@ internalField   uniform 14.855;
 
 boundaryField
 {
-    inlet
+    bottom
     {
         type            fixedValue;
         value           uniform 14.855;
     }
-
-    outlet
+    top
     {
         type            zeroGradient;
     }
-
-    upperWall
+    walls
     {
         type            epsilonWallFunction;
         value           uniform 14.855;
-    }
-
-    lowerWall
-    {
-        type            epsilonWallFunction;
-        value           uniform 14.855;
-    }
-
-    frontAndBack
-    {
-        type            empty;
     }
 }
 
