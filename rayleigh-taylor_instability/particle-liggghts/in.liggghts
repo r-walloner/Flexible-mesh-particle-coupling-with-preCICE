@@ -45,17 +45,26 @@ precice_initialize Particle ../precice-config.xml Fluid-Mesh
 compute v_fluid all precice_read/atom Fluid-Mesh Fluid-Velocity 1
 compute p_grad_fluid all precice_read/atom Fluid-Mesh Fluid-Pressure-Gradient 1
 
+# Particle volume
+variable vol atom "4/3 * PI * r^3"
+
+# Boyancy force
+variable f_buoyancy_x atom "-v_vol * c_p_grad_fluid[1]"
+variable f_buoyancy_y atom "-v_vol * c_p_grad_fluid[2]"
+variable f_buoyancy_z atom "-v_vol * c_p_grad_fluid[3]"
+
 # TODOO implement coupling physics
 
 dump dmp all custom/vtk 10 post/rti_*.vtk &
-  id type radius &
+  id type radius vol &
   x y z &
   ix iy iz &
   vx vy vz &
   fx fy fz &
   omegax omegay omegaz &
   c_v_fluid[1] c_v_fluid[2] c_v_fluid[3] &
-  c_p_grad_fluid[1] c_p_grad_fluid[2] c_p_grad_fluid[3]
+  c_p_grad_fluid[1] c_p_grad_fluid[2] c_p_grad_fluid[3] &
+  v_f_buoyancy_x v_f_buoyancy_y v_f_buoyancy_z
 
 run 1000 upto pre no post no every 1 precice_advance
 
