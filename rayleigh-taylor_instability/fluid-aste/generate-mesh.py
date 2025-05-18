@@ -10,7 +10,7 @@ out_dir.mkdir(parents=True, exist_ok=True)
 nx, ny, nz = 10, 10, 10  # Number of points in x, y, z directions
 
 # Define the number of time steps
-timesteps = 10000
+timesteps = 1001
 
 # Define the physical dimensions of the grid
 x = np.linspace(0, 0.004, nx)  # 0 to 0.004 in x-direction
@@ -42,16 +42,13 @@ celltypes = [pv.CellType.HEXAHEDRON] * (nx - 1) * (ny - 1) * (nz - 1)
 grid = pv.UnstructuredGrid(cells, celltypes, points)
 
 for i in range(timesteps):
-    # Add a vector field to each point
-    vectors = np.zeros((nx * ny * nz, 3))  # Initialize a zero vector field
-    vectors[:, 0] = 0
-    vectors[:, 1] = 0
-    vectors[:, 2] = 1
+    velocities = np.zeros((nx * ny * nz, 3))
+    velocities[:, 2] = 10
+    grid.point_data["Fluid-Velocity"] = velocities
 
-    # Attach the vector field to the grid
-    grid.point_data["Force"] = vectors
+    pressure_grad = np.zeros((nx * ny * nz, 3))
+    grid.point_data["Fluid-Pressure-Gradient"] = pressure_grad
 
     # Save the grid to a VTK file
     out_path = out_dir / f"Fluid-Mesh.dt{str(i)}.vtu"
-    print(f"Writing {out_path}")
     grid.save(out_path.as_posix())

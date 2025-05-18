@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <precice-configuration experimental="True">
 
-    <data:vector name="Force" />
+    <data:vector name="Fluid-Velocity" />
+    <data:vector name="Fluid-Pressure-Gradient" />
 
     <mesh name="Fluid-Mesh" dimensions="3">
-        <use-data name="Force" />
+        <use-data name="Fluid-Velocity" />
+        <use-data name="Fluid-Pressure-Gradient" />
     </mesh>
 
     <participant name="Fluid">
         <provide-mesh name="Fluid-Mesh" />
-        <write-data name="Force" mesh="Fluid-Mesh" />
+        <write-data name="Fluid-Velocity" mesh="Fluid-Mesh" />
+        <write-data name="Fluid-Pressure-Gradient" mesh="Fluid-Mesh" />
     </participant>
 
     <participant name="Particle">
         <receive-mesh name="Fluid-Mesh" from="Fluid" api-access="true" />
-        <read-data name="Force" mesh="Fluid-Mesh" />
-        <mapping:rbf-pum-direct
-            direction="read"
-            from="Fluid-Mesh"
-            constraint="consistent">
-            <basis-function:compact-polynomial-c4 support-radius="0.0008" />
-        </mapping:rbf-pum-direct>
+        <read-data name="Fluid-Velocity" mesh="Fluid-Mesh" />
+        <read-data name="Fluid-Pressure-Gradient" mesh="Fluid-Mesh" />
+        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
 
     <coupling-scheme:parallel-explicit>
         <participants first="Fluid" second="Particle" />
-        <time-window-size value="0.00001" />
+        <time-window-size value="0.0001" />
         <max-time value="0.1" />
-        <exchange data="Force" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
+        <exchange data="Fluid-Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
+        <exchange data="Fluid-Pressure-Gradient" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
     </coupling-scheme:parallel-explicit>
 
 </precice-configuration>

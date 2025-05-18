@@ -7,7 +7,8 @@
             "meshfileprefix": "./meshes/Fluid-Mesh",
             "write-data": {
                 "vector": [
-                    "Force"
+                    "Fluid-Velocity",
+                    "Fluid-Pressure-Gradient"
                 ]
             }
         }
