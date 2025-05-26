@@ -1,0 +1,10 @@
+*
+!0/
+!0/*
+!constant/
+!constant/*
+!system/
+!system/*
+!clean.sh
+!run.sh
+!.gitignore

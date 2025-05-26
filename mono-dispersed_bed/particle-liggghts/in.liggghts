@@ -53,16 +53,6 @@ thermo_style  custom step time atoms vol ke c_RotEng
 thermo        1000
 thermo_modify lost ignore norm no
 
-
-# output settings
-dump dmp all custom/vtk 100 post/mdb_*.vtk &
-    id type radius &
-    x y z &
-    ix iy iz &
-    omegax omegay omegaz &
-    vx vy vz &
-    fx fy fz
-
 # run with particle insertion
 run   1 upto
 unfix ins
@@ -70,5 +60,30 @@ unfix ins
 # run to let particle settle
 run 30000 upto
 
+# set up coupling
+precice_initialize Particle ../precice-config.xml Fluid-Mesh
+compute v_fluid all precice_read/atom Fluid-Mesh Velocity 1
+compute p_fluid all precice_read/atom Fluid-Mesh Pressure 1
+
+compute voro all voronoi/atom
+compute vol_frac all volume_fraction/atom
+compute f_drag all fluid_drag/atom
+variable f_drag_x atom c_f_drag[1]
+variable f_drag_y atom c_f_drag[2]
+variable f_drag_z atom c_f_drag[3]
+fix 3 all addforce v_f_drag_x v_f_drag_y v_f_drag_z
+
+# output settings
+dump dmp all custom/vtk 100 post/mdb_*.vtk &
+    id type radius c_vol_frac &
+    x y z &
+    ix iy iz &
+    omegax omegay omegaz &
+    vx vy vz &
+    c_v_fluid[1] c_v_fluid[2] c_v_fluid[3] &
+    c_p_fluid[1] &
+    c_f_drag[1] c_f_drag[2] c_f_drag[3] &
+    fx fy fz &
+
 # run with coupling
-# TODO
+run 30000 pre no post no every 1 precice_advance
