@@ -1,6 +1,6 @@
 units         si
-atom_style    granular  # TODO sphere
-boundary      m m m     # TODO f f f
+atom_style    granular
+boundary      f f f 
 newton        off
 
 processors    * 1 *
