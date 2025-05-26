@@ -65,6 +65,10 @@ precice_initialize Particle ../precice-config.xml Fluid-Mesh
 compute v_fluid all precice_read/atom Fluid-Mesh Velocity 1
 compute p_fluid all precice_read/atom Fluid-Mesh Pressure 1
 
+compute f_buoyancy all fluid_buoyancy/atom
+variable f_buoyancy atom c_f_buoyancy
+fix 3 all addforce 0 v_f_buoyancy 0
+
 compute voro all voronoi/atom
 compute vol_frac all volume_fraction/atom
 compute f_drag all fluid_drag/atom
@@ -82,6 +86,7 @@ dump dmp all custom/vtk 100 post/mdb_*.vtk &
     vx vy vz &
     c_v_fluid[1] c_v_fluid[2] c_v_fluid[3] &
     c_p_fluid[1] &
+    c_f_buoyancy &
     c_f_drag[1] c_f_drag[2] c_f_drag[3] &
     fx fy fz &
 
