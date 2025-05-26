@@ -1,6 +1,6 @@
 units         si
 atom_style    granular
-boundary      f f f 
+boundary      p f p 
 newton        off
 
 processors    * 1 *
