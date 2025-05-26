@@ -23,8 +23,17 @@ boundaryField
     bottom
     {
         type            fixedValue;
-        value           uniform (0 1 0);
+        value           uniform (0 10 0);
     }
+    // {
+    //     type            uniformFixedValue;
+    //     uniformValue    table
+    //     (
+    //         (0.000   (0 0 0))
+    //         (0.02   (0 15 0)) // TODO adjust this to 7.5 and 15 seconds
+    //         (0.150   (0 0 0))
+    //     );
+    // }
     top
     {
         type            zeroGradient;
