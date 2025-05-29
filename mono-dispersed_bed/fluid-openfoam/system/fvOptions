@@ -1,0 +1,40 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvOptions;
+}
+
+momentumSource
+{
+    type            vectorCodedSource;
+    selectionMode   all;
+
+    fields          (U);
+    name            momentumSource;
+
+    codeConstrain
+    #{
+        return;
+    #};
+
+    codeAddSup
+    #{
+        vectorField& Usource = eqn.source();
+        const volVectorField& momExplicit = mesh_.lookupObject<volVectorField>("momExplicit");
+        const vectorField& C = mesh_.C(); // cell centers 
+        const scalarField& V = mesh_.V(); // cell volumes
+
+        forAll(C, i) // for every cell
+        {
+            Usource[i] += momExplicit[i] / V[i];
+        }
+    #};
+
+    codeCorrect
+    #{
+        return;
+    #};
+}
