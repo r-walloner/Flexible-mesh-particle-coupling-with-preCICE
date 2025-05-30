@@ -2,25 +2,30 @@
 <precice-configuration experimental="True">
 
     <data:vector name="Velocity" />
-    <data:vector name="DragForce" />
+    <data:vector name="ExplicitMomentum" />
+    <data:scalar name="ImplicitMomentum" />
 
     <mesh name="Fluid-Mesh" dimensions="3">
         <use-data name="Velocity" />
-        <use-data name="DragForce" />
+        <use-data name="ExplicitMomentum" />
+        <use-data name="ImplicitMomentum" />
     </mesh>
 
     <participant name="Fluid">
         <provide-mesh name="Fluid-Mesh" />
         <write-data name="Velocity" mesh="Fluid-Mesh" />
-        <read-data name="DragForce" mesh="Fluid-Mesh" />
+        <read-data name="ExplicitMomentum" mesh="Fluid-Mesh" />
+        <read-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <export:vtu directory="precice-exports" />
     </participant>
 
     <participant name="Particle">
         <receive-mesh name="Fluid-Mesh" from="Fluid" api-access="true" />
         <read-data name="Velocity" mesh="Fluid-Mesh" />
-        <write-data name="DragForce" mesh="Fluid-Mesh" />
+        <write-data name="ExplicitMomentum" mesh="Fluid-Mesh" />
+        <write-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
+        <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" />
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
@@ -28,9 +33,10 @@
     <coupling-scheme:parallel-explicit>
         <participants first="Fluid" second="Particle" />
         <time-window-size value="1e-5" />
-        <max-time value="0.2" />
+        <max-time value="0.1" />
         <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
-        <exchange data="DragForce" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
+        <exchange data="ExplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
+        <exchange data="ImplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
     </coupling-scheme:parallel-explicit>
 
 </precice-configuration>

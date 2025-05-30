@@ -23,7 +23,7 @@ boundaryField
     bottom
     {
         type            fixedValue;
-        value           uniform (0 10 0);
+        value           uniform (0 6 0);
     }
     // {
     //     type            uniformFixedValue;

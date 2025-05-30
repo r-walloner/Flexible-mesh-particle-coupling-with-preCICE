@@ -7,34 +7,34 @@ FoamFile
     object      fvOptions;
 }
 
-momentumSource
+options
 {
-    type            vectorCodedSource;
-    selectionMode   all;
-
-    fields          (U);
-    name            momentumSource;
-
-    codeConstrain
-    #{
-        return;
-    #};
-
-    codeAddSup
-    #{
-        vectorField& Usource = eqn.source();
-        const volVectorField& momExplicit = mesh_.lookupObject<volVectorField>("momExplicit");
-        const vectorField& C = mesh_.C(); // cell centers 
-        const scalarField& V = mesh_.V(); // cell volumes
-
-        forAll(C, i) // for every cell
+    momentumSource
+    {
+        type            vectorSemiImplicitSource;
+        active          yes;
+        
+        vectorSemiImplicitSourceCoeffs
         {
-            Usource[i] += momExplicit[i] / V[i];
-        }
-    #};
+            selectionMode   all;
+            volumeMode      absolute;
+            sources
+            {
+                U
+                {
+                    explicit
+                    {
+                        type        exprField;
+                        expression  "ExplicitMomentum";
+                    }
 
-    codeCorrect
-    #{
-        return;
-    #};
+                    implicit
+                    {
+                        type        exprField;
+                        expression  "ImplicitMomentum";
+                    }
+                }
+            }
+        }
+    }
 }

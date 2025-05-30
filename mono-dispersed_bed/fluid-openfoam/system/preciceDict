@@ -13,11 +13,6 @@ participant Fluid;
 
 modules (FF);
 
-FF
-{
-  nameDragForce momExplicit;
-};
-
 interfaces
 {
   Interface1
@@ -27,7 +22,8 @@ interfaces
     locations         volumeCenters;
 
     readData (
-      DragForce
+      ExplicitMomentum
+      ImplicitMomentum
     );
 
     writeData
