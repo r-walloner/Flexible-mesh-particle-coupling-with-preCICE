@@ -31,7 +31,7 @@ options
                     implicit
                     {
                         type        exprField;
-                        expression  "ImplicitMomentum";
+                        expression  "-ImplicitMomentum";
                     }
                 }
             }
