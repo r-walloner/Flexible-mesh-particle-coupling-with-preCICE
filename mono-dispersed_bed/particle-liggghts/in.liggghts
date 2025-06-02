@@ -58,7 +58,17 @@ run   1 upto
 unfix ins
 
 # run to let particle settle
+dump settle all custom/vtk 100 post/settle_*.vtk &
+    id type radius &
+    x y z &
+    ix iy iz &
+    omegax omegay omegaz &
+    vx vy vz &
+    fx fy fz
+
 run 30000 upto
+
+unfix settle
 
 # set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
