@@ -58,17 +58,7 @@ run   1 upto
 unfix ins
 
 # run to let particle settle
-dump settle all custom/vtk 100 post/settle_*.vtk &
-    id type radius &
-    x y z &
-    ix iy iz &
-    omegax omegay omegaz &
-    vx vy vz &
-    fx fy fz
-
 run 30000 upto
-
-unfix settle
 
 # set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
@@ -80,11 +70,11 @@ fix 3 all addforce 0 v_f_buoyancy 0
 
 compute voro all voronoi/atom
 compute vol_frac all volume_fraction/atom
-compute f_drag all fluid_drag/atom
+compute f_drag all fluid_drag/atom xiao_sun
 variable f_drag_x atom c_f_drag[1]
 variable f_drag_y atom c_f_drag[2]
 variable f_drag_z atom c_f_drag[3]
-fix 3 all addforce v_f_drag_x v_f_drag_y v_f_drag_z
+fix 4 all addforce v_f_drag_x v_f_drag_y v_f_drag_z
 
 # output settings
 dump dmp all custom/vtk 100 post/mdb_*.vtk &
