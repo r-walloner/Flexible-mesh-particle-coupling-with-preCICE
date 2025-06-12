@@ -13,6 +13,12 @@ participant Fluid;
 
 modules (FF);
 
+FF
+{
+  nameAlpha alphaSolid;
+  nameDragForce particleForce;
+};
+
 interfaces
 {
   Interface1
@@ -22,8 +28,8 @@ interfaces
     locations         volumeCenters;
 
     readData (
-      ExplicitMomentum
-      ImplicitMomentum
+      Alpha
+      DragForce
     );
 
     writeData
