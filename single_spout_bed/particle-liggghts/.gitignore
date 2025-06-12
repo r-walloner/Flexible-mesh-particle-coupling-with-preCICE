@@ -1,0 +1,4 @@
+post/
+log.*
+*.data
+precice_checkpoint*

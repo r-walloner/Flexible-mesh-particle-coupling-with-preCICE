@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2412                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// TODO what do we set tolerance to?
+solvers
+{
+    p
+    {
+        solver           GAMG;
+        tolerance        1e-5;
+        relTol           0.1;
+        smoother         DICGaussSeidel;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+
+    "(U|k|epsilon)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-05;
+        relTol          0.1;
+    }
+
+    "(U|k|epsilon)Final"
+    {
+        $U;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    nCorrectors         2;
+    nOuterCorrectors    1000;
+
+    residualControl
+    {
+        U
+        {
+            tolerance   1e-3;
+            relTol      0.1;
+        }
+        p
+        {
+            tolerance   5e-3;
+            relTol      0.1;
+        }
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               1;
+        pFinal          1;
+    }
+
+    equations
+    {
+        "U|k|epsilon"   1;
+        "(U|k|epsilon)Final" 1;
+    }
+}
+
+// ************************************************************************* //
