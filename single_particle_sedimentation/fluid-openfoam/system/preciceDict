@@ -22,8 +22,8 @@ interfaces
     locations         volumeCenters;
 
     readData (
-      // ExplicitMomentum
-      // ImplicitMomentum
+      ExplicitMomentum
+      ImplicitMomentum
     );
 
     writeData

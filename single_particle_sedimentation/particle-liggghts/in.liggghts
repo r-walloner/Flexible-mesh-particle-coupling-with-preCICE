@@ -52,7 +52,7 @@ variable f_buoyancy atom c_f_buoyancy
 fix 3 all addforce 0 v_f_buoyancy 0
 
 compute voro all voronoi/atom
-compute vol_frac all volume_fraction/atom
+compute vol_frac all volume_fraction/atom voronoi
 compute f_drag all fluid_drag/atom stokes
 variable f_drag_x atom c_f_drag[1]
 variable f_drag_y atom c_f_drag[2]
