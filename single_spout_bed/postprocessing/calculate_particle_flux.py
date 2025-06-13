@@ -63,8 +63,9 @@ for timestep_file in tqdm(timestep_files, desc="Processing timesteps"):
     previous_positions = positions_by_id
 
 # Normalize the flux by the total time and the area of the plane
-positive_flux /= max_time * (y_max - y_min) * (x_max - x_min)
-negative_flux /= max_time * (y_max - y_min) * (x_max - x_min)
+area = (x_max - x_min) * (y_max - y_min) / number_of_bins # area of each bin
+positive_flux /= max_time * area
+negative_flux /= max_time * area
 net_flux = positive_flux - negative_flux
 
 # Write results to file
