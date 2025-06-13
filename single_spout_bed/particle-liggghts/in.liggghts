@@ -105,4 +105,4 @@ dump_modify dmp binary yes
 dump_modify dmp compressor lz4
 
 # run with coupling
-run 200000 pre no post no every 1 precice_advance
+run 40000 pre no post no every 1 precice_advance
