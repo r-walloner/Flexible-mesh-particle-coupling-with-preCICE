@@ -99,4 +99,4 @@ dump dmp all custom/vtk 20 post/mdb_*.vtk &
     fx fy fz &
 
 # run with coupling
-run 4000 pre no post no every 1 precice_advance
+run 200000 pre no post no every 1 precice_advance
