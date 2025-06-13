@@ -6,13 +6,18 @@ from tqdm import tqdm
 import json
 
 particle_path = pathlib.Path(__file__).parent.parent / "particle-liggghts" / "post"
+timestep_files = list(particle_path.glob("mdb_*.vtu"))
+
 x_min = -.075 # minimum and maximum x-coordinates of the domain
 x_max = +.075
 y_min = -.0075 # minimum and maximum y-coordinates of the domain
 y_max = +.0075
 plane_of_measurement = 0.13  # z-coordinate of the plane where flux is measured
 number_of_bins = 32 # number of measurement bins along the x-axis
-max_time = 2.617 # duration of the simulation
+
+timestep_size = 1e-3 # time between two timestep files (caution: this is not the solver timestep)
+max_time = timestep_size * len(timestep_files) # total time of the simulation
+
 particle_radius = 1.5e-3 # particle properties used for flux calculation
 particle_density = 2505
 particle_mass = 4/3 * pi * particle_radius**3 * particle_density
@@ -23,7 +28,6 @@ negative_flux = np.zeros(number_of_bins)
 previous_positions: dict[int, np.array] = None
 
 # Iterate over timesteps
-timestep_files = list(particle_path.glob("mdb_*.vtu"))
 for timestep_file in tqdm(timestep_files, desc="Processing timesteps"):
     timestep: pv.UnstructuredGrid = pv.read(timestep_file)
 
