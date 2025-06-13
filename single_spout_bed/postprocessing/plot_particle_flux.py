@@ -11,8 +11,12 @@ with open(particle_path / "particle_flux.json", "r") as f:
 x_min = data['x_min']
 x_max = data['x_max']
 number_of_bins = data['number_of_bins']
-flux = np.array(data['average_flux'])
+positive_flux = np.array(data['positive_flux'])
+negative_flux = np.array(data['negative_flux'])
+net_flux = np.array(data['net_flux'])
 
 plt.figure(figsize=(10, 6), dpi=600)
-plt.plot(np.linspace(x_min, x_max, number_of_bins), flux, label='Average Particle Flux')
+plt.plot(np.linspace(x_min, x_max, number_of_bins), positive_flux, label='Positive Particle Flux', color='red')
+plt.plot(np.linspace(x_min, x_max, number_of_bins), negative_flux, label='Negative Particle Flux', color='blue')
+plt.plot(np.linspace(x_min, x_max, number_of_bins), net_flux, label='Net Particle Flux', linestyle='--', color='black')
 plt.show()

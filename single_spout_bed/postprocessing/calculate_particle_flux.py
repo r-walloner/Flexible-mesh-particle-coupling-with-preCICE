@@ -17,38 +17,49 @@ particle_radius = 1.5e-3 # particle properties used for flux calculation
 particle_density = 2505
 particle_mass = 4/3 * pi * particle_radius**3 * particle_density
 
-flux = np.zeros(number_of_bins)
-previous_points: np.ndarray = None
+positive_flux = np.zeros(number_of_bins)
+negative_flux = np.zeros(number_of_bins)
+
+previous_positions: dict[int, np.array] = None
 
 # Iterate over timesteps
 timestep_files = list(particle_path.glob("mdb_*.vtu"))
 for timestep_file in tqdm(timestep_files, desc="Processing timesteps"):
     timestep: pv.UnstructuredGrid = pv.read(timestep_file)
 
-    # Keep track of each particle's position in the previous timestep
-    if previous_points is None:
-        previous_points = timestep.points
+    # Store particle positions by their IDs
+    positions_by_id: dict[int, np.array] = {}
+    for position, particle_id in zip(timestep.points, timestep.point_data["id"]):
+        positions_by_id[particle_id] = position
 
-    for point, previous_point in zip(timestep.points, previous_points):
+    # Keep track of particle positions in the previous timestep
+    if previous_positions is None:
+        previous_positions = positions_by_id
+
+    # Iterate over all particles
+    for id, position in positions_by_id.items():
+        previous_position = previous_positions[id]
+
         # Determine which bin the particle is in based on its x-coordinate
-        bin_index = int((point[0] - x_min) / (x_max - x_min) * number_of_bins)
+        bin_index = int((position[0] - x_min) / (x_max - x_min) * number_of_bins)
         if bin_index < 0 or bin_index >= number_of_bins:
-            print(f"Warning: Particle at {point[0]} is out of bounds for bins [{x_min}, {x_max}]")
+            print(f"Warning: Particle at {position[0]} is out of bounds for bins [{x_min}, {x_max}]")
             continue
         
-
         # Check if the particle crossed the plane of measurement
-        if (point[1] > plane_of_measurement and previous_point[1] <= plane_of_measurement):
+        if (position[1] > plane_of_measurement and previous_position[1] <= plane_of_measurement):
             # Crossing in positive y-direction
-            flux[bin_index] += particle_mass
-        elif (point[1] < plane_of_measurement and previous_point[1] >= plane_of_measurement):
+            positive_flux[bin_index] += particle_mass
+        elif (position[1] < plane_of_measurement and previous_position[1] >= plane_of_measurement):
             # Crossing in negative y-direction
-            flux[bin_index] -= particle_mass
+            negative_flux[bin_index] += particle_mass
 
-    previous_points = timestep.points
+    previous_positions = positions_by_id
 
 # Normalize the flux by the total time and the area of the plane
-flux /= max_time * (y_max - y_min) * (x_max - x_min)
+positive_flux /= max_time * (y_max - y_min) * (x_max - x_min)
+negative_flux /= max_time * (y_max - y_min) * (x_max - x_min)
+net_flux = positive_flux - negative_flux
 
 # Write results to file
 with open(particle_path / 'particle_flux.json', 'w') as f:
@@ -64,5 +75,7 @@ with open(particle_path / 'particle_flux.json', 'w') as f:
         'particle_radius': particle_radius,
         'particle_density': particle_density,
         'particle_mass': particle_mass,
-        'average_flux': flux.tolist()
+        'positive_flux': positive_flux.tolist(),
+        'negative_flux': negative_flux.tolist(),
+        'net_flux': net_flux.tolist(),
     }, f, indent=4)
