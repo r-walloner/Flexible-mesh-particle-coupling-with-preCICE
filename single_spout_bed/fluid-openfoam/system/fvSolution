@@ -30,7 +30,7 @@ solvers
         relTol          0;
     }
 
-    "(U|k|epsilon)"
+    U
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
@@ -38,7 +38,7 @@ solvers
         relTol          0.1;
     }
 
-    "(U|k|epsilon)Final"
+    UFinal
     {
         $U;
         relTol          0;
@@ -76,8 +76,8 @@ relaxationFactors
 
     equations
     {
-        "U|k|epsilon"   1;
-        "(U|k|epsilon)Final" 1;
+        U   1;
+        UFinal 1;
     }
 }
 
