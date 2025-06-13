@@ -8,19 +8,21 @@ import json
 particle_path = pathlib.Path(__file__).parent.parent / "particle-liggghts" / "post"
 timestep_files = list(particle_path.glob("mdb_*.vtu"))
 
-x_min = -.075 # minimum and maximum x-coordinates of the domain
-x_max = +.075
-y_min = -.0075 # minimum and maximum y-coordinates of the domain
-y_max = +.0075
-plane_of_measurement = 0.13  # z-coordinate of the plane where flux is measured
+# domain boundaries and measurement parameters
+x_min = -.075 # m
+x_max = +.075 # m
+y_min = -.0075 # m
+y_max = +.0075 # m
+plane_of_measurement = 0.13 # z-coordinate [m] of the plane where flux is measured
 number_of_bins = 32 # number of measurement bins along the x-axis
 
-timestep_size = 1e-3 # time between two timestep files (caution: this is not the solver timestep)
+timestep_size = 1e-3 # time [s] between two timestep files (caution: this is not the solver timestep)
 max_time = timestep_size * len(timestep_files) # total time of the simulation
 
-particle_radius = 1.5e-3 # particle properties used for flux calculation
-particle_density = 2505
-particle_mass = 4/3 * pi * particle_radius**3 * particle_density
+# particle properties used for flux calculation
+particle_radius = 1.5e-3 # m
+particle_density = 2505 # kg/m^3
+particle_mass = 4/3 * pi * particle_radius**3 * particle_density # kg
 
 positive_flux = np.zeros(number_of_bins)
 negative_flux = np.zeros(number_of_bins)
