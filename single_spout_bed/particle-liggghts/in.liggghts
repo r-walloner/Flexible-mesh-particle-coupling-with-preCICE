@@ -58,7 +58,7 @@ run   1 upto
 unfix ins
 
 # run to let particle settle
-dump dmp_settle all custom/vtk 20 post/settle_*.vtk &
+dump dmp_settle all custom/vtk 20 post/settle_*.vtu &
     id type radius &
     x y z &
     ix iy iz &
@@ -66,6 +66,9 @@ dump dmp_settle all custom/vtk 20 post/settle_*.vtk &
     vx vy vz &
     fx fy fz &
     
+dump_modify dmp_settle binary yes
+dump_modify dmp_settle compressor lz4
+
 run 6000 upto
 
 undump dmp_settle
@@ -87,7 +90,7 @@ variable f_drag_z atom c_f_drag[3]
 fix 4 all addforce v_f_drag_x v_f_drag_y v_f_drag_z
 
 # output settings
-dump dmp all custom/vtk 20 post/mdb_*.vtk &
+dump dmp all custom/vtk 20 post/mdb_*.vtu &
     id type radius c_vol_frac &
     x y z &
     ix iy iz &
@@ -97,6 +100,9 @@ dump dmp all custom/vtk 20 post/mdb_*.vtk &
     c_f_buoyancy &
     c_f_drag[1] c_f_drag[2] c_f_drag[3] &
     fx fy fz &
+
+dump_modify dmp binary yes
+dump_modify dmp compressor lz4
 
 # run with coupling
 run 200000 pre no post no every 1 precice_advance
