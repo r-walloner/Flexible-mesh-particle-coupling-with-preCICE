@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import json
 
 script_dir = pathlib.Path(__file__).parent
-particle_path = script_dir.parent / "figures" / "flux_data"
+particle_path = script_dir / "flux_data"
 
 # Set up plot
 plt.figure(figsize=(10, 6), dpi=250)

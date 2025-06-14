@@ -5,8 +5,11 @@ import numpy as np
 from tqdm import tqdm
 import json
 
-particle_path = pathlib.Path(__file__).parent.parent / "particle-liggghts" / "post"
+# Input and output paths
+script_dir = pathlib.Path(__file__).parent
+particle_path = script_dir.parent / "particle-liggghts" / "post"
 timestep_files = list(particle_path.glob("mdb_*.vtu"))
+output_path = script_dir / "flux_data" / "particle_flux.json"
 
 # domain boundaries and measurement parameters
 x_min = -.075 # m
@@ -69,7 +72,7 @@ negative_flux /= max_time * area
 net_flux = positive_flux - negative_flux
 
 # Write results to file
-with open(particle_path / 'particle_flux.json', 'w') as f:
+with open(output_path, 'w') as f:
     json.dump({
         'x_min': x_min,
         'x_max': x_max,
