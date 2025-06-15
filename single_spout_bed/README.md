@@ -9,7 +9,7 @@ ENABLE_TANGENTIAL_HISTORY
 
 Render pngs with ffmpeg:
 ```shell
-ffmpeg -pattern_type glob -i '*.png' -r 100 -b:v 20M -vcodec libopenh264 "AndersonJacksonFoam slowed 10x.mp4"
+ffmpeg -pattern_type glob -framerate 100 -i "*.png" -vcodec libopenh264 -b:v 25M -r 30 "../../$(basename "$(pwd)"), slowed 10x.mp4"
 
-ffmpeg -pattern_type glob -i '*0.png' -r 100 -b:v 20M -vcodec libopenh264 "AndersonJacksonFoam.mp4"
+ffmpeg -pattern_type glob -framerate 1000 -i "*.png" -vcodec libopenh264 -b:v 25M -r 30 "../../$(basename "$(pwd)").mp4"
 ```
