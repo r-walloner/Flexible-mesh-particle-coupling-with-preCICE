@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <precice-configuration experimental="True">
 
+    <profiling mode="off" />
+
     <data:vector name="Velocity" />
     <data:vector name="ExplicitMomentum" />
     <data:scalar name="ImplicitMomentum" />
