@@ -23,6 +23,7 @@ boundaryField
     bottom
     {
         type            zeroGradient;
+        // value           uniform (0 1e-20 0); 
     }
     // {
     //     type            uniformFixedValue;
