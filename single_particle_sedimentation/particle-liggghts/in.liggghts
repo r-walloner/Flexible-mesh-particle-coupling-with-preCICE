@@ -45,7 +45,7 @@ thermo_modify lost ignore norm no
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
 
 compute voro all voronoi/atom
-fix cpl all fluid_coupling zhao_shan momentum_semi_implicit 998.25 1.002e-3
+fix cpl all fluid_coupling zhao_shan momentum_semi_implicit 998.25 1.002e-3 1
 variable v_fluid_x atom f_cpl[1]
 variable v_fluid_y atom f_cpl[2]
 variable v_fluid_z atom f_cpl[3]
@@ -64,6 +64,12 @@ variable v_rel_y atom f_cpl[15]
 variable v_rel_z atom f_cpl[16]
 variable alpha_f atom f_cpl[17]
 variable reynolds atom f_cpl[18]
+variable f_buoyancy_x atom f_cpl[19]
+variable f_buoyancy_y atom f_cpl[20]
+variable f_buoyancy_z atom f_cpl[21]
+variable f_total_x atom f_cpl[22]
+variable f_total_y atom f_cpl[23]
+variable f_total_z atom f_cpl[24]
 
 # output settings
 dump dmp all custom/vtk 20 post/mdb_*.vtu &
@@ -77,6 +83,8 @@ dump dmp all custom/vtk 20 post/mdb_*.vtu &
     v_volume v_alpha_p v_alpha_f &
     fx fy fz &
     v_f_drag_x v_f_drag_y v_f_drag_z &
+    v_f_buoyancy_x v_f_buoyancy_y v_f_buoyancy_z &
+    v_f_total_x v_f_total_y v_f_total_z &
     v_expl_momentum_x v_expl_momentum_y v_expl_momentum_z &
     v_impl_momentum &
     v_drag_coeff v_reynolds
