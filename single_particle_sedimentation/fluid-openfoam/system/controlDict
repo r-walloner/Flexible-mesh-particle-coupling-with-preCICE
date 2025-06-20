@@ -14,8 +14,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     AndersonJacksonFoam;
-// application     pimpleFoam;
+// application     AndersonJacksonFoam;
+application     pimpleFoam;
 
 startFrom       latestTime;
 
