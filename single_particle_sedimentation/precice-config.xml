@@ -35,7 +35,12 @@
         <write-data name="Alpha" mesh="Fluid-Mesh" />
         <write-data name="DragForce" mesh="Fluid-Mesh" />
         <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
-        <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" />
+        <mapping:coarse-graining
+            direction="write"
+            to="Fluid-Mesh"
+            constraint="conservative"
+            grain-dim="3"
+            function-radius="3e-3" />
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
