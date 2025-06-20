@@ -6,7 +6,7 @@ newton        off
 processors    1 1 1
 communicate   single vel yes
 
-region	reg block -.01 .01 0 .04 -.01 .01 units box
+region	reg block -.0125 .0125 0 .075 -.0125 .0125 units box
 create_box    1 reg
 
 neigh_modify  delay 0
@@ -31,13 +31,9 @@ fix		        2 all gravity 9.81 vector 0.0 -1.0 0.0
 
 
 # insetion settings
-region	bc block -.002 .002 .028 .032 -.002 .002 units box
-fix     pts1 all particletemplate/sphere 15485863 atom_type 1 density constant 2505 radius constant .5e-3
-fix		pdd1 all particledistribution/discrete 15485867 1 pts1 1.0
-
-fix		ins all insert/pack seed 32452843 distributiontemplate pdd1 vel constant 0. -1. 0. &
-				insert_every once overlapcheck yes all_in yes particles_in_region 1 region bc
-
+create_atoms 1 single 0 .074 0
+set type 1 diameter 1e-3
+set type 1 density 2488
 
 # thermo settings
 compute       RotEng all erotate/sphere
@@ -45,15 +41,11 @@ thermo_style  custom step time atoms vol ke c_RotEng
 thermo        100
 thermo_modify lost ignore norm no
 
-# run with particle insertion
-run   1 upto
-unfix ins
-
 # set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
 
 compute voro all voronoi/atom
-fix cpl all fluid_coupling gidaspow momentum_semi_implicit 1 1.8e-5
+fix cpl all fluid_coupling zhao_shan force 998.25 1.002e-3
 variable v_fluid_x atom f_cpl[1]
 variable v_fluid_y atom f_cpl[2]
 variable v_fluid_z atom f_cpl[3]
@@ -82,4 +74,4 @@ dump dmp all custom/vtk 20 post/mdb_*.vtu &
     v_impl_momentum
 
 # run with coupling
-run 320 pre no post no every 1 precice_advance
+run 1000 pre no post no every 1 precice_advance
