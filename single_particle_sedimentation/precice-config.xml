@@ -40,7 +40,7 @@
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
 
-    <coupling-scheme:parallel-explicit>
+    <coupling-scheme:serial-explicit>
         <participants first="Fluid" second="Particle" />
         <time-window-size value="5e-5" />
         <max-time value="1.6e-2" />
@@ -49,6 +49,6 @@
         <exchange data="ImplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
         <exchange data="Alpha" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
         <exchange data="DragForce" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
-    </coupling-scheme:parallel-explicit>
+    </coupling-scheme:serial-explicit>
 
 </precice-configuration>

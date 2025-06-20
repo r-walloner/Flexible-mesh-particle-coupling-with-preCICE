@@ -51,30 +51,35 @@ unfix ins
 
 # set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
-compute v_fluid all precice_read/atom Fluid-Mesh Velocity 0
-
-#compute f_buoyancy all fluid_buoyancy/atom
-#variable f_buoyancy atom c_f_buoyancy
-#fix 3 all addforce 0 v_f_buoyancy 0
 
 compute voro all voronoi/atom
-compute vol_frac all volume_fraction/atom voronoi
-compute f_drag all fluid_drag/atom xiao_sun
-variable f_drag_x atom c_f_drag[1]
-variable f_drag_y atom c_f_drag[2]
-variable f_drag_z atom c_f_drag[3]
-fix 4 all addforce v_f_drag_x v_f_drag_y v_f_drag_z
+fix cpl all fluid_coupling gidaspow momentum_semi_implicit 1 1.8e-5
+variable v_fluid_x atom f_cpl[1]
+variable v_fluid_y atom f_cpl[2]
+variable v_fluid_z atom f_cpl[3]
+variable volume atom f_cpl[4]
+variable volfrac atom f_cpl[5]
+variable f_drag_x atom f_cpl[6]
+variable f_drag_y atom f_cpl[7]
+variable f_drag_z atom f_cpl[8]
+variable expl_momentum_x atom f_cpl[9]
+variable expl_momentum_y atom f_cpl[10]
+variable expl_momentum_z atom f_cpl[11]
+variable impl_momentum atom f_cpl[12]
 
 # output settings
-dump dmp all custom/vtk 20 post/mdb_*.vtk &
-    id type radius c_vol_frac &
+dump dmp all custom/vtk 20 post/mdb_*.vtu &
+    id type radius &
     x y z &
     ix iy iz &
     omegax omegay omegaz &
     vx vy vz &
-    c_v_fluid[1] c_v_fluid[2] c_v_fluid[3] &
-    c_f_drag[1] c_f_drag[2] c_f_drag[3] &
     fx fy fz &
+    v_v_fluid_x v_v_fluid_y v_v_fluid_z &
+    v_volume v_volfrac &
+    v_f_drag_x v_f_drag_y v_f_drag_z &
+    v_expl_momentum_x v_expl_momentum_y v_expl_momentum_z &
+    v_impl_momentum
 
 # run with coupling
 run 320 pre no post no every 1 precice_advance
