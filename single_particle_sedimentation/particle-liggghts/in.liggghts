@@ -27,7 +27,6 @@ pair_coeff * *
 timestep 5e-5
 
 fix		        1 all nve/sphere
-fix		        2 all gravity 9.81 vector 0.0 -1.0 0.0
 
 
 # insetion settings
