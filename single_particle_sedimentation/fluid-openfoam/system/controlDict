@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         0.2;
 
-deltaT          1e-3;
+deltaT          5e-5;
 
 writeControl    adjustableRunTime;
 
@@ -43,11 +43,11 @@ timeFormat      general;
 
 timePrecision   6;
 
-runTimeModifiable no;
+runTimeModifiable yes;
 
-adjustTimeStep  no;
+adjustTimeStep  yes;
 
-// maxCo           5;
+maxCo           5;
 
 libs ("libpreciceAdapterFunctionObject.so");
 functions
