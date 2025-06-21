@@ -44,7 +44,7 @@ thermo_modify lost ignore norm no
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
 
 compute voro all voronoi/atom
-fix cpl all fluid_coupling zhao_shan momentum_semi_implicit 998.25 1.002e-3 1 1
+fix cpl all fluid_coupling zhao_shan force 998.25 1.002e-3 1 1
 variable v_fluid_x atom f_cpl[1]
 variable v_fluid_y atom f_cpl[2]
 variable v_fluid_z atom f_cpl[3]

@@ -9,32 +9,32 @@ FoamFile
 
 options
 {
-    momentumSource
-    {
-        type            vectorSemiImplicitSource;
-        active          yes;
+    // momentumSource
+    // {
+    //     type            vectorSemiImplicitSource;
+    //     active          yes;
         
-        vectorSemiImplicitSourceCoeffs
-        {
-            selectionMode   all;
-            volumeMode      specific;
-            sources
-            {
-                U
-                {
-                    explicit
-                    {
-                        type        exprField;
-                        expression  "ExplicitMomentum";
-                    }
+    //     vectorSemiImplicitSourceCoeffs
+    //     {
+    //         selectionMode   all;
+    //         volumeMode      specific;
+    //         sources
+    //         {
+    //             U
+    //             {
+    //                 explicit
+    //                 {
+    //                     type        exprField;
+    //                     expression  "ExplicitMomentum";
+    //                 }
 
-                    implicit
-                    {
-                        type        exprField;
-                        expression  "-ImplicitMomentum";
-                    }
-                }
-            }
-        }
-    }
+    //                 implicit
+    //                 {
+    //                     type        exprField;
+    //                     expression  "-ImplicitMomentum";
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
