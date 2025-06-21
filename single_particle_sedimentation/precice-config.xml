@@ -44,6 +44,8 @@
             constraint="conservative"
             grain-dim="3"
             function-radius="12e-3" />
+        <!-- <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" /> -->
+        
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
