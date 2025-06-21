@@ -53,7 +53,7 @@
     <coupling-scheme:serial-explicit>
         <participants first="Fluid" second="Particle" />
         <time-window-size value="1e-3" />
-        <max-time value="0.5" />
+        <max-time value="0.25" />
         <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
         <exchange data="ExplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
         <exchange data="ImplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
