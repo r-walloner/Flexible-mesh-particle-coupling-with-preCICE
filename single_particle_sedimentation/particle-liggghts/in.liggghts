@@ -74,7 +74,7 @@ variable f_gravity_y atom f_cpl[26]
 variable f_gravity_z atom f_cpl[27]
 
 # output settings
-dump dmp all custom/vtk 20 post/mdb_*.vtu &
+dump dmp all custom/vtk 20 out/particles_*.vtu &
     id type radius &
     x y z &
     ix iy iz &

@@ -1,4 +1,4 @@
-post/
+out/
 log.*
 *.data
 precice_checkpoint*
