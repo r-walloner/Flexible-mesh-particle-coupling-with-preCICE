@@ -94,3 +94,5 @@ dump dmp all custom/vtk 20 post/mdb_*.vtu &
 
 # run with coupling
 run 4000 pre no post no every 1 precice_advance
+
+precice_finalize
