@@ -34,9 +34,10 @@
         <write-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <write-data name="Alpha" mesh="Fluid-Mesh" />
         <write-data name="DragForce" mesh="Fluid-Mesh" />
-        <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
-            <basis-function:compact-polynomial-c4 support-radius="12e-3" />
-        </mapping:rbf>
+        <!-- <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
+            <basis-function:compact-polynomial-c4 support-radius="6e-3" />
+        </mapping:rbf> -->
+        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
         <mapping:coarse-graining
             direction="write"
             to="Fluid-Mesh"
