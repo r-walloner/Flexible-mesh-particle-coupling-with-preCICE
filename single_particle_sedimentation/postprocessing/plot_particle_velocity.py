@@ -16,7 +16,9 @@ plt.xlim(0, 0.25)
 plt.ylim(0, 0.3)
 
 # Load and plot flux data
-for file in data_path.glob("*.json"):
+files = list(data_path.glob("*.json"))
+files.sort()
+for file in files:
     with open(file, "r") as f:
         data = json.load(f)
 
