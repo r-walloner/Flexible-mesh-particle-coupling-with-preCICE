@@ -33,8 +33,6 @@ writeInterval   1e-3;
 
 purgeWrite      0;
 
-writeFormat     ascii;
-
 writePrecision  3;
 
 writeCompression on;

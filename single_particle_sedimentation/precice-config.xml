@@ -24,7 +24,6 @@
         <read-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <read-data name="Alpha" mesh="Fluid-Mesh" />
         <read-data name="DragForce" mesh="Fluid-Mesh" />
-        <export:vtu directory="precice-exports" />
     </participant>
 
     <participant name="Particle">
@@ -34,18 +33,17 @@
         <write-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <write-data name="Alpha" mesh="Fluid-Mesh" />
         <write-data name="DragForce" mesh="Fluid-Mesh" />
+        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
         <!-- <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
             <basis-function:compact-polynomial-c4 support-radius="6e-3" />
         </mapping:rbf> -->
-        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
+        <!-- <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" /> -->
         <mapping:coarse-graining
             direction="write"
             to="Fluid-Mesh"
             constraint="conservative"
             grain-dim="3"
             function-radius="12e-3" />
-        <!-- <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" /> -->
-        
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />

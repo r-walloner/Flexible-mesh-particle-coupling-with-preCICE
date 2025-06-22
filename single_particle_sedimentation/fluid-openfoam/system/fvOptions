@@ -17,7 +17,7 @@ options
     //     vectorSemiImplicitSourceCoeffs
     //     {
     //         selectionMode   all;
-    //         volumeMode      specific;
+    //         volumeMode      absolute;
     //         sources
     //         {
     //             U

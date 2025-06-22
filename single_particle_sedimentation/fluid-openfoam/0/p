@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -2 0 0 0 0]; // TODO this is kinematic pressure. Is this ok?
+dimensions      [0 2 -2 0 0 0 0];
 
 internalField   uniform 0;
 
@@ -22,12 +22,12 @@ boundaryField
 {
     bottom
     {
-        type            zeroGradient;
+        type            fixedValue;
+        value           uniform 0;
     }
     top
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            zeroGradient;
     }
     sides
     {

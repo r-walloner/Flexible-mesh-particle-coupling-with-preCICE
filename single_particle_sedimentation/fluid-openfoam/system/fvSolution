@@ -13,7 +13,7 @@ FoamFile
     object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// TODO what do we set tolerance to?
+
 solvers
 {
     p
@@ -51,7 +51,7 @@ PIMPLE
 {
     nNonOrthogonalCorrectors 0;
     nCorrectors         2;
-    nOuterCorrectors    200; // rely on residual control to stop corrector loop
+    nOuterCorrectors    200;
 
     residualControl
     {

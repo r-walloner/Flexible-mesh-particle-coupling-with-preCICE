@@ -7,7 +7,7 @@ FoamFile
     object      ImplicitMomentum;
 }
 
-dimensions      [0 0 -1 0 0 0 0];   // 1/s
+dimensions      [0 0 -1 0 0 0 0];
 internalField   uniform 0;
 boundaryField
 {
