@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2412                                 |
+|  \\    /   O peration     | Version:  2406                                  |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -9,16 +9,23 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      transportProperties;
+    class       volScalarField;
+    object      alphaSolid;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-transportModel  Newtonian;
+dimensions      [0 0 0 0 0 0 0];
 
-nu              1.004e-6; // Ns/m^3
-rho             998.25; // kg/m^3
-g               (0 -9.81 0);
+internalField   uniform 0;
+
+boundaryField
+{
+    ".*"
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+}
 
 
 // ************************************************************************* //

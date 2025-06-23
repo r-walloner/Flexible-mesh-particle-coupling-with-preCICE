@@ -20,19 +20,7 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    bottom
-    {
-        type            zeroGradient;
-    }
-    top
-    {
-        type            zeroGradient;
-    }
-    sides
-    {
-        type            noSlip;
-    }
-    frontAndBack
+    ".*"
     {
         type            noSlip;
     }

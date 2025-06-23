@@ -35,7 +35,7 @@
         <write-data name="DragForce" mesh="Fluid-Mesh" />
         <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
         <!-- <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
-            <basis-function:compact-polynomial-c4 support-radius="6e-3" />
+            <basis-function:compact-polynomial-c4 support-radius="6e-2" />
         </mapping:rbf> -->
         <!-- <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" /> -->
         <mapping:coarse-graining
