@@ -3,8 +3,9 @@ import pathlib
 import matplotlib.pyplot as plt
 import json
 
-script_dir = pathlib.Path(__file__).parent
-data_path = script_dir / "data" / "coarse mesh"
+script_dir = pathlib.Path(__file__).parent.resolve()
+data_dir = script_dir / "data" / "particle_velocity"
+reference_file = script_dir / "data" / "particle_velocity_reference" / "Song Park 2020 - coarse.csv"
 
 
 # Set up plot
@@ -18,10 +19,9 @@ plt.ylim(0, 0.3)
 
 
 # Load and plot reference data
-reference_data_path = script_dir / "reference_data" / "coarse mesh" / "Song Park 2020.csv"
-reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
+reference_data = np.genfromtxt(reference_file, delimiter=",", skip_header=2)
 song_sim = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
-song_theoretical = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
+song_theoretical = reference_data[:, -2:][~np.isnan(reference_data[:, -2])]
 
 song_sim = song_sim[song_sim[:, 0].argsort()]
 song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
@@ -31,7 +31,7 @@ plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlat
 
 
 # Load and plot flux data
-files = list(data_path.glob("*.json"))
+files = list(data_dir.glob("*.json"))
 files.sort()
 for file in files:
     with open(file, "r") as f:
