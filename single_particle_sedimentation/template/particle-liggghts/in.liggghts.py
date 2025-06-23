@@ -1,3 +1,5 @@
+def generate(p):
+    return f"""
 # System settings
 units           si
 atom_style      granular
@@ -5,10 +7,10 @@ boundary        p f p
 newton          off
 processors      1 1 1
 communicate     single vel yes
-region          domain block -.025 .025 0 .15 -.025 .025 units box
+region          domain block {-p["particle_diameter"] * 25 / 2} {p["particle_diameter"] * 25 / 2} 0 {p["particle_diameter"] * 75} {-p["particle_diameter"] * 25 / 2} {p["particle_diameter"] * 25 / 2} units box
 create_box      1 domain
 neigh_modify    delay 0
-timestep        5e-5
+timestep        {p["particle_dt"]}
 fix		        integrate all nve/sphere
 
 
@@ -24,15 +26,15 @@ pair_coeff * *
 
 
 # Create particles
-create_atoms    1 single 0 .148 0
-set type        1 diameter 2e-3
-set type        1 density 2463
+create_atoms    1 single 0 {p["particle_diameter"] * 74} 0
+set type        1 diameter {p["particle_diameter"]}
+set type        1 density {p["particle_density"]}
 
 
 # Set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
 compute voro all voronoi/atom
-fix cpl all fluid_coupling zhao_shan force 998.25 1.002e-3 1 1
+fix cpl all fluid_coupling zhao_shan {"force" if p["solver"] == "AndersonJacksonFoam" else "momentum_semi_implicit"} {p["fluid_density"]} {p["fluid_viscosity"]} 1 1
 
 
 # Output to console
@@ -70,7 +72,7 @@ variable f_gravity_x atom f_cpl[25]
 variable f_gravity_y atom f_cpl[26]
 variable f_gravity_z atom f_cpl[27]
 
-dump dmp all custom/vtk 20 out/particles_*.vtu &
+dump dmp all custom/vtk {int(p["output_interval"] / p["particle_dt"])} out/particles_*.vtu &
     id &
     x y z &
     ix iy iz &
@@ -90,7 +92,8 @@ dump dmp all custom/vtk 20 out/particles_*.vtu &
 
 
 # Run with coupling
-run 5000 pre no post no every 1 precice_advance
+run {int(p["end_time"] / p["particle_dt"])} pre no post no every 1 precice_advance
 
 
 precice_finalize
+"""

@@ -1,0 +1,107 @@
+import pathlib
+import json
+from typing import TypedDict
+import shutil
+import importlib.util
+
+script_dir = pathlib.Path(__file__).parent.resolve()
+runs_dir = script_dir / "runs"
+template_dir = script_dir / "template"
+
+
+class Parameters(TypedDict):
+    solver: str
+    start_time: float
+    end_time: float
+    fluid_dt: float
+    fluid_cells: tuple[int, int, int]
+    fluid_subdomains: int
+    fluid_viscosity: float
+    fluid_density: float
+    particle_dt: float
+    particle_diameter: float
+    particle_density: float
+    read_mapping: str
+    read_mapping_radius: float
+    write_mapping: str
+    write_mapping_radius: float
+    output_interval: float
+
+
+# Instantiate the case with the given parameters
+def generate_run(p: Parameters):
+    run_name = "_".join(
+        [
+            p["solver"],
+            f"mesh-{p['fluid_cells'][0]}x{p['fluid_cells'][1]}x{p['fluid_cells'][2]}",
+            f"read-{p['read_mapping']}{'-' + str(p['read_mapping_radius']) if p['read_mapping_radius'] else ''}",
+            f"write-{p['write_mapping']}{'-' + str(p['write_mapping_radius']) if p['write_mapping_radius'] else ''}",
+        ]
+    )
+
+    # Create the run directory
+    run_dir = runs_dir / run_name
+    try:
+        run_dir.mkdir(exist_ok=False, parents=True)
+    except FileExistsError:
+        print(f"Run {run_name} already exists, skipping.")
+
+    # Write parameters to file
+    with open(run_dir / "parameters.json", "w") as f:
+        json.dump(p, f, indent=4)
+    
+    # Copy the template case
+    shutil.copytree(template_dir, run_dir, dirs_exist_ok=True)
+
+    # Instantiate the template files with parameters
+    for template_file in run_dir.rglob("*.py"):
+        # Load the template file as a module
+        spec = importlib.util.spec_from_file_location(template_file.name, template_file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        # Execute the generate() funcion from the template and write the output
+        output = module.generate(p)
+        if output is not None:
+            output_file = template_file.with_suffix("")
+            with open(output_file, "w") as f:
+                f.write(output)
+
+        # Remove the template file
+        template_file.unlink()
+
+    
+
+
+# Set default parameters
+p = Parameters(
+    solver="AndersonJacksonFoam",
+    start_time=0.0,
+    end_time=0.25,
+    fluid_dt=1e-3,
+    fluid_cells=(6, 18, 6),
+    fluid_subdomains=8,
+    fluid_viscosity=1.002e-3,
+    fluid_density=998.25,
+    particle_dt=5e-5,
+    particle_diameter=2e-3,
+    particle_density=2463,
+    read_mapping="nearest-neighbor",
+    read_mapping_radius=None,
+    write_mapping="coarse-graining",
+    write_mapping_radius=12e-3,
+    output_interval=1e-3,
+)
+
+# Generate runs with varying parameters
+for read_mapping in ["nearest-neighbor", "rbf"]:
+    p["read_mapping"] = read_mapping
+
+    if read_mapping == "nearest-neighbor":
+        radiuses = [None]
+    else:
+        radiuses = [n * p["particle_diameter"] for n in [1, 3, 6]]
+    for radius in radiuses:
+        p["read_mapping_radius"] = radius
+
+        generate_run(p)
