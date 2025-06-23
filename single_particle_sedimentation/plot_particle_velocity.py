@@ -5,7 +5,7 @@ import json
 
 script_dir = pathlib.Path(__file__).parent.resolve()
 data_dir = script_dir / "data" / "particle_velocity"
-reference_file = script_dir / "data" / "particle_velocity_reference" / "Song Park 2020 - coarse.csv"
+reference_file = script_dir / "reference_data" / "Song Park 2020 - fine.csv"
 
 
 # Set up plot
