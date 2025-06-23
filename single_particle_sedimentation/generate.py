@@ -43,7 +43,9 @@ def generate_run(p: Parameters):
     try:
         run_dir.mkdir(exist_ok=False, parents=True)
     except FileExistsError:
-        print(f"Run {run_name} already exists, skipping.")
+        print(f"{run_name} already exists, skipping")
+
+    print(f"Generating {run_name}")
 
     # Write parameters to file
     with open(run_dir / "parameters.json", "w") as f:
