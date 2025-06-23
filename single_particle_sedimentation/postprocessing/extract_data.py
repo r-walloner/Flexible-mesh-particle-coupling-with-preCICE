@@ -11,7 +11,7 @@ particle_path = script_dir.parent / "particle-liggghts" / "out"
 timestep_files = list(particle_path.glob("particles_*.vtu"))
 output_path = script_dir / "data" / "coarse mesh" / "particles.json"
 
-timestep_size = 3e-3 # time [s] between two timestep files (caution: this is not the solver timestep)
+timestep_size = 1.5e-3 # time [s] between two timestep files (caution: this is not the solver timestep)
 max_time = timestep_size * len(timestep_files) # total time of the simulation
 
 time = []

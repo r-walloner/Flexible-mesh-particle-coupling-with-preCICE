@@ -6,6 +6,7 @@ import json
 script_dir = pathlib.Path(__file__).parent
 data_path = script_dir / "data" / "coarse mesh"
 
+
 # Set up plot
 plt.figure(figsize=(10, 6), dpi=250)
 plt.title("Settling velocity of a single particle")
@@ -14,6 +15,20 @@ plt.xlabel("Time [s]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(0, 0.25)
 plt.ylim(0, 0.3)
+
+
+# Load and plot reference data
+reference_data_path = script_dir / "reference_data" / "coarse mesh" / "Song Park 2020.csv"
+reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
+song_sim = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
+song_theoretical = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
+
+song_sim = song_sim[song_sim[:, 0].argsort()]
+song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
+
+plt.plot(song_sim[:,0], song_sim[:,1], label='Song Park 2020', color="black")
+plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlation', color="black", linestyle="--")
+
 
 # Load and plot flux data
 files = list(data_path.glob("*.json"))
@@ -27,17 +42,7 @@ for file in files:
 
     plt.plot(time, particle_velocity, label=file.stem)
 
-# Load and plot reference data
-reference_data_path = script_dir / "reference_data" / "coarse mesh" / "Song Park 2020.csv"
-reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
-song_sim = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
-song_theoretical = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
 
-song_sim = song_sim[song_sim[:, 0].argsort()]
-song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
-
-plt.plot(song_sim[:,0], song_sim[:,1], label='Song Park 2020', color="black")
-plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlation', color="black", linestyle="--")
 
 # Output plot
 plt.legend()
