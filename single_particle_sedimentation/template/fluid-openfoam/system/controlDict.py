@@ -13,7 +13,7 @@ application     {p["solver"]};
 
 startFrom       startTime;
 
-startTime       {p["start_time"]};
+startTime       0.0;
 
 stopAt          endTime;
 

@@ -11,7 +11,6 @@ template_dir = script_dir / "template"
 
 class Parameters(TypedDict):
     solver: str
-    start_time: float
     end_time: float
     fluid_dt: float
     fluid_cells: tuple[int, int, int]
@@ -76,7 +75,6 @@ def generate_run(p: Parameters):
 # Set default parameters
 p = Parameters(
     solver="AndersonJacksonFoam",
-    start_time=0.0,
     end_time=0.25,
     fluid_dt=1e-3,
     fluid_cells=(6, 18, 6),
