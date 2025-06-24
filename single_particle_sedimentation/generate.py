@@ -68,6 +68,10 @@ def generate_run(p: Parameters):
             with open(output_file, "w") as f:
                 f.write(output)
 
+            # Make output file executable, if its a script
+            if output_file.suffix in [".sh", ".bash"]:
+                output_file.chmod(output_file.stat().st_mode | 0o111)
+
         # Remove the template file
         template_file.unlink()
 

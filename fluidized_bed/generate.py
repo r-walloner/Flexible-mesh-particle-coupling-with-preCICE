@@ -18,7 +18,7 @@ class Parameters(TypedDict):
     fluid_viscosity: float
     fluid_density: float
     fluid_background_velocity: float
-    fluid_spout_velocity:float
+    fluid_spout_velocity: float
     particle_dt: float
     particle_subdomains: str
     particle_diameter: float
@@ -64,7 +64,7 @@ def generate_run(p: Parameters):
     # Write parameters to file
     with open(run_dir / "parameters.json", "w") as f:
         json.dump(p, f, indent=4)
-    
+
     # Copy the template case
     shutil.copytree(template_dir, run_dir, dirs_exist_ok=True)
 
@@ -81,6 +81,10 @@ def generate_run(p: Parameters):
             output_file = template_file.with_suffix("")
             with open(output_file, "w") as f:
                 f.write(output)
+
+            # Make output file executable, if its a script
+            if output_file.suffix in [".sh", ".bash"]:
+                output_file.chmod(output_file.stat().st_mode | 0o111)
 
         # Remove the template file
         template_file.unlink()
