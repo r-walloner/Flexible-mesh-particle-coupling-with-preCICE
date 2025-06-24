@@ -20,9 +20,14 @@ internalField   uniform 0;
 
 boundaryField
 {
-    "bottom|spout|top|sides"
+    "bottom|spout|sides"
     {
         type            zeroGradient;
+    }
+    top
+    {
+        type            fixedValue;
+        value           uniform 0;
     }
     frontAndBack
     {
