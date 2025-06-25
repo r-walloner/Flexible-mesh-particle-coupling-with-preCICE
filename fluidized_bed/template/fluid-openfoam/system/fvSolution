@@ -70,8 +70,6 @@ PIMPLE
     correctPhi  true;
     momentumPredictor true;
     nOuterCorrectors	1;
-    pRefCell 0;
-    pRefValue 0.0;
 }
 
 
