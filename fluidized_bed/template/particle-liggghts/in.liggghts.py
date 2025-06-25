@@ -47,7 +47,7 @@ fix p_template all particletemplate/sphere 15485863 &
     radius constant {p["particle_diameter"] / 2}
 fix p_distribution all particledistribution/discrete 15485867 1 p_template 1.0
 fix insert all insert/pack seed 32452843 distributiontemplate p_distribution &
-    vel constant {p["particle_insert_velocity"]} &
+    vel constant {p["particle_insert_velocity"][0]} {p["particle_insert_velocity"][1]} {p["particle_insert_velocity"][2]} &
 	insert_every once &
     overlapcheck yes &
     all_in yes &
