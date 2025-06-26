@@ -13,3 +13,10 @@ ffmpeg -pattern_type glob -framerate 100 -i "*.png" -vcodec libopenh264 -b:v 25M
 
 ffmpeg -pattern_type glob -framerate 1000 -i "*.png" -vcodec libopenh264 -b:v 25M -r 30 "../../$(basename "$(pwd)").mp4"
 ```
+
+
+Generate `0/alphaSolid`
+1. Generate run.
+2. In `system/controlDict`, set `writeInterval` to equal `deltaT` and disable `writeCompression`.
+3. Run for two timewindows.
+4. Copy `0.00002/alphaSolid` to `0/alphaSolid`.
