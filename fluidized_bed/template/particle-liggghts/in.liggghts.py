@@ -34,7 +34,7 @@ pair_coeff * *
 
 
 # Output to console
-thermo_style    custom step dt time atoms ke 
+thermo_style    custom step dt time atoms ke fmax fnorm
 thermo_modify   lost warn norm no
 thermo          200
 
