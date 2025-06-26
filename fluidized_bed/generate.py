@@ -21,6 +21,7 @@ class Parameters(TypedDict):
     fluid_spout_velocity: float
     particle_dt: float
     particle_subdomains: str
+    particle_drag_model: str
     particle_diameter: float
     particle_density: float
     particle_contact_model: str
@@ -105,6 +106,7 @@ p = Parameters(
     fluid_spout_velocity=30,
     particle_dt=5e-5,
     particle_subdomains="8 1 1",
+    particle_drag_model="gidaspow",
     particle_diameter=3e-3,
     particle_density=2505,
     particle_contact_model="model hooke tangential history",

@@ -80,7 +80,7 @@ undump dmp_settle
 # Set up coupling
 precice_initialize Particle ../precice-config.xml Fluid-Mesh
 compute voro all voronoi/atom
-fix cpl all fluid_coupling zhao_shan {"force" if p["solver"] == "AndersonJacksonFoam" else "momentum_semi_implicit"} {p["fluid_density"]} {p["fluid_viscosity"]} 1 1
+fix cpl all fluid_coupling {p["particle_drag_model"]} {"force" if p["solver"] == "AndersonJacksonFoam" else "momentum_semi_implicit"} {p["fluid_density"]} {p["fluid_viscosity"]} 1 1
 
 
 # Output to file
