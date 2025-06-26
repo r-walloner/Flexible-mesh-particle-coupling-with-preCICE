@@ -96,7 +96,7 @@ def generate_run(p: Parameters):
 p = Parameters(
     solver="AndersonJacksonFoam",
     end_time=2,
-    fluid_dt=1e-3,
+    fluid_dt=1e-4,
     fluid_cells=(30, 250, 1),
     fluid_subdomains=1,
     fluid_viscosity=1.8e-5,

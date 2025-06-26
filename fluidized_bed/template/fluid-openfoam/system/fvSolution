@@ -64,13 +64,40 @@ solvers
 
 PIMPLE
 {
-    nCorrectors 4;
+    nCorrectors 2;
     nNonOrthogonalCorrectors 1;
     consistent  true;
     correctPhi  true;
     momentumPredictor true;
-    nOuterCorrectors	1;
+    nOuterCorrectors	10;
+
+    residualControl
+    {
+        U
+        {
+            tolerance   1e-5;
+            relTol      0.01;
+        }
+        p
+        {
+            tolerance   1e-4;
+            relTol      0.001;
+        }
+    }
 }
+
+
+// relaxationFactors
+// {
+//     fields
+//     {
+//         p               0.3;
+//     }
+//     equations
+//     {
+//         U               0.7;
+//     }
+// }
 
 
 potentialFlow
