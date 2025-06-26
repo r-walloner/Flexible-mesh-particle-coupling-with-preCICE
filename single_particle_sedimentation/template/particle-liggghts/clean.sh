@@ -1,3 +1,5 @@
 #!/bin/bash
 
-git clean -fdX
+rm -rf out/
+rm -rf precice-profiling/
+rm log.liggghts
