@@ -28,15 +28,17 @@ class Parameters(TypedDict):
 
 
 # Instantiate the case with the given parameters
-def generate_run(p: Parameters):
-    run_name = "_".join(
-        [
-            p["solver"],
-            f"mesh-{p['fluid_cells'][0]}x{p['fluid_cells'][1]}x{p['fluid_cells'][2]}",
-            f"read-{p['read_mapping']}{'-' + str(p['read_mapping_radius']) if p['read_mapping_radius'] else ''}",
-            f"write-{p['write_mapping']}{'-' + str(p['write_mapping_radius']) if p['write_mapping_radius'] else ''}",
-        ]
-    )
+def generate_run(p: Parameters, run_name: str = None):
+    if run_name is None:
+        run_name = "_".join(
+            [
+                f"mesh-{p['fluid_cells'][0]}x{p['fluid_cells'][1]}x{p['fluid_cells'][2]}",
+                f"particle-{p['particle_diameter']}",
+                p["solver"],
+                f"read-{p['read_mapping']}{'-' + str(p['read_mapping_radius']) if p['read_mapping_radius'] else ''}",
+                f"write-{p['write_mapping']}{'-' + str(p['write_mapping_radius']) if p['write_mapping_radius'] else ''}",
+            ]
+        )
 
     # Create the run directory
     run_dir = runs_dir / run_name
@@ -96,6 +98,8 @@ p = Parameters(
     write_mapping_radius=12e-3,
     output_interval=1e-3,
 )
+
+generate_run(p, "generated")
 
 # Generate runs with varying parameters
 for read_mapping in ["nearest-neighbor", "rbf"]:
