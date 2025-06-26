@@ -125,11 +125,11 @@ p = Parameters(
     read_mapping_radius=None,
     write_mapping="coarse-graining",
     write_mapping_radius=12e-3,
-    output_interval=1e-3,
-    output_compression=False,
+    output_interval=2e-3,
+    output_compression=True,
 )
 
-generate_run(p, "generated")
+generate_run(p, "AJ_gidaspow_read-NN_write-CG")
 
 # Generate runs with varying parameters
 
