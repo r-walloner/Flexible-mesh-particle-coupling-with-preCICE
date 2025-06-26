@@ -132,8 +132,8 @@ dump dmp all custom/vtk {int(p["output_interval"] / p["particle_dt"])} out/parti
     v_drag_coeff v_reynolds &
     radius v_volume v_alpha_p v_alpha_f
 {"""
-dump_modify dmp_settle binary yes
-dump_modify dmp_settle compressor lz4"""
+dump_modify dmp binary yes
+dump_modify dmp compressor lz4"""
  if p["output_compression"] else ""}
 
 
