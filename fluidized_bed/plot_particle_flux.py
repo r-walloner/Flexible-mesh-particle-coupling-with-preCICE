@@ -3,8 +3,9 @@ import pathlib
 import matplotlib.pyplot as plt
 import json
 
-script_dir = pathlib.Path(__file__).parent
-particle_path = script_dir / "flux_data"
+script_dir = pathlib.Path(__file__).parent.resolve()
+data_dir = script_dir / "data" / "particle_flux"
+reference_data_path = script_dir / "reference_data" / "Link 2005.csv"
 
 # Set up plot
 plt.figure(figsize=(10, 6), dpi=250)
@@ -14,7 +15,7 @@ plt.grid(True)
 xlim_max = None
 
 # Load and plot flux data
-for file in particle_path.glob("*.json"):
+for file in data_dir.glob("*.json"):
     with open(file, "r") as f:
         data = json.load(f)
 
@@ -37,7 +38,6 @@ for file in particle_path.glob("*.json"):
     plt.plot(bins, net_flux, label=file.stem)
 
 # Load and plot reference data
-reference_data_path = script_dir / "reference_data" / "Link_2005.csv"
 reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
 link_exp = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
 link_sim_min = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
