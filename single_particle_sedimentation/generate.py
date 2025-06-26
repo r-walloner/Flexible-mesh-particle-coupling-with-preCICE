@@ -25,6 +25,7 @@ class Parameters(TypedDict):
     write_mapping: str
     write_mapping_radius: float
     output_interval: float
+    output_compression:bool
 
 
 # Instantiate the case with the given parameters
@@ -97,6 +98,7 @@ p = Parameters(
     write_mapping="coarse-graining",
     write_mapping_radius=12e-3,
     output_interval=1e-3,
+    output_compression=False,
 )
 
 generate_run(p, "generated")

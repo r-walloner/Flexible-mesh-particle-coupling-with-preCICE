@@ -29,7 +29,7 @@ purgeWrite      0;
 
 writePrecision  3;
 
-writeCompression on;
+writeCompression {"on" if p["output_compression"] else "off"};
 
 timeFormat      general;
 
