@@ -3,7 +3,7 @@ import pyvista as pv
 import numpy as np
 import json
 import subprocess
-import tqdm
+from tqdm import tqdm
 from math import pi
 
 script_dir = pathlib.Path(__file__).parent.resolve()
@@ -55,7 +55,7 @@ def extract_particle_flux(run_dir: pathlib.Path):
     particle_mass = particle_volume * parameters["particle_density"]
 
     # Iterate over timesteps
-    for timestep_file in tqdm(data_dir.glob("particles_*.vtu")):
+    for timestep_file in tqdm(list(data_dir.glob("particles_*.vtu"))):
         timestep: pv.UnstructuredGrid = pv.read(timestep_file)
 
         # Store particle positions by their IDs
