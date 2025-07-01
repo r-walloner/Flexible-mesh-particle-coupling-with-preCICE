@@ -26,6 +26,7 @@ class Parameters(TypedDict):
     write_mapping_radius: float
     output_interval: float
     output_compression:bool
+    precice_debug_log: bool
 
 
 # Instantiate the case with the given parameters
@@ -99,8 +100,8 @@ p = Parameters(
     write_mapping_radius=12e-3,
     output_interval=1e-3,
     output_compression=False,
-)
     precice_debug_log=False,
+)
 
 generate_run(p, "generated")
 
