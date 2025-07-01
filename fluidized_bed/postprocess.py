@@ -1,4 +1,5 @@
 import pathlib
+from sys import argv
 import pyvista as pv
 import numpy as np
 import json
@@ -19,11 +20,6 @@ y_min = -.0075 # m
 y_max = +.0075 # m
 plane_of_measurement = 0.13 # z-coordinate [m] of the plane where flux is measured
 number_of_bins = 32 # number of measurement bins along the x-axis
-
-
-# Find runs
-runs = list(run for run in runs_dir.iterdir() if run.is_dir())
-runs.sort(key=lambda x: x.name)
 
 
 # Extract the averaged particle flux across the measurement plane
@@ -134,7 +130,14 @@ def extract_profiling_events(run_dir: pathlib.Path):
     print()
 
 
-# Postprocess each run
-for run_dir in runs:
-    extract_particle_flux(run_dir)
-    extract_profiling_events(run_dir)
+if __name__ == "__main__":
+    if len(argv) == 1 or argv[1] == "all":
+        # postprocess all runs
+        runs = list(run for run in runs_dir.iterdir() if run.is_dir())
+        runs.sort(key=lambda x: x.name)
+    else:
+        runs = [pathlib.Path(arg) for arg in argv[1:]]
+
+    for run_dir in runs:
+        extract_particle_flux(run_dir)
+        extract_profiling_events(run_dir)

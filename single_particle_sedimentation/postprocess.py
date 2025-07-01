@@ -1,4 +1,5 @@
 import pathlib
+from sys import argv
 import pyvista as pv
 import numpy as np
 import json
@@ -7,10 +8,6 @@ import subprocess
 script_dir = pathlib.Path(__file__).parent.resolve()
 runs_dir = script_dir / "runs"
 out_dir = script_dir / "data"
-
-# Find runs
-runs = list(run for run in runs_dir.iterdir() if run.is_dir())
-runs.sort(key=lambda x: x.name)
 
 
 # Extract the particle velocity over time from the simulation data
@@ -88,7 +85,14 @@ def extract_profiling_events(run_dir: pathlib.Path):
     print()
 
 
-# Postprocess each run
-for run_dir in runs:
-    extract_particle_velocity(run_dir)
-    extract_profiling_events(run_dir)
+if __name__ == "__main__":
+    if len(argv) == 1 or argv[1] == "all":
+        # postprocess all runs
+        runs = list(run for run in runs_dir.iterdir() if run.is_dir())
+        runs.sort(key=lambda x: x.name)
+    else:
+        runs = [pathlib.Path(arg) for arg in argv[1:]]
+
+    for run_dir in runs:
+        extract_particle_velocity(run_dir)
+        extract_profiling_events(run_dir)
