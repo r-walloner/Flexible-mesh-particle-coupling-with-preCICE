@@ -6,12 +6,7 @@ def generate(p):
         <sink
             type="stream"
             output="stdout"
-            filter="(%Severity% > debug) and not ((%Severity% = info) and (%Rank% != 0))" />
-        <sink
-            type="file"
-            output="../precice.log"
-            filter="%Severity% >= debug"
-            enabled="{"true" if p["precice_debug_log"] else "false"} />
+            filter="{"%Severity% >= debug" if p["precice_debug_log"] else "(%Severity% > debug) and not ((%Severity% = info) and (%Rank% != 0))"}" />
     </log>
 
     <profiling mode="fundamental" />
