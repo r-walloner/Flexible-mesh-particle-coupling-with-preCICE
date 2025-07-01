@@ -21,6 +21,7 @@ class Parameters(TypedDict):
     fluid_spout_velocity: float
     particle_dt: float
     particle_subdomains: str
+    particle_total_subdomains: int
     particle_drag_model: str
     particle_diameter: float
     particle_density: float
@@ -111,6 +112,7 @@ p = Parameters(
     fluid_spout_velocity=30,
     particle_dt=1e-5,
     particle_subdomains="8 1 1",
+    particle_total_subdomains=None,
     particle_drag_model="gidaspow",
     particle_diameter=3e-3,
     particle_density=2505,
