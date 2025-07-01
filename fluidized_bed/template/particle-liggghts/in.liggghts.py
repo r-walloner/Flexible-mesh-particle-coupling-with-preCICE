@@ -10,7 +10,7 @@ communicate     single vel yes
 region          domain block -.075 .075 0 .75 -.0075 .0075 units box
 create_box      1 domain
 neigh_modify    delay 0
-timestep        {p["particle_dt"]}
+timestep        {p["particle_settling_dt"]}
 fix		        integrate all nve/sphere
 
 
@@ -58,7 +58,7 @@ unfix insert
 
 
 # Let particles settle
-dump dmp_settle all custom/vtk {int(p["output_interval"] / p["particle_dt"])} out/settle/particles_*.vtu &
+dump dmp_settle all custom/vtk {int(p["output_interval"] / p["particle_settling_dt"])} out/settle/particles_*.vtu &
     id &
     x y z &
     ix iy iz &
@@ -73,7 +73,7 @@ dump_modify dmp_settle compressor lz4"""
 
 fix settling_gravity all gravity {p["particle_settling_gravity"]} vector 0 -1 0
 
-run {int(p["particle_settling_time"] / p["particle_dt"])}
+run {int(p["particle_settling_time"] / p["particle_settling_dt"])}
 
 unfix settling_gravity
 undump dmp_settle
@@ -138,6 +138,8 @@ dump_modify dmp compressor lz4"""
 
 
 # Run with coupling
+timestep {p["particle_dt"]}
+
 run {int(p["end_time"] / p["particle_dt"])} pre no post no every 1 precice_advance
 
 

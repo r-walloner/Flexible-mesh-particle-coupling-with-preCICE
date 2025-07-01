@@ -34,6 +34,7 @@ class Parameters(TypedDict):
     particle_insert_velocity: tuple[float, float, float]
     particle_settling_gravity: float
     particle_settling_time: float
+    particle_settling_dt: float
     read_mapping: str
     read_mapping_radius: float
     write_mapping: str
@@ -123,6 +124,7 @@ p = Parameters(
     particle_insert_velocity=(0, -0.5, 0),
     particle_settling_gravity=50, # Amplified gravity to speed up settling
     particle_settling_time=0.3,
+    particle_settling_dt=5e-5,
     read_mapping="nearest-neighbor",
     read_mapping_radius=None,
     write_mapping="coarse-graining",
