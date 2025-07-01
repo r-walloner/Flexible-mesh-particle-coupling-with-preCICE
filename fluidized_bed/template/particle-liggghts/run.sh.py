@@ -4,5 +4,5 @@ def generate(p):
 
     return f"""#!/bin/bash
 
-mpirun -n {total_subdomains} ../../../../../LIGGGHTS-PUBLIC/build/liggghts < in.liggghts
+{"srun" if p["slurm"] else "mpirun"} -n {total_subdomains} ../../../../../LIGGGHTS-PUBLIC/build/liggghts < in.liggghts
 """

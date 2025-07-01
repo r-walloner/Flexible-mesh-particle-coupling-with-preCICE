@@ -40,6 +40,7 @@ class Parameters(TypedDict):
     write_mapping_radius: float
     output_interval: float
     output_compression:bool
+    slurm: bool
 
 
 # Instantiate the case with the given parameters
@@ -127,6 +128,7 @@ p = Parameters(
     write_mapping_radius=12e-3,
     output_interval=2e-3,
     output_compression=True,
+    slurm=False,
 )
 
 generate_run(p, "AJ_gidaspow_read-NN_write-CG")
