@@ -102,7 +102,7 @@ def generate_run(p: Parameters, run_name: str = None):
 # Set default parameters
 p = Parameters(
     solver="AndersonJacksonFoam",
-    end_time=2,
+    end_time=20,
     fluid_dt=1e-5,
     fluid_cells=(30, 250, 1),
     fluid_subdomains=1,
