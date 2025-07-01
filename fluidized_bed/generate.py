@@ -134,7 +134,7 @@ p = Parameters(
     output_interval=2e-3,
     output_compression=True,
     slurm=False,
-    precice_debug_log=True,
+    precice_debug_log=False,
 )
 
 generate_run(p, "AJ_gidaspow_read-NN_write-CG")
