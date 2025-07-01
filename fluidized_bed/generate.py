@@ -41,6 +41,7 @@ class Parameters(TypedDict):
     output_interval: float
     output_compression:bool
     slurm: bool
+    precice_debug_log: bool
 
 
 # Instantiate the case with the given parameters
@@ -129,6 +130,7 @@ p = Parameters(
     output_interval=2e-3,
     output_compression=True,
     slurm=False,
+    precice_debug_log=True,
 )
 
 generate_run(p, "AJ_gidaspow_read-NN_write-CG")

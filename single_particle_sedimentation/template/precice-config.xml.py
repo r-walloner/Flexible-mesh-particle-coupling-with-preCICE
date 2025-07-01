@@ -2,6 +2,18 @@ def generate(p):
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <precice-configuration experimental="True">
 
+    <log>
+        <sink
+            type="stream"
+            output="stdout"
+            filter="(%Severity% > debug) and not ((%Severity% = info) and (%Rank% != 0))" />
+        <sink
+            type="file"
+            output="../precice.log"
+            filter="%Severity% >= debug"
+            enabled="{"true" if p["precice_debug_log"] else "false"} />
+    </log>
+
     <profiling mode="fundamental" />
 
     <data:vector name="Velocity" />

@@ -100,6 +100,7 @@ p = Parameters(
     output_interval=1e-3,
     output_compression=False,
 )
+    precice_debug_log=False,
 
 generate_run(p, "generated")
 
