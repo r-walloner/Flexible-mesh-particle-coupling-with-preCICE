@@ -51,7 +51,7 @@ link_sim_koch = link_sim_koch[link_sim_koch[:, 0].argsort()]
 
 plt.scatter(link_exp[:,0], link_exp[:,1], label='Link 2005 - exp', color="black")
 # plt.plot(link_sim_min[:,0], link_sim_min[:,1], label='Link 2005 - sim - min', color="black", linestyle="-.")
-plt.plot(link_sim_old[:,0], link_sim_old[:,1], label='Link 2005 - sim - old', color="black", linestyle=":")
+plt.plot(link_sim_old[:,0], link_sim_old[:,1], label='Link 2005 - sim - gidaspow', color="black", linestyle=":")
 plt.plot(link_sim_koch[:,0], link_sim_koch[:,1], label='Link 2005 - sim - koch', color="black", linestyle="--")
 
 # Output plot
