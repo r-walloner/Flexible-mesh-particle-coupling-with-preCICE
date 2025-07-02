@@ -81,7 +81,7 @@ def generate(p):
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
 
-    <coupling-scheme:serial-explicit>
+    <coupling-scheme:{p["coupling_scheme"]}>
         <participants first="Fluid" second="Particle" />
         <time-window-size value="{p["fluid_dt"]}" />
         <max-time value="{p["end_time"]}" />
@@ -90,7 +90,7 @@ def generate(p):
         <exchange data="ImplicitMomentum" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
         <exchange data="Alpha" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
         <exchange data="DragForce" mesh="Fluid-Mesh" from="Particle" to="Fluid" />
-    </coupling-scheme:serial-explicit>
+    </coupling-scheme:{p["coupling_scheme"]}>
 
 </precice-configuration>
 """

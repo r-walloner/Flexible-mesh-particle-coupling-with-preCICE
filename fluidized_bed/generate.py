@@ -43,6 +43,7 @@ class Parameters(TypedDict):
     output_interval: float
     output_compression:bool
     slurm: bool
+    coupling_scheme: str
     precice_debug_log: bool
     precice_profiling: str
 
@@ -141,6 +142,7 @@ p = Parameters(
     output_interval=2e-3,
     output_compression=True,
     slurm=False,
+    coupling_scheme="parallel-explicit",
     precice_debug_log=False,
     precice_profiling="off",
 
