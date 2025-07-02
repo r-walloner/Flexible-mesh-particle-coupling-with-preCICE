@@ -101,7 +101,7 @@ def generate_run(p: Parameters, run_name: str = None):
 
 # Set default parameters
 p = Parameters(
-    solver="AndersonJacksonFoam",
+    solver="pimpleFoam",
     end_time=20,
     fluid_dt=1e-5,
     fluid_cells=(30, 250, 1),
@@ -113,7 +113,7 @@ p = Parameters(
     particle_dt=1e-5,
     particle_subdomains="8 1 1",
     particle_total_subdomains=None,
-    particle_drag_model="gidaspow",
+    particle_drag_model="zhao_shan",
     particle_diameter=3e-3,
     particle_density=2505,
     particle_contact_model="model hooke tangential history",
@@ -137,7 +137,7 @@ p = Parameters(
     precice_debug_log=False,
 )
 
-generate_run(p, "AJ_gidaspow_read-NN_write-CG")
+generate_run(p, "xenon_PIMPLE_zhao_shan_read-NN_write-CG_new")
 
 # Generate runs with varying parameters
 
