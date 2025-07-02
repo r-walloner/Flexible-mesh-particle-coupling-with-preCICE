@@ -44,6 +44,7 @@ class Parameters(TypedDict):
     output_compression:bool
     slurm: bool
     precice_debug_log: bool
+    precice_profiling: str
 
 
 # Instantiate the case with the given parameters
@@ -135,6 +136,8 @@ p = Parameters(
     output_compression=True,
     slurm=False,
     precice_debug_log=False,
+    precice_profiling="off",
+
 )
 
 generate_run(p, "xenon_PIMPLE_zhao_shan_read-NN_write-CG_new")

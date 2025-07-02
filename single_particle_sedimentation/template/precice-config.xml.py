@@ -43,7 +43,7 @@ def generate(p):
             filter="{"%Severity% >= debug" if p["precice_debug_log"] else "(%Severity% > debug) and not ((%Severity% = info) and (%Rank% != 0))"}" />
     </log>
 
-    <profiling mode="fundamental" />
+    <profiling mode="{p["precice_profiling"]}" />
 
     <data:vector name="Velocity" />
     <data:vector name="ExplicitMomentum" />

@@ -27,6 +27,8 @@ class Parameters(TypedDict):
     output_interval: float
     output_compression:bool
     precice_debug_log: bool
+    precice_profiling: str
+
 
 
 # Instantiate the case with the given parameters
@@ -101,6 +103,7 @@ p = Parameters(
     output_interval=1e-3,
     output_compression=False,
     precice_debug_log=False,
+    precice_profiling="off",
 )
 
 generate_run(p, "generated")
