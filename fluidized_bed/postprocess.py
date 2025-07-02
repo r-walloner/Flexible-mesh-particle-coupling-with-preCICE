@@ -42,16 +42,15 @@ def extract_particle_flux(run_dir: pathlib.Path):
         print(f"{run_dir.name} does not contain data, skipping")
         return
 
-    positive_flux = np.zeros(number_of_bins)
-    negative_flux = np.zeros(number_of_bins)
+    positive_flux = [int(0)] * number_of_bins
+    negative_flux = [int(0)] * number_of_bins
 
     previous_positions: dict[int, np.array] = None
 
-    particle_volume = 4/3 * pi * (parameters["particle_diameter"] / 2)**3
-    particle_mass = particle_volume * parameters["particle_density"]
-
     # Iterate over timesteps
-    for timestep_file in tqdm(list(data_dir.glob("particles_*.vtu"))):
+    timestep_files = data_dir.glob("particles_*.vtu")
+    timestep_files = sorted(timestep_files, key=lambda f: int(f.stem.split("_")[-1]))
+    for timestep_file in tqdm(timestep_files):
         timestep: pv.UnstructuredGrid = pv.read(timestep_file)
 
         # Store particle positions by their IDs
@@ -76,17 +75,24 @@ def extract_particle_flux(run_dir: pathlib.Path):
             # Check if the particle crossed the plane of measurement
             if (position[1] > plane_of_measurement and previous_position[1] <= plane_of_measurement):
                 # Crossing in positive y-direction
-                positive_flux[bin_index] += particle_mass
+                positive_flux[bin_index] += 1
             elif (position[1] < plane_of_measurement and previous_position[1] >= plane_of_measurement):
                 # Crossing in negative y-direction
-                negative_flux[bin_index] += particle_mass
+                negative_flux[bin_index] += 1
 
         previous_positions = positions_by_id
 
+
     # Normalize the flux by the total time and the area of the plane
-    area = (x_max - x_min) * (y_max - y_min) / number_of_bins # area of each bin
-    positive_flux /= parameters["end_time"] * area
-    negative_flux /= parameters["end_time"] * area
+    bin_area = (x_max - x_min) * (y_max - y_min) / number_of_bins # area of each bin
+    positive_flux = np.array(positive_flux) / (parameters["end_time"] * bin_area)
+    negative_flux = np.array(negative_flux) / (parameters["end_time"] * bin_area)
+
+    # Multiply by particle mass
+    particle_volume = 4/3 * pi * (parameters["particle_diameter"] / 2)**3
+    particle_mass = particle_volume * parameters["particle_density"]
+    positive_flux *= particle_mass
+    negative_flux *= particle_mass
     net_flux = positive_flux - negative_flux
 
     # Write results to file
@@ -140,4 +146,4 @@ if __name__ == "__main__":
 
     for run_dir in runs:
         extract_particle_flux(run_dir)
-        extract_profiling_events(run_dir)
+        # extract_profiling_events(run_dir)
