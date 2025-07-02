@@ -1,4 +1,38 @@
 def generate(p):
+    if p["read_mapping"] == "nearest-neighbor":
+        read_mapping = """
+        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
+"""
+    
+    elif p["read_mapping"] == "rbf":
+        read_mapping = f"""
+        <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
+            <basis-function:compact-polynomial-c4 support-radius="{p["read_mapping_radius"]}" />
+        </mapping:rbf>
+"""
+        
+    if p["write_mapping"] == "nearest-neighbor":
+        write_mapping = """
+        <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" />
+"""
+
+    elif p["write_mapping"] == "rbf":
+        write_mapping = f"""
+        <mapping:rbf direction="write" to="Fluid-Mesh" constraint="conservative">
+            <basis-function:compact-polynomial-c6 support-radius="{p["write_mapping_radius"]}"/>
+        </mapping:rbf>
+"""
+        
+    elif p["write_mapping"] == "coarse-graining":
+        write_mapping = f"""
+        <mapping:coarse-graining
+            direction="write"
+            to="Fluid-Mesh"
+            constraint="conservative"
+            grain-dim="3"
+            function-radius="{p["write_mapping_radius"]}" />
+"""
+
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <precice-configuration experimental="True">
 
@@ -41,25 +75,8 @@ def generate(p):
         <write-data name="ImplicitMomentum" mesh="Fluid-Mesh" />
         <write-data name="Alpha" mesh="Fluid-Mesh" />
         <write-data name="DragForce" mesh="Fluid-Mesh" />
-
-        {"""
-        <mapping:nearest-neighbor direction="read" from="Fluid-Mesh" constraint="consistent" />
-""" if p["read_mapping"] == "nearest-neighbor" else f"""
-        <mapping:rbf direction="read" from="Fluid-Mesh" constraint="consistent">
-            <basis-function:compact-polynomial-c4 support-radius="{p["read_mapping_radius"]}" />
-        </mapping:rbf>
-""" if p["read_mapping"] == "rbf" else ""}
-
-        {"""
-        <mapping:nearest-neighbor direction="write" to="Fluid-Mesh" constraint="conservative" />
-""" if p["write_mapping"] == "nearest-neighbor" else f"""
-        <mapping:coarse-graining
-            direction="write"
-            to="Fluid-Mesh"
-            constraint="conservative"
-            grain-dim="3"
-            function-radius="{p["write_mapping_radius"]}" />
-""" if p["write_mapping"] == "coarse-graining" else ""}
+        {read_mapping}
+        {write_mapping}
     </participant>
 
     <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
