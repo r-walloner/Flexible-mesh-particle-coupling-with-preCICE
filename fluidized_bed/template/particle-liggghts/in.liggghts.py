@@ -51,6 +51,7 @@ fix insert all insert/pack seed 32452843 distributiontemplate p_distribution &
 	insert_every once &
     overlapcheck yes &
     all_in yes &
+    check_dist_from_subdomain_border no &
     particles_in_region {p["particle_count"]} &
     region insert_region
 run 1
