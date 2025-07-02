@@ -22,7 +22,7 @@ options
         vectorSemiImplicitSourceCoeffs
         {{
             selectionMode   all;
-            volumeMode      {"specific" if p["write_mapping"] == "coarse-graining" else "absolute"};
+            volumeMode      specific;
             sources
             {{
                 U
@@ -30,13 +30,13 @@ options
                     explicit
                     {{
                         type        exprField;
-                        expression  "ExplicitMomentum";
+                        expression  "ExplicitMomentum{" / vol()" if p["write_mapping"] != "coarse-graining" else ""}";
                     }}
 
                     implicit
                     {{
                         type        exprField;
-                        expression  "-ImplicitMomentum";
+                        expression  "-ImplicitMomentum{" / vol()" if p["write_mapping"] != "coarse-graining" else ""}";
                     }}
                 }}
             }}
