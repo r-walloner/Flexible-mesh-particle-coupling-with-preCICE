@@ -50,6 +50,7 @@ def generate_run(p: Parameters, run_name: str = None):
         run_dir.mkdir(exist_ok=False, parents=True)
     except FileExistsError:
         print(f"{run_name} already exists, skipping")
+        return
 
     print(f"Generating {run_name}")
 
