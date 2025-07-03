@@ -9,9 +9,14 @@ FoamFile
 }}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains {p["fluid_subdomains"]};
+numberOfSubdomains {p["fluid_subdomains"][0] * p["fluid_subdomains"][1] * p["fluid_subdomains"][2]};
 
-method scotch;
+method simple;
+
+simpleCoeffs
+{{
+    n ({p["fluid_subdomains"][0]} {p["fluid_subdomains"][1]} {p["fluid_subdomains"][2]});
+}}
 
 // ************************************************************************* //
 """
