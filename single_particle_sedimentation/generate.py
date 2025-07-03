@@ -20,6 +20,7 @@ class Parameters(TypedDict):
     particle_dt: float
     particle_diameter: float
     particle_density: float
+    particle_drag_model: str
     read_mapping: str
     read_mapping_radius: float
     write_mapping: str
@@ -97,6 +98,7 @@ p = Parameters(
     particle_dt=5e-5,
     particle_diameter=2e-3,
     particle_density=2463,
+    particle_drag_model="zhao_shan",
     read_mapping="nearest-neighbor",
     read_mapping_radius=None,
     write_mapping="coarse-graining",
