@@ -53,7 +53,7 @@ def generate_run(p: Parameters, run_name: str = None):
     if run_name is None:
         mapping_abbreviations = {
             "nearest-neighbor": "NN",
-            "rbf": "BBF",
+            "rbf": "RBF",
             "coarse-graining": "CG",
         }
         run_name = "_".join(
