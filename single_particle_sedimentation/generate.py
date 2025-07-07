@@ -35,13 +35,19 @@ class Parameters(TypedDict):
 # Instantiate the case with the given parameters
 def generate_run(p: Parameters, run_name: str = None):
     if run_name is None:
+        mapping_abbreviations = {
+            "nearest-neighbor": "NN",
+            "rbf": "RBF",
+            "coarse-graining": "CG",
+        }
         run_name = "_".join(
             [
                 f"mesh-{p['fluid_cells'][0]}x{p['fluid_cells'][1]}x{p['fluid_cells'][2]}",
-                f"particle-{p['particle_diameter']}",
                 p["solver"],
-                f"read-{p['read_mapping']}{'-' + str(p['read_mapping_radius']) if p['read_mapping_radius'] else ''}",
-                f"write-{p['write_mapping']}{'-' + str(p['write_mapping_radius']) if p['write_mapping_radius'] else ''}",
+                p["particle_drag_model"].replace("_", "-"),
+                f"read-{mapping_abbreviations[p["read_mapping"]]}{"-" + str(p["read_mapping_radius"]) if p["read_mapping_radius"] else ""}",
+                f"write-{mapping_abbreviations[p["write_mapping"]]}{"-" + str(p["write_mapping_radius"]) if p["write_mapping_radius"] else ""}",
+                f"d-{p['particle_diameter']}",
             ]
         )
 
