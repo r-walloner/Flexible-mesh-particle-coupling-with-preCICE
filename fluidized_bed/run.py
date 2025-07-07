@@ -26,7 +26,8 @@ def run(run_dir: pathlib.Path):
 
     # Start the solvers
     fluid_command = ["openfoam2412", "./run.sh"]
-    if parameters["fluid_subdomains"] > 1:
+    n_subdomains = parameters["fluid_subdomains"][0] * parameters["fluid_subdomains"][1] * parameters["fluid_subdomains"][2]
+    if n_subdomains > 1:
         fluid_command.append("-parallel")
     fluid_process = subprocess.Popen(
         fluid_command,
