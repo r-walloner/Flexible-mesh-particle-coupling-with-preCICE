@@ -94,51 +94,46 @@ def generate_run(p: Parameters, run_name: str = None):
 
 # Set default parameters
 p = Parameters(
-    solver="AndersonJacksonFoam",
+    solver=None,
     end_time=0.25,
     fluid_dt=1e-3,
-    fluid_cells=(25, 75, 25),
+    fluid_cells=None,
     fluid_subdomains=1,
     fluid_viscosity=1.002e-3,
     fluid_density=998.25,
     particle_dt=5e-5,
     particle_diameter=2e-3,
     particle_density=2463,
-    particle_drag_model="zhao_shan",
-    read_mapping="nearest-neighbor",
+    particle_drag_model=None,
+    read_mapping=None,
     read_mapping_radius=None,
-    write_mapping="coarse-graining",
-    write_mapping_radius=8e-3,
+    write_mapping=None,
+    write_mapping_radius=None,
     output_interval=1e-3,
     output_compression=False,
     precice_debug_log=False,
     precice_profiling="off",
 )
 
-generate_run(p, "generated")
+# generate_run(p, "debug")
 
 # Generate runs with varying parameters
 
-# Vary solver
-# for solver in ["AndersonJacksonFoam", "pimpleFoam"]:
-#     p["solver"] = solver
+for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
+    p["fluid_cells"] = fluid_cells
 
-#     if solver == "AndersonJacksonFoam":
-#         p["write_mapping"] = "coarse-graining"
-#         p["write_mapping_radius"] = 4 * p["particle_diameter"]
-#     elif solver == "pimpleFoam":
-#         p["write_mapping"] = "nearest-neighbor"
-#         p["write_mapping_radius"] = None
+    for solver in ["AndersonJacksonFoam", "pimpleFoam"]:
+        p["solver"] = solver
 
-#     # Vary read mapping
-#     for read_mapping in ["nearest-neighbor", "rbf"]:
-#         p["read_mapping"] = read_mapping
+        for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
+            p["particle_drag_model"] = particle_drag_model
 
-#         if read_mapping == "nearest-neighbor":
-#             read_radii = [None]
-#         else:
-#             read_radii = [n * p["particle_diameter"] for n in [1, 3, 6, 12]]
-#         for read_radius in read_radii:
-#             p["read_mapping_radius"] = read_radius
+            for read_mapping in ["nearest-neighbor", "rbf"]:
+                p["read_mapping"] = read_mapping
+                p["read_mapping_radius"] = 8e-3 if read_mapping == "rbf" else None
 
-#             generate_run(p)
+                for write_mapping in ["nearest-neighbor", "coarse-graining"]:
+                    p["write_mapping"] = write_mapping
+                    p["write_mapping_radius"] = 8e-3 if write_mapping == "coarse-graining" else None
+
+                    generate_run(p)
