@@ -95,4 +95,4 @@ if __name__ == "__main__":
 
     for run_dir in runs:
         extract_particle_velocity(run_dir)
-        extract_profiling_events(run_dir)
+        # extract_profiling_events(run_dir)
