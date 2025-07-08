@@ -1,4 +1,6 @@
 def generate(p):
+    from math import ceil
+
     return f"""
 # System settings
 units           si
@@ -74,7 +76,7 @@ dump_modify dmp_settle compressor lz4"""
 
 fix settling_gravity all gravity {p["particle_settling_gravity"]} vector 0 -1 0
 
-run {int(p["particle_settling_time"] / p["particle_settling_dt"])}
+run {int(ceil(p["particle_settling_time"] / p["particle_settling_dt"]))}
 
 unfix settling_gravity
 undump dmp_settle
@@ -141,7 +143,7 @@ dump_modify dmp compressor lz4"""
 # Run with coupling
 timestep {p["particle_dt"]}
 
-run {int(p["end_time"] / p["particle_dt"])} pre no post no every 1 precice_advance
+run {int(ceil(p["end_time"] / p["particle_dt"]))} pre no post no every 1 precice_advance
 
 
 precice_finalize

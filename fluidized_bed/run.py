@@ -3,6 +3,7 @@ import subprocess
 from sys import argv
 import json
 from tqdm import tqdm
+from math import ceil
 
 
 script_dir = pathlib.Path(__file__).parent.resolve()
@@ -22,7 +23,7 @@ def run(run_dir: pathlib.Path):
     with open(run_dir / "parameters.json", "r") as f:
         parameters = json.load(f)
 
-    progress = tqdm(desc=run_dir.name, total=int(parameters["end_time"] / parameters["fluid_dt"]))
+    progress = tqdm(desc=run_dir.name, total=int(ceil(parameters["end_time"] / parameters["fluid_dt"])))
 
     # Start the solvers
     fluid_command = ["openfoam2412", "./run.sh"]
