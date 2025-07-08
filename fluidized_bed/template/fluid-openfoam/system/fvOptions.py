@@ -1,7 +1,7 @@
 def generate(p):
-    if p["solver"] == "AndersonJacksonFoam":
+    if p["coupling"] == "explicit":
         return None
-    else:
+    elif p["coupling"] == "semi_implicit":
         return f"""
 FoamFile
 {{

@@ -11,6 +11,7 @@ template_dir = script_dir / "template"
 
 class Parameters(TypedDict):
     solver: str
+    coupling: str
     end_time: float
     fluid_dt: float
     fluid_cells: tuple[int, int, int]
@@ -59,6 +60,7 @@ def generate_run(p: Parameters, run_name: str = None):
         run_name = "_".join(
             [
                 p["solver"],
+                p["coupling"].replace("_", "-"),
                 p["particle_drag_model"].replace("_", "-"),
                 f"read-{mapping_abbreviations[p["read_mapping"]]}{"-" + str(p["read_mapping_radius"]) if p["read_mapping_radius"] else ""}",
                 f"write-{mapping_abbreviations[p["write_mapping"]]}{"-" + str(p["write_mapping_radius"]) if p["write_mapping_radius"] else ""}",
@@ -110,6 +112,7 @@ def generate_run(p: Parameters, run_name: str = None):
 # Set default parameters
 p = Parameters(
     solver="AndersonJacksonFoam",
+    coupling="explicit",
     end_time=20,
     fluid_dt=1e-5,
     fluid_cells=(30, 250, 1),

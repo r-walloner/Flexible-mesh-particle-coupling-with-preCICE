@@ -11,6 +11,7 @@ template_dir = script_dir / "template"
 
 class Parameters(TypedDict):
     solver: str
+    coupling: str
     end_time: float
     fluid_dt: float
     fluid_cells: tuple[int, int, int]
@@ -44,6 +45,7 @@ def generate_run(p: Parameters, run_name: str = None):
             [
                 f"mesh-{p['fluid_cells'][0]}x{p['fluid_cells'][1]}x{p['fluid_cells'][2]}",
                 p["solver"],
+                p["coupling"].replace("_", "-"),
                 p["particle_drag_model"].replace("_", "-"),
                 f"read-{mapping_abbreviations[p["read_mapping"]]}{"-" + str(p["read_mapping_radius"]) if p["read_mapping_radius"] else ""}",
                 f"write-{mapping_abbreviations[p["write_mapping"]]}{"-" + str(p["write_mapping_radius"]) if p["write_mapping_radius"] else ""}",
@@ -94,7 +96,8 @@ def generate_run(p: Parameters, run_name: str = None):
 
 # Set default parameters
 p = Parameters(
-    solver=None,
+    solver="AndersonJacksonFoam",
+    coupling=None,
     end_time=0.25,
     fluid_dt=1e-3,
     fluid_cells=None,
@@ -107,8 +110,8 @@ p = Parameters(
     particle_drag_model=None,
     read_mapping=None,
     read_mapping_radius=None,
-    write_mapping=None,
-    write_mapping_radius=None,
+    write_mapping="coarse-graining",
+    write_mapping_radius=8e-3,
     output_interval=1e-3,
     output_compression=False,
     precice_debug_log=False,
@@ -122,8 +125,8 @@ p = Parameters(
 for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
     p["fluid_cells"] = fluid_cells
 
-    for solver in ["AndersonJacksonFoam", "pimpleFoam"]:
-        p["solver"] = solver
+    for coupling in ["explicit", "semi_implicit"]:
+        p["coupling"] = coupling
 
         for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
             p["particle_drag_model"] = particle_drag_model
@@ -132,8 +135,4 @@ for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
                 p["read_mapping"] = read_mapping
                 p["read_mapping_radius"] = 8e-3 if read_mapping == "rbf" else None
 
-                for write_mapping in ["nearest-neighbor", "coarse-graining"]:
-                    p["write_mapping"] = write_mapping
-                    p["write_mapping_radius"] = 8e-3 if write_mapping == "coarse-graining" else None
-
-                    generate_run(p)
+                generate_run(p)
