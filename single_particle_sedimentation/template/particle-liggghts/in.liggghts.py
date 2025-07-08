@@ -26,7 +26,7 @@ pair_coeff * *
 
 
 # Create particles
-create_atoms    1 single 0 {p["particle_diameter"] * 74} 0
+create_atoms    1 single 0 {p["particle_diameter"] * 60} 0
 set type        1 diameter {p["particle_diameter"]}
 set type        1 density {p["particle_density"]}
 
