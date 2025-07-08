@@ -15,7 +15,7 @@ plt.grid(True)
 plt.xlabel("Time [s]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(0, 0.25)
-plt.ylim(0, 0.3)
+# plt.ylim(0, 0.3)
 
 
 # Load and plot reference data
