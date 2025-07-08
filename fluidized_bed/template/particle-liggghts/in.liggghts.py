@@ -59,7 +59,7 @@ unfix insert
 
 
 # Let particles settle
-dump dmp_settle all custom/vtk {int(p["output_interval"] / p["particle_settling_dt"])} out/settle/particles_*.vtu &
+dump dmp_settle all custom/vtk {int(2e-3 / p["particle_settling_dt"])} out/settle/particles_*.vtu &
     id &
     x y z &
     ix iy iz &
