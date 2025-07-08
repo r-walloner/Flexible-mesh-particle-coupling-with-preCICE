@@ -109,7 +109,7 @@ def generate_run(p: Parameters, run_name: str = None):
 
 # Set default parameters
 p = Parameters(
-    solver="pimpleFoam",
+    solver="AndersonJacksonFoam",
     end_time=20,
     fluid_dt=1e-5,
     fluid_cells=(30, 250, 1),
@@ -119,8 +119,8 @@ p = Parameters(
     fluid_background_velocity=1.5,
     fluid_spout_velocity=30,
     particle_dt=1e-5,
-    particle_subdomains="7 1 1",
-    particle_total_subdomains=None,
+    particle_subdomains="* 1 *",
+    particle_total_subdomains=60,
     particle_drag_model="zhao_shan",
     particle_diameter=3e-3,
     particle_density=2505,
@@ -135,8 +135,8 @@ p = Parameters(
     particle_settling_gravity=9.81,
     particle_settling_time=0.8,
     particle_settling_dt=5e-5,
-    read_mapping="nearest-neighbor",
-    read_mapping_radius=None,
+    read_mapping="rbf",
+    read_mapping_radius=12e-3,
     write_mapping="coarse-graining",
     write_mapping_radius=12e-3,
     output_interval=2e-3,
@@ -148,7 +148,7 @@ p = Parameters(
 
 )
 
-generate_run(p, "xenon_PIMPLE_zhao_shan_read-NN_write-CG_new")
+generate_run(p)
 
 # Generate runs with varying parameters
 
