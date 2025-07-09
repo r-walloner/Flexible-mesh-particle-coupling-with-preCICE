@@ -29,7 +29,7 @@ interfaces
     patches           ();
     locations         volumeCenters;
 
-    readData ({"Alpha DragForce" if p["solver"] == "AndersonJacksonFoam" else "ExplicitMomentum ImplicitMomentum"});
+    readData (Alpha {"DragForce" if p["coupling"] == "explicit" else "ExplicitMomentum ImplicitMomentum"});
 
     writeData
     (
