@@ -7546,9 +7546,9 @@ boundaryField
         type            calculated;
         value           uniform 0;
     }
-    frontAndBack
+    "front|back"
     {
-        type            empty;
+        type            cyclic;
     }
 }
 

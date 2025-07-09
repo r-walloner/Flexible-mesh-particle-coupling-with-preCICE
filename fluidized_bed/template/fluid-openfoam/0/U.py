@@ -32,9 +32,9 @@ boundaryField
     {{
         type            noSlip;
     }}
-    frontAndBack
+    "front|back"
     {{
-        type            empty;
+        type            cyclic;
     }}
 }}
 """

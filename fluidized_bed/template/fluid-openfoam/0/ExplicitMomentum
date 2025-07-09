@@ -11,8 +11,13 @@ dimensions      [1 0 0 0 0 0 0];
 internalField   uniform (0 0 0);
 boundaryField
 {
-    ".*"
+    "bottom|spout|top|sides"
     {
-        type            zeroGradient;
+        type            calculated;
+        value           uniform (0 0 0);
+    }
+    "front|back"
+    {
+        type            cyclic;
     }
 }

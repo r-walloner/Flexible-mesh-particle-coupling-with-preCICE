@@ -93,18 +93,25 @@ boundary
             (17 18 22 21)
         );
     }}
-    frontAndBack
+    front
     {{
-        type empty;
+        type cyclic;
+        neighbourPatch back;
         faces
         (
             (4 5 6 7)
-            (0 3 2 1)
-
             (12 13 14 15)
-            (8 11 10 9)
-
             (20 21 22 23)
+        );
+    }}
+    back
+    {{
+        type cyclic;
+        neighbourPatch front;
+        faces
+        (
+            (0 3 2 1)
+            (8 11 10 9)
             (16 19 18 17)
         );
     }}
