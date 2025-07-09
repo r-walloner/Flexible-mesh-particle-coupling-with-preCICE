@@ -135,6 +135,6 @@ for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
 
             for read_mapping in ["nearest-neighbor", "rbf"]:
                 p["read_mapping"] = read_mapping
-                p["read_mapping_radius"] = 8e-3 if read_mapping == "rbf" else None
+                p["read_mapping_radius"] = 0.05 if read_mapping == "rbf" else None
 
                 generate_run(p)
