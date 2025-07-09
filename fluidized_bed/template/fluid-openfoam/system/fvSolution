@@ -64,12 +64,12 @@ solvers
 
 PIMPLE
 {
-    nCorrectors 2;
+    nCorrectors 5;
     nNonOrthogonalCorrectors 1;
     consistent  true;
     correctPhi  true;
     momentumPredictor true;
-    nOuterCorrectors	10;
+    nOuterCorrectors	50;
 
     residualControl
     {
