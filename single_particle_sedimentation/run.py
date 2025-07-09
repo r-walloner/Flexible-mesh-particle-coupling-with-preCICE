@@ -54,12 +54,14 @@ def run(run_dir: pathlib.Path):
         # Check if both processes have finished
         fluid_returncode = fluid_process.poll()
         particle_returncode = particle_process.poll()
-        if fluid_returncode is not None and particle_returncode is not None:
+        if fluid_returncode is not None or particle_returncode is not None:
             progress.close()
-            if fluid_returncode != 0:
+            if fluid_returncode is not None and fluid_returncode != 0:
                 print("WARNING: Fluid solver exited with non-zero return code")
-            if particle_returncode != 0:
+                particle_process.kill()
+            if particle_returncode is not None and particle_returncode != 0:
                 print("WARNING: Particle solver exited with non-zero return code")
+                fluid_process.kill()
             break
 
 def run_all():
