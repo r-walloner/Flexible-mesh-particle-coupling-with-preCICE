@@ -3,6 +3,7 @@ import subprocess
 from sys import argv
 import json
 from tqdm import tqdm
+import select
 
 
 script_dir = pathlib.Path(__file__).parent.resolve()
@@ -44,25 +45,29 @@ def run(run_dir: pathlib.Path):
         text=True,
     )
 
-    # Continuously listed to the output of both processes
+    # Continuously listen to the output of both processes
     while True:
-        # Print the precice status messages
-        fluid_output = fluid_process.stdout.readline()
-        if "[impl::ParticipantImpl]:460" in fluid_output:
-            progress.update()
-
-        # Check if both processes have finished
+        # Check if at least one process exited
         fluid_returncode = fluid_process.poll()
         particle_returncode = particle_process.poll()
         if fluid_returncode is not None or particle_returncode is not None:
             progress.close()
             if fluid_returncode is not None and fluid_returncode != 0:
                 print("WARNING: Fluid solver exited with non-zero return code")
-                particle_process.kill()
             if particle_returncode is not None and particle_returncode != 0:
                 print("WARNING: Particle solver exited with non-zero return code")
-                fluid_process.kill()
+            fluid_process.kill()
+            particle_process.kill()
+            fluid_process.wait()
+            particle_process.wait()
             break
+
+        # Check if fluid process has output ready (non-blocking)
+        ready, _, _ = select.select([fluid_process.stdout], [], [], 0.1)
+        if ready:
+            fluid_output = fluid_process.stdout.readline()
+            if "[impl::ParticipantImpl]:460" in fluid_output:
+                progress.update()
 
 def run_all():
     # Find all runs
