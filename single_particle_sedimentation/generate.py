@@ -28,6 +28,7 @@ class Parameters(TypedDict):
     write_mapping_radius: float
     output_interval: float
     output_compression:bool
+    coupling_scheme: str
     precice_debug_log: bool
     precice_profiling: str
 
@@ -114,6 +115,7 @@ p = Parameters(
     write_mapping_radius=8e-3,
     output_interval=1e-3,
     output_compression=False,
+    coupling_scheme="serial-explicit",
     precice_debug_log=False,
     precice_profiling="off",
 )
