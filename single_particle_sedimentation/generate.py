@@ -110,7 +110,7 @@ p = Parameters(
     particle_density=2463,
     particle_drag_model="zhao_shan",
     read_mapping="rbf",
-    read_mapping_radius=0.05,
+    read_mapping_radius=0.5,
     write_mapping="coarse-graining",
     write_mapping_radius=8e-3,
     output_interval=1e-3,
@@ -127,14 +127,11 @@ p = Parameters(
 for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
     p["fluid_cells"] = fluid_cells
 
-    for coupling in ["explicit", "semi_implicit"]:
-        p["coupling"] = coupling
+    for particle_drag_model in ["zhao_shan", "gidaspow"]:
+        p["particle_drag_model"] = particle_drag_model
 
-        for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
-            p["particle_drag_model"] = particle_drag_model
+        for read_mapping in ["rbf"]:
+            p["read_mapping"] = read_mapping
+            p["read_mapping_radius"] = 0.5 if read_mapping == "rbf" else None
 
-            for read_mapping in ["nearest-neighbor", "rbf"]:
-                p["read_mapping"] = read_mapping
-                p["read_mapping_radius"] = 0.05 if read_mapping == "rbf" else None
-
-                generate_run(p)
+            generate_run(p)
