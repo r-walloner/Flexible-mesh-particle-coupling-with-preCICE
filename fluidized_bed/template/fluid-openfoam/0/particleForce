@@ -12,13 +12,9 @@ internalField   uniform (0 0 0);
 
 boundaryField
 {
-    "bottom|spout|top|sides"
+    "bottom|spout|top|sides|front|back"
     {
         type            calculated;
         value           uniform (0 0 0);
-    }
-    "front|back"
-    {
-        type            cyclic;
     }
 }

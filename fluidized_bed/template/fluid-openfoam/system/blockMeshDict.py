@@ -95,8 +95,7 @@ boundary
     }}
     front
     {{
-        type cyclic;
-        neighbourPatch back;
+        type wall;
         faces
         (
             (4 5 6 7)
@@ -106,8 +105,7 @@ boundary
     }}
     back
     {{
-        type cyclic;
-        neighbourPatch front;
+        type wall;
         faces
         (
             (0 3 2 1)

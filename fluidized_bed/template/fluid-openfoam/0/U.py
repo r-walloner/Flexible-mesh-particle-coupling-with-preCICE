@@ -28,13 +28,9 @@ boundaryField
     {{
         type            zeroGradient;
     }}
-    sides
+    "sides|front|back"
     {{
         type            noSlip;
-    }}
-    "front|back"
-    {{
-        type            cyclic;
     }}
 }}
 """
