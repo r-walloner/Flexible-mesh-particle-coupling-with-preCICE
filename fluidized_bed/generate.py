@@ -145,7 +145,7 @@ p = Parameters(
     output_interval=2e-3,
     output_compression=True,
     slurm=False,
-    coupling_scheme="parallel-explicit",
+    coupling_scheme="serial-explicit",
     precice_debug_log=False,
     precice_profiling="off",
 
