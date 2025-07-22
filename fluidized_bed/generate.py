@@ -151,7 +151,7 @@ p = Parameters(
 
 )
 
-generate_run(p)
+generate_run(p, "particle_boundaries_f_xenon")
 
 # Generate runs with varying parameters
 

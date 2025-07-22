@@ -5,7 +5,7 @@ def generate(p):
 # System settings
 units           si
 atom_style      granular
-boundary        p f p 
+boundary        f f f 
 newton          off
 processors      {p["particle_subdomains"]}
 communicate     single vel yes
