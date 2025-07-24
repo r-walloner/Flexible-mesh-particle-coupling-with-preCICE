@@ -328,7 +328,7 @@ namespace Step68
   {
     setup_dofs();
     setup_coupling();
-    // output_field(0);
+    // output_field(0); // uncomment to output fluid to file
 
     while (precice.isCouplingOngoing())
     {
@@ -344,6 +344,7 @@ namespace Step68
 
       solve();
 
+      // uncomment to output fluid to file
       // if ((step_number % par.output_interval) == 0)
       //   output_field(step_number);
 
