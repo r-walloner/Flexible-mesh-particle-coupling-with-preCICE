@@ -26,8 +26,8 @@ for mapping in [
         for basis_function in [
             "compact-polynomial-c0",
             # "compact-polynomial-c2",
-            "compact-polynomial-c4",
-            # "compact-polynomial-c6",
+            # "compact-polynomial-c4",
+            "compact-polynomial-c6",
             # "compact-polynomial-c8",
         ]:
             path = script_dir / method / mapping
