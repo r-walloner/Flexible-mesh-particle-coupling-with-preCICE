@@ -20,7 +20,7 @@ for mapping in [
     "nearest-neighbor",
     "rbf-pum-direct",
 ]:
-    for refinement in range(2, 7, 1):
+    for refinement in range(2, 9, 1):
         # refinement =
 
         for basis_function in [
