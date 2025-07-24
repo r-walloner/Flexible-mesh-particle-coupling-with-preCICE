@@ -1,19 +1,8 @@
 # Particle tracing: Rayleigh-Kothe vortex
 <img src="figures/flow_field_frames/flow_field.0000.png" height="200">
 
-## Requirements
-For building and running the particle tracing:
-- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 13.3.0)
-- [CMake](https://cmake.org/) (tested with version 3.30.3)
-- [deal.II](https://www.dealii.org/) (tested with version 9.6.2)
-- [preCICE](https://precice.org/) (tested with version 3.2.0)
-
-For post-processing the results:
-- Python (tested with 3.12.7)
-- Python packages listed in `requirements.txt`
-- Jupyter Notebook
-
 ## Contents
+
 ### `ParticleTracing.cc`
 The source code of the particle tracing participant.
 
@@ -34,15 +23,31 @@ E.g. the `euler_explicit/nearest-neighbor/timestep-0.01/refinement-4/` directory
 ### `figures/`
 Figures and animations from the thesis and accompanying presentations.
 
-## Running experiments
-First, build the particle tracing participant.
+## Reproducing results
+
+### Requirements
+For building and running the particle tracing:
+- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 15.1.1)
+- [CMake](https://cmake.org/) (tested with version 3.31.6)
+- [deal.II](https://www.dealii.org/) compiled with support for MPI and P4EST (tested with version 9.6.2)
+- [preCICE](https://precice.org/) (tested with version 3.2.0)
+
+For post-processing the results:
+- Python (tested with 3.13.5)
+- Python packages listed in `requirements.txt`
+- Jupyter Notebook
+
+### Building the particle participant
+To build the particle tracing participant:
 ```sh
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
-Then, navigate to the experiment directory and run the provided scripts.
+
+### Running experiments
+Navigate to the experiment directory and run the provided scripts:
 ```sh
 cd ../experiments/convergence_under_grid_refinement
 ./clean.sh
