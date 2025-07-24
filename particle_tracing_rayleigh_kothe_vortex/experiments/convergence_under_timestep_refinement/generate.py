@@ -12,7 +12,6 @@ constraint = "consistent"
 support_radius = 0.5  # only used for rbf
 
 method = "euler_explicit"
-refinement = 6
 
 for time_step in [2**-i for i in range(1, 12)]:
     output_interval = int(max(1, final_time / time_step / 100))
@@ -29,8 +28,8 @@ for time_step in [2**-i for i in range(1, 12)]:
             for basis_function in [
                 "compact-polynomial-c0",
                 # "compact-polynomial-c2",
-                "compact-polynomial-c4",
-                # "compact-polynomial-c6",
+                # "compact-polynomial-c4",
+                "compact-polynomial-c6",
                 # "compact-polynomial-c8",
             ]:
                 path = script_dir / method / mapping
