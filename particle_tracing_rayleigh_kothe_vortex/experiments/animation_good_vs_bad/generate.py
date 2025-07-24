@@ -11,16 +11,16 @@ util.generate_run(
     mapping="rbf-pum-direct",
     basis_function="compact-polynomial-c6",
     support_radius=0.5,
-    time_step=0.0002,
+    time_step=1e-3,
     final_time=4.0,
-    output_interval=20,
+    output_interval=2,
 )
 
 util.generate_run(
     script_dir / "bad",
     refinement=3,
     mapping="nearest-neighbor",
-    time_step=0.002,
+    time_step=1e-3,
     final_time=4.0,
     output_interval=2,
 )

@@ -12,7 +12,7 @@ constraint = "consistent"
 support_radius = 0.5  # only used for rbf
 
 method = "euler_explicit"
-time_step = 2**-11
+time_step = 1e-3
 output_interval = int(max(1, final_time / time_step / 100))
 
 # Iterate over variable parameters
@@ -20,7 +20,7 @@ for mapping in [
     "nearest-neighbor",
     "rbf-pum-direct",
 ]:
-    for refinement in range(2, 9, 1):
+    for refinement in range(3, 8, 1):
         # refinement =
 
         for basis_function in [
