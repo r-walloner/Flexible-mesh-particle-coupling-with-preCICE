@@ -44,6 +44,13 @@ plt.rcParams.update(
 
 # plt.grid()
 
+# Add vertical lines for repartitioning events
+dt = 1e-3
+repartition_interval = 5
+repartition_times = [(i * repartition_interval + 1) * dt for i in range(1, 50)]
+for t in repartition_times:
+    plt.axvline(x=t, color="gray", linestyle="dotted", linewidth=1)
+
 # Ideal load balancing for 4 ranks and 768 particles
 plt.plot(
     [0, 0.22],
