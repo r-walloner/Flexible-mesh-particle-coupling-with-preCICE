@@ -43,7 +43,7 @@ song_sim = song_sim[song_sim[:, 0].argsort()]
 song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
 
 plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlation', color="black", linestyle="--")
-plt.plot(song_sim[:,0], song_sim[:,1], label='Song Park', color="black")
+plt.plot(song_sim[:,0], song_sim[:,1], label='Song and Park', color="black")
 
 
 # Load and plot flux data

@@ -129,10 +129,26 @@ p = Parameters(
 
 # Generate runs with varying parameters
 
-for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
-    p["fluid_cells"] = fluid_cells
+# Used for drag law comparison plot
+# for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
+#     p["particle_drag_model"] = particle_drag_model
 
-    for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
-        p["particle_drag_model"] = particle_drag_model
+#     generate_run(p)
+
+
+# Used for accuracy table
+for particle_drag_model in ["zhao_shan", "gidaspow"]:
+    p["particle_drag_model"] = particle_drag_model
+
+    for d, rho in zip(
+        [2e-3, 1e-3, 0.5e-3, 0.25e-3, 0.125e-3],
+        [2463, 2488, 2523, 2571, 2494]):
+        p["particle_diameter"] = d
+        p["particle_density"] = rho
+
+        if d < 0.5e-3:
+            p["read_mapping_radius"] = 0.1
+        else:
+            p["read_mapping_radius"] = 0.5
 
         generate_run(p)
