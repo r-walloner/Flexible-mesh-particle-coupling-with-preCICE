@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/robin/uni/ba-repo/particle_tracing_channel_flow/particle-deal.II",
+    "cmake.sourceDirectory": "/home/robin/uni/ba/ba-repo/particle_tracing_channel_flow/particle-deal.II",
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "files.associations": {
         "cctype": "cpp",
@@ -78,5 +78,6 @@
         "variant": "cpp",
         "ranges": "cpp",
         "shared_mutex": "cpp"
-    }
+    },
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }
