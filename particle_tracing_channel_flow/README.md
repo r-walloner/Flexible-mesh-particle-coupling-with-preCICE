@@ -1,20 +1,8 @@
 # Particle tracing: Channel flow
 <img src="figures/flow_field.png" height="200">
 
-## Requirements
-For building and running the particle tracing:
-- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 13.3.0)
-- [CMake](https://cmake.org/) (tested with version 3.30.3)
-- [deal.II](https://www.dealii.org/) (tested with version 9.6.2)
-- [preCICE](https://precice.org/) (tested with version 3.2.0)
-
-For running the fluid participant:
-- [OpenFOAM](https://www.openfoam.com/) (tested with version 2412)
-
-For visualizing the results:
-- [ParaView](https://www.paraview.org/) (tested with version 5.12.1)
-
 ## Contents
+
 ### `particle-deal.II/`
 The particle tracing participant implemented in deal.II.
 - `run.sh` runs the participant.
@@ -31,15 +19,29 @@ The OpenFOAM case used as the fluid participant.
 ### `figures/`
 Figures and animations from the thesis and accompanying presentations.
 
-## Running
-First, build the particle tracing participant.
+## Reproducing results
+
+### Requirements
+For building and running the particle tracing:
+- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 15.1.1)
+- [CMake](https://cmake.org/) (tested with version 3.31.6)
+- [deal.II](https://www.dealii.org/) (tested with version 9.6.2)
+- [preCICE](https://precice.org/) (tested with version 3.2.0)
+
+For running the fluid participant:
+- [OpenFOAM](https://www.openfoam.com/) (tested with version 2412)
+
+### Building the particle participant
+To build the particle tracing participant:
 ```sh
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ../particle-deal.II
 cmake --build .
 ```
-Then, open two terminals.
+
+### Running the participants
+Open two terminals.
 In the first terminal, run the fluid participant.
 ```sh
 cd fluid-openfoam
@@ -55,4 +57,4 @@ cd particle-deal.II
 ```
 Afterwards, the solution of the particle tracing is available in the `particle-deal.II/solution/` directory.
 The OpenFOAM solution is available in the `fluid-openfoam/` directory.
-The results can be visualized in ParaView using the provided `channel-flow.pvsm` file.
+The results can be visualized, e.g., in ParaView.
