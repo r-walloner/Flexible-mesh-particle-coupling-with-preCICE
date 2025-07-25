@@ -1,4 +1,4 @@
-# Particle tracing: Rayleigh-Kothe vortex
+# Particle tracing: vortex flow
 <img src="figures/flow_field_frames/flow_field.0000.png" height="200">
 
 ## Contents
@@ -33,12 +33,13 @@ For building and running the particle tracing:
 - [preCICE](https://precice.org/) (tested with version 3.2.0)
 
 For post-processing the results:
-- [Python](https://www.python.org/downloads/) (tested with 3.13.5)
+- [Python](https://www.python.org/downloads/) (tested with version 3.13.5)
 - [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 - [Jupyter Notebook](https://jupyter.org/install#jupyter-notebook)
 
-### Building the particle participant
-To build the particle tracing participant:
+### Building the participants
+Both participant are compiled into a single executable that can be run either in `Fluid` or in `Particle` mode.
+To build this executable:
 ```sh
 mkdir build
 cd build

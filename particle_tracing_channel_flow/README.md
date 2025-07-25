@@ -1,4 +1,4 @@
-# Particle tracing: Channel flow
+# Particle tracing: channel flow
 <img src="figures/flow_field.png" height="200">
 
 ## Contents
@@ -36,7 +36,7 @@ For running the fluid participant:
 - [OpenFOAM-preCICE adapter](https://github.com/precice/openfoam-adapter) (tested with version 1.3.1)
 
 For post-processing the results:
-- [Python](https://www.python.org/downloads/) (tested with 3.13.5)
+- [Python](https://www.python.org/downloads/) (tested with version 3.13.5)
 - [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 
 ### Building the particle participant
@@ -48,7 +48,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ../particle-deal.II
 cmake --build .
 ```
 
-### Running the participants
+### Running both participants
 Open two terminals.
 In the first terminal, run the fluid participant.
 ```sh
@@ -57,11 +57,6 @@ openfoam2412
 ./clean.sh
 ./run.sh
 ```
-To write the stdout of the particle participant to a file the `plot_load_balancing.py` script can evaluate, you can use:
-```sh
-./run.sh | tee particle.log
-```
-
 In the second terminal, run the particle tracing participant.
 ```sh
 cd particle-deal.II
@@ -70,6 +65,11 @@ cd particle-deal.II
 ```
 Afterwards, the solution of the particle tracing is available in the `particle-deal.II/solution/` directory.
 The OpenFOAM solution is available in the `fluid-openfoam/` directory.
+
+To write the stdout of the particle participant to a file the `plot_load_balancing.py` script can evaluate, you can use:
+```sh
+./run.sh | tee particle.log
+```
 
 ### Postprocessing
 The results can be visualized, e.g., in ParaView.
