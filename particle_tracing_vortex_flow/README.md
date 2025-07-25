@@ -34,7 +34,7 @@ For building and running the particle tracing:
 
 For post-processing the results:
 - [Python](https://www.python.org/downloads/) (tested with 3.13.5)
-- [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`](
+- [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 - [Jupyter Notebook](https://jupyter.org/install#jupyter-notebook)
 
 ### Building the particle participant
