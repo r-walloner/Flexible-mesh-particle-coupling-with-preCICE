@@ -19,6 +19,9 @@ The OpenFOAM case used as the fluid participant.
 ### `figures/`
 Figures and animations from the thesis and accompanying presentations.
 
+### `plot_load_balancing.py`
+A script to extract load balancing data from the stdout of the particle participant.
+
 ## Reproducing results
 
 ### Requirements
@@ -30,6 +33,11 @@ For building and running the particle tracing:
 
 For running the fluid participant:
 - [OpenFOAM](https://www.openfoam.com/) (tested with version 2412)
+- [OpenFOAM-preCICE adapter](https://github.com/precice/openfoam-adapter) (tested with version 1.3.1)
+
+For post-processing the results:
+- [Python](https://www.python.org/downloads/) (tested with 3.13.5)
+- [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 
 ### Building the particle participant
 To build the particle tracing participant:
@@ -49,6 +57,11 @@ openfoam2412
 ./clean.sh
 ./run.sh
 ```
+To write the stdout of the particle participant to a file the `plot_load_balancing.py` script can evaluate, you can use:
+```sh
+./run.sh | tee particle.log
+```
+
 In the second terminal, run the particle tracing participant.
 ```sh
 cd particle-deal.II
@@ -57,4 +70,11 @@ cd particle-deal.II
 ```
 Afterwards, the solution of the particle tracing is available in the `particle-deal.II/solution/` directory.
 The OpenFOAM solution is available in the `fluid-openfoam/` directory.
+
+### Postprocessing
 The results can be visualized, e.g., in ParaView.
+
+To generate the load balancing plot, run:
+```sh
+python plot_load_balancing.py 
+```

@@ -377,6 +377,16 @@ namespace ParticleTracing
     particle_handler.prepare_for_coarsening_and_refinement();
     grid.repartition();
     particle_handler.unpack_after_coarsening_and_refinement();
+
+    // Print particle count for each process
+
+    particle_handler.update_cached_numbers();
+    std::cout << "repartitioning results"
+              << "\ttime: " << t
+              << "\trank: " << Utilities::MPI::this_mpi_process(mpi_comm)
+              << "\tglobal particles: " << particle_handler.n_global_particles()
+              << "\tlocal particles: " << particle_handler.n_locally_owned_particles()
+              << std::endl;
   }
 
   /**
@@ -528,10 +538,10 @@ namespace ParticleTracing
       t += dt;
       ++step_number;
       pcout << "step number " << step_number
-            << "\n\tstepping " << dt
-            << "\n\ttime is now at " << t
-            << "\n\tdesired timestep was " << parameters.time_step
-            << "\n\tprecice max timestep was " << precice.getMaxTimeStepSize()
+            << "\tstepping " << dt
+            << "\ttime is now at " << t
+            << "\tdesired timestep was " << parameters.time_step
+            << "\tprecice max timestep was " << precice.getMaxTimeStepSize()
             << std::endl;
 
       step(dt);
