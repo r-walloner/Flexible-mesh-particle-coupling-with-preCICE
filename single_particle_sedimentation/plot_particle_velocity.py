@@ -63,4 +63,4 @@ for file in files:
 plt.legend()
 
 plt.savefig(script_dir / "figures" / "sps_particle_velocity.pdf", bbox_inches="tight")
-# plt.show()
+plt.show()
