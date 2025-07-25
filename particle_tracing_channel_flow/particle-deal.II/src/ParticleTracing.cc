@@ -244,8 +244,8 @@ namespace ParticleTracing
    */
   template <int dim>
   void ParticleTracing<dim>::track_lost_particle(
-      const typename Particles::ParticleIterator<dim> &particle,
-      const typename parallel::distributed::Triangulation<dim>::cell_iterator &cell)
+      const typename Particles::ParticleIterator<dim> &/*particle*/,
+      const typename parallel::distributed::Triangulation<dim>::cell_iterator &/*cell*/)
   {
     ++n_recently_lost_particles;
     ++n_total_lost_particles;
@@ -377,16 +377,9 @@ namespace ParticleTracing
     particle_handler.prepare_for_coarsening_and_refinement();
     grid.repartition();
     particle_handler.unpack_after_coarsening_and_refinement();
-
-    // Print particle count for each process
-
+    
     particle_handler.update_cached_numbers();
-    std::cout << "repartitioning results"
-              << "\ttime: " << t
-              << "\trank: " << Utilities::MPI::this_mpi_process(mpi_comm)
-              << "\tglobal particles: " << particle_handler.n_global_particles()
-              << "\tlocal particles: " << particle_handler.n_locally_owned_particles()
-              << std::endl;
+    // Print particle count for each process
   }
 
   /**
@@ -405,6 +398,16 @@ namespace ParticleTracing
     const unsigned int this_mpi_rank = Utilities::MPI::this_mpi_process(mpi_comm);
 
     pcout << "updating particles" << std::endl;
+
+    MPI_Barrier(mpi_comm);
+    std::cout << "load balancing info"
+              << "\ttime: " << t
+              << "\trank: " << Utilities::MPI::this_mpi_process(mpi_comm)
+              << "\tglobal particles: " << particle_handler.n_global_particles()
+              << "\tlocal particles: " << particle_handler.n_locally_owned_particles()
+              << std::endl;
+    std::cout.flush();
+    MPI_Barrier(mpi_comm);
 
     for (auto &particle : particle_handler)
     {
