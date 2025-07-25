@@ -1,8 +1,11 @@
 *
 !0/
+!0/*
 !constant/
+!constant/*
 constant/polyMesh/
 !system/
+!system/*
 
 !.gitignore
 !clean.sh
