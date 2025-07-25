@@ -127,7 +127,7 @@ p = Parameters(
 for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
     p["fluid_cells"] = fluid_cells
 
-    for particle_drag_model in ["zhao_shan", "gidaspow"]:
+    for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
         p["particle_drag_model"] = particle_drag_model
 
         for read_mapping in ["rbf"]:
