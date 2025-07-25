@@ -24,7 +24,7 @@ with open(log_path, "r") as f:
 
 
 # Plot data
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(10, 3.5))
 plt.rcParams.update(
     {
         "font.family": "serif",
@@ -41,6 +41,8 @@ plt.rcParams.update(
         "axes.labelcolor": "black",
     }
 )
+
+# plt.grid()
 
 # Ideal load balancing for 4 ranks and 768 particles
 plt.plot(
@@ -61,6 +63,7 @@ plt.ylabel("Particle count per rank")
 
 plt.xlim(0, 0.22)
 plt.ylim(0, 680)
+
 
 
 plt.savefig(script_dir / "figures" / "channel_tracing_load_balancing.pdf", bbox_inches="tight")
