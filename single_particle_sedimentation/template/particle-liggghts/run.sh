@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mpirun -n 1 ../../../../../LIGGGHTS-PUBLIC/build/liggghts < in.liggghts
+mpirun -n 1 liggghts < in.liggghts

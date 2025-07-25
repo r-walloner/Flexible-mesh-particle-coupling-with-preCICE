@@ -9,13 +9,29 @@ reference_file = script_dir / "reference_data" / "Song Park 2020 - fine.csv"
 
 
 # Set up plot
-plt.figure(figsize=(10, 6), dpi=250)
-plt.title("Settling velocity of a single particle")
+plt.figure(figsize=(10, 7))
+plt.rcParams.update(
+    {
+        "font.family": "serif",
+        "font.serif": ["Liberation Serif"],
+        "mathtext.fontset": "stix",
+        "font.size": 16,
+        "axes.labelsize": 16,
+        "axes.titlesize": 16,
+        "xtick.labelsize": 16,
+        "ytick.labelsize": 16,
+        "legend.fontsize": 16,
+        "xtick.color": "black",
+        "ytick.color": "black",
+        "axes.labelcolor": "black",
+    }
+)
+# plt.title("Settling velocity of a single particle")
 plt.grid(True)
 plt.xlabel("Time [s]")
-plt.ylabel("Velocity [m/s]")
+plt.ylabel("Particle velocity [m/s]")
 plt.xlim(0, 0.25)
-# plt.ylim(0, 0.3)
+plt.ylim(0, 0.28)
 
 
 # Load and plot reference data
@@ -26,8 +42,8 @@ song_theoretical = reference_data[:, -2:][~np.isnan(reference_data[:, -2])]
 song_sim = song_sim[song_sim[:, 0].argsort()]
 song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
 
-plt.plot(song_sim[:,0], song_sim[:,1], label='Song Park 2020', color="black")
 plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlation', color="black", linestyle="--")
+plt.plot(song_sim[:,0], song_sim[:,1], label='Song Park', color="black")
 
 
 # Load and plot flux data
@@ -44,6 +60,7 @@ for file in files:
 
 
 
-# Output plot
 plt.legend()
-plt.show()
+
+plt.savefig(script_dir / "figures" / "sps_particle_velocity.pdf", bbox_inches="tight")
+# plt.show()

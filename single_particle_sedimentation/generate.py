@@ -92,23 +92,28 @@ def generate_run(p: Parameters, run_name: str = None):
         # Remove the template file
         template_file.unlink()
 
-    
 
 
-# Set default parameters
+
+
+# ------------------------------------------------------------------------------
+# Modify the section below to configure what runs to generate
+# ------------------------------------------------------------------------------
+
+# Set parameters
 p = Parameters(
     solver="AndersonJacksonFoam",
     coupling="explicit",
     end_time=0.25,
     fluid_dt=1e-3,
-    fluid_cells=(6, 18, 6),
-    fluid_subdomains=1,
+    fluid_cells=(25, 75, 25),
+    fluid_subdomains=6,
     fluid_viscosity=1.002e-3,
     fluid_density=998.25,
-    particle_dt=5e-5,
+    particle_dt=1e-3,
     particle_diameter=2e-3,
     particle_density=2463,
-    particle_drag_model="zhao_shan",
+    particle_drag_model="gidaspow",
     read_mapping="rbf",
     read_mapping_radius=0.5,
     write_mapping="coarse-graining",
@@ -130,8 +135,4 @@ for fluid_cells in [(6, 18, 6), (25, 75, 25)]:
     for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
         p["particle_drag_model"] = particle_drag_model
 
-        for read_mapping in ["rbf"]:
-            p["read_mapping"] = read_mapping
-            p["read_mapping_radius"] = 0.5 if read_mapping == "rbf" else None
-
-            generate_run(p)
+        generate_run(p)
