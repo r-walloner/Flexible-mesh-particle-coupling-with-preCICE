@@ -33,9 +33,9 @@ For building and running the particle tracing:
 - [preCICE](https://precice.org/) (tested with version 3.2.0)
 
 For post-processing the results:
-- Python (tested with 3.13.5)
-- Python packages listed in `requirements.txt`
-- Jupyter Notebook
+- [Python](https://www.python.org/downloads/) (tested with 3.13.5)
+- [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`](
+- [Jupyter Notebook](https://jupyter.org/install#jupyter-notebook)
 
 ### Building the particle participant
 To build the particle tracing participant:
@@ -49,7 +49,7 @@ cmake --build .
 ### Running experiments
 Navigate to the experiment directory and run the provided scripts:
 ```sh
-cd ../experiments/convergence_under_grid_refinement
+cd experiments/convergence_under_grid_refinement
 ./clean.sh
 python generate.py
 python run.py
