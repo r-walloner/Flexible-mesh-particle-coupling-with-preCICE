@@ -33,10 +33,10 @@
 
   <m2n:sockets acceptor="Fluid" connector="Particle" exchange-directory=".." />
 
-  <coupling-scheme:parallel-explicit>
+  <coupling-scheme:serial-explicit>
     <participants first="Fluid" second="Particle" />
-    <time-window-size value="0.0005" />
-    <max-time value="0.5" />
+    <time-window-size value="1e-3" />
+    <max-time value="0.4" />
     <exchange data="Velocity" mesh="Fluid-Mesh" from="Fluid" to="Particle" />
-  </coupling-scheme:parallel-explicit>
+  </coupling-scheme:serial-explicit>
 </precice-configuration>
