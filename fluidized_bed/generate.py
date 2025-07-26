@@ -117,7 +117,7 @@ p = Parameters(
     end_time=20,
     fluid_dt=5e-5,
     fluid_cells=(30, 250, 2),
-    fluid_subdomains=(10, 1, 1),
+    fluid_subdomains=(2, 5, 1),
     fluid_viscosity=1.8e-5,
     fluid_density=1,
     fluid_background_velocity=1.5,
@@ -129,11 +129,11 @@ p = Parameters(
     particle_diameter=3e-3,
     particle_density=2505,
     particle_contact_model="model hooke tangential history",
-    particle_youngs_modulus=1e7, # Is this right? Could not find it in Kloss or Link
-    particle_poissons_ratio=0.45, # Is this right? Could not find it in Kloss or Link
+    particle_youngs_modulus=1e7,
+    particle_poissons_ratio=0.45,
     particle_restitution=0.97,
     particle_friction=0.1,
-    particle_characteristic_velocity=1, # Is this right? Could not find it in Kloss or Link
+    particle_characteristic_velocity=1,
     particle_count=24500,
     particle_insert_velocity=(0, 0, 0),
     particle_settling_gravity=9.81,
@@ -153,30 +153,16 @@ p = Parameters(
 
 )
 
-generate_run(p, "particle_boundaries_f_xenon")
+# Domain decomposition for less cores
+p["fluid_subdomains"] = (1, 2, 1)
+p["particle_total_subdomains"] = 6
 
-# Generate runs with varying parameters
+# Generate one run
+# generate_run(p, "test")
 
-# Vary solver
-# for solver in ["AndersonJacksonFoam", "pimpleFoam"]:
-#     p["solver"] = solver
 
-#     if solver == "AndersonJacksonFoam":
-#         p["write_mapping"] = "coarse-graining"
-#         p["write_mapping_radius"] = 4 * p["particle_diameter"]
-#     elif solver == "pimpleFoam":
-#         p["write_mapping"] = "nearest-neighbor"
-#         p["write_mapping_radius"] = None
+# Generate runs for different drag models
+# for drag_model in ["gidaspow", "koch_hill", "zhao_shan"]:
+#     p["particle_drag_model"] = drag_model
 
-#     # Vary read mapping
-#     for read_mapping in ["nearest-neighbor", "rbf"]:
-#         p["read_mapping"] = read_mapping
-
-#         if read_mapping == "nearest-neighbor":
-#             read_radii = [None]
-#         else:
-#             read_radii = [n * p["particle_diameter"] for n in [1, 3, 6, 12]]
-#         for read_radius in read_radii:
-#             p["read_mapping_radius"] = read_radius
-
-#             generate_run(p)
+#     generate_run(p)
