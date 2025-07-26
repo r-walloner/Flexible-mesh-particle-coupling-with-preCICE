@@ -140,6 +140,16 @@ dump_modify dmp compressor lz4"""
  if p["output_compression_particle"] else ""}
 
 
+# Output average particle velocity to file
+region ave_v_region block -.075 .075 .125 .135 -.0075 .0075 units box
+fix ave_v all ave/spatial &
+    {int(p["output_interval"] / p["particle_dt"] / 10)} 10 {int(p["output_interval"] / p["particle_dt"])} &
+    x center .005 &
+    vy &
+    region ave_v_region &
+    file out/average_velocity
+
+
 # Run with coupling
 timestep {p["particle_dt"]}
 
