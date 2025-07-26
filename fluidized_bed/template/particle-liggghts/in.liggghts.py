@@ -72,7 +72,7 @@ dump dmp_settle all custom/vtk {int(2e-3 / p["particle_settling_dt"])} out/settl
 {"""
 dump_modify dmp_settle binary yes
 dump_modify dmp_settle compressor lz4"""
- if p["output_compression"] else ""}
+ if p["output_compression_particle"] else ""}
 
 fix settling_gravity all gravity {p["particle_settling_gravity"]} vector 0 -1 0
 
@@ -137,7 +137,7 @@ dump dmp all custom/vtk {int(p["output_interval"] / p["particle_dt"])} out/parti
 {"""
 dump_modify dmp binary yes
 dump_modify dmp compressor lz4"""
- if p["output_compression"] else ""}
+ if p["output_compression_particle"] else ""}
 
 
 # Run with coupling

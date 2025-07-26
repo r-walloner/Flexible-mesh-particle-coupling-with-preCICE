@@ -42,7 +42,8 @@ class Parameters(TypedDict):
     write_mapping: str
     write_mapping_radius: float
     output_interval: float
-    output_compression:bool
+    output_compression_fluid: bool
+    output_compression_particle: bool
     slurm: bool
     coupling_scheme: str
     precice_debug_log: bool
@@ -142,8 +143,9 @@ p = Parameters(
     read_mapping_radius=0.5,
     write_mapping="coarse-graining",
     write_mapping_radius=12e-3,
-    output_interval=2e-3,
-    output_compression=True,
+    output_interval=5e-3,
+    output_compression_fluid=False,
+    output_compression_particle=True,
     slurm=False,
     coupling_scheme="serial-explicit",
     precice_debug_log=False,
