@@ -29,7 +29,7 @@ def extract_particle_flux(run_dir: pathlib.Path):
         parameters = json.load(f)
 
     # Check if output file already exists
-    output_file = out_dir / "particle_flux" / f"{run_dir.name}.json"
+    output_file = out_dir / "particle_flux" / f"{run_dir.name}_5s.json"
     if output_file.exists():
         print(f"Particle flux {output_file.name} allready exists, skipping")
         return
@@ -50,6 +50,7 @@ def extract_particle_flux(run_dir: pathlib.Path):
     # Iterate over timesteps
     timestep_files = data_dir.glob("particles_*.vtu")
     timestep_files = sorted(timestep_files, key=lambda f: int(f.stem.split("_")[-1]))
+    timestep_files = timestep_files[:1000] # Only the first 1000 output files (5s @ output_interval 5e-3)
     for timestep_file in tqdm(timestep_files):
         timestep: pv.UnstructuredGrid = pv.read(timestep_file)
 
@@ -85,8 +86,8 @@ def extract_particle_flux(run_dir: pathlib.Path):
 
     # Normalize the flux by the total time and the area of the plane
     bin_area = (x_max - x_min) * (y_max - y_min) / number_of_bins # area of each bin
-    positive_flux = np.array(positive_flux) / (parameters["end_time"] * bin_area)
-    negative_flux = np.array(negative_flux) / (parameters["end_time"] * bin_area)
+    positive_flux = np.array(positive_flux) / (5.0 * bin_area)
+    negative_flux = np.array(negative_flux) / (5.0 * bin_area)
 
     # Multiply by particle mass
     particle_volume = 4/3 * pi * (parameters["particle_diameter"] / 2)**3
