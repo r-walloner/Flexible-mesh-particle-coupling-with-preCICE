@@ -31,8 +31,8 @@ plt.rcParams.update(
 plt.grid(True)
 plt.xlabel("x [m]")
 plt.ylabel(r"Average particle z-flux [$\text{kg}/(\text{m}^2 \text{s})$]")
-# plt.xlim(0, 0.25)
-# plt.ylim(0, 0.28)
+plt.xlim(-0.075, 0.075)
+plt.ylim(-850, 850)
 
 
 # Determine what runs to read
