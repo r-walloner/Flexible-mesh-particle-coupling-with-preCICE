@@ -82,19 +82,15 @@ for run in runs:
     flux: dict[int, list[float]] = {}
     for timestep in velocity.keys():
         flux[timestep] = []
-        total_count = 0
         for bin in range(bins):
-            flux[timestep].append(velocity[timestep][bin] * count[timestep][bin] * rho_p)
-            total_count += count[timestep][bin]
-        
-        for bin in range(bins):
-            flux[timestep][bin] /= (total_count / bins) if total_count > 0 else 1
+            noramlized_count = count[timestep][bin] / (sum(count[timestep]) / bins)
+            flux[timestep].append(velocity[timestep][bin] * noramlized_count * rho_p)
 
 
     # Average over timestep range and weight with count
     flux_avg = [0] * bins
 
-    averaging_range = velocity.keys()  # Use all timesteps
+    #averaging_range = velocity.keys()  # Use all timesteps
     averaging_range = range(16100, 116101, 100) # Select specific range
 
     for bin in range(bins):
