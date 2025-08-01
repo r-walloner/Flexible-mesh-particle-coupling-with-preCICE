@@ -60,10 +60,16 @@ plt.plot(
     label="Ideal load balancing",
 )
 
-for rank, particles in particles_in_rank.items():
+# Set line color pallete to custom colors
+
+# Define a custom color palette
+custom_colors = ["#4747db", "#00d4a9", "#ff9500", "#e04d4d"]
+
+for idx, (rank, particles) in enumerate(sorted(particles_in_rank.items())):
     times = particles.keys()
     particles_counts = particles.values()
-    plt.plot(times, particles_counts, label=f"Rank {rank}")
+    color = custom_colors[idx % len(custom_colors)]
+    plt.plot(times, particles_counts, label=f"Rank {rank}", color=color)
 
 plt.xlabel("Time [s]")
 plt.ylabel("Particle count per rank")
