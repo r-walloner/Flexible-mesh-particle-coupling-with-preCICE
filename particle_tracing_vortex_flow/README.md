@@ -1,5 +1,5 @@
 # Particle tracing: vortex flow
-This is the vortex flow scenario from Section 4.1 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
+This is the vortex flow scenario from Section 4.1 of the bachelor's thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 

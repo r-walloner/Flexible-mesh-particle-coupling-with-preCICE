@@ -1,5 +1,5 @@
 # CFD-DEM: fluidized bed
-This is the fluidized bed scenario from Section 4.4 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
+This is the fluidized bed scenario from Section 4.4 of the bachelor's thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 

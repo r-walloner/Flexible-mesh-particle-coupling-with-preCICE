@@ -1,5 +1,5 @@
 # CFD-DEM: single particle sedimentation
-This is the single particle sedimentation scenario from Section 4.3 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
+This is the single particle sedimentation scenario from Section 4.3 of the bachelor's thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 

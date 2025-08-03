@@ -1,5 +1,5 @@
 # Particle tracing: channel flow
-This is the channel flow scenario from Section 4.2 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
+This is the channel flow scenario from Section 4.2 of the bachelor's thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 
