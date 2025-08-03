@@ -1,5 +1,5 @@
 # Particle tracing: vortex flow
-<img src="figures/flow_field_frames/flow_field.0000.png" height="200">
+This is the vortex flow scenario from Section 4.1 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 
@@ -21,18 +21,15 @@ Each directory level coresponds to one parameter.
 E.g. the `euler_explicit/nearest-neighbor/timestep-0.01/refinement-4/` directory contains the run with the paramenters: `euler_explicit` integration scheme, `nearest-neighbor` mapping, `0.01` timestep size and `4` grid refinement steps.
 
 ### `figures/`
-Figures and animations from the thesis and accompanying presentations.
+Figures from the thesis.
 
 ## Reproducing results
 
 ### Requirements
-For building and running the particle tracing:
-- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 15.1.1)
-- [CMake](https://cmake.org/) (tested with version 3.31.6)
-- [deal.II](https://www.dealii.org/) compiled with support for MPI and P4EST (tested with version 9.6.2)
-- [preCICE](https://precice.org/) (tested with version 3.2.0)
-
-For post-processing the results:
+- C++ toolchain (tested with [GCC](https://gcc.gnu.org/install/) version 15.1.1)
+- [CMake](https://cmake.org/download/) (tested with version 3.31.6)
+- [preCICE](https://precice.org/installation-overview.html) (tested with version 3.2.0)
+- [deal.II](https://dealii.org/current/readme.html) compiled with support for MPI and P4EST (tested with version 9.6.2)
 - [Python](https://www.python.org/downloads/) (tested with version 3.13.5)
 - [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 - [Jupyter Notebook](https://jupyter.org/install#jupyter-notebook)
@@ -55,4 +52,4 @@ cd experiments/convergence_under_grid_refinement
 python generate.py
 python run.py
 ```
-After the runs are finished, use the provided Jupyter notebooks to post-process the results.
+After the runs are finished, use the provided [Jupyter notebooks](https://docs.jupyter.org/en/latest/) to post-process the results.

@@ -1,5 +1,5 @@
 # Particle tracing: channel flow
-<img src="figures/flow_field.png" height="200">
+This is the channel flow scenario from Section 4.2 of the bachelor's thesis thesis *Flexible mesh-particle coupling with preCICE* by Robin Walloner.
 
 ## Contents
 
@@ -17,7 +17,7 @@ The OpenFOAM case used as the fluid participant.
 - The remaining files are the OpenFOAM case files.
 
 ### `figures/`
-Figures and animations from the thesis and accompanying presentations.
+Figures from the thesis.
 
 ### `plot_load_balancing.py`
 A script to extract load balancing data from the stdout of the particle participant.
@@ -25,17 +25,12 @@ A script to extract load balancing data from the stdout of the particle particip
 ## Reproducing results
 
 ### Requirements
-For building and running the particle tracing:
-- C++ toolchain (tested with [GCC](https://gcc.gnu.org/) version 15.1.1)
-- [CMake](https://cmake.org/) (tested with version 3.31.6)
-- [deal.II](https://www.dealii.org/) (tested with version 9.6.2)
-- [preCICE](https://precice.org/) (tested with version 3.2.0)
-
-For running the fluid participant:
-- [OpenFOAM](https://www.openfoam.com/) (tested with version 2412)
-- [OpenFOAM-preCICE adapter](https://github.com/precice/openfoam-adapter) (tested with version 1.3.1)
-
-For post-processing the results:
+- C++ toolchain (tested with [GCC](https://gcc.gnu.org/install/) version 15.1.1)
+- [CMake](https://cmake.org/download/) (tested with version 3.31.6)
+- [preCICE](https://precice.org/installation-overview.html) (tested with version 3.2.0)
+- [deal.II](https://dealii.org/current/readme.html) (tested with version 9.6.2)
+- [OpenFOAM](https://www.openfoam.com/current-release) (tested with version 2412)
+- [OpenFOAM-preCICE adapter](https://precice.org/adapter-openfoam-get.html) (tested with version 1.3.1)
 - [Python](https://www.python.org/downloads/) (tested with version 3.13.5)
 - [Python packages](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-a-requirements-file) listed in `requirements.txt`
 
@@ -48,7 +43,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ../particle-deal.II
 cmake --build .
 ```
 
-### Running both participants
+### Running participants
 Open two terminals.
 In the first terminal, run the fluid participant.
 ```sh
