@@ -1,5 +1,4 @@
-pyvista
 numpy
 matplotlib
+pyvista
 tqdm
-pandas
