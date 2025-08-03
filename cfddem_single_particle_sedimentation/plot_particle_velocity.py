@@ -78,6 +78,10 @@ for run in runs:
         time = timestep * parameters["particle_dt"]
         time_list.append(time)
 
+    # Output terminal velocity
+    terminal_velocity = velocity_list[time_list.index(parameters["end_time"])]
+    print(f"{run.name}, {terminal_velocity}")
+
     # Plot
     plt.plot(time_list, velocity_list, label=run.name)
 
