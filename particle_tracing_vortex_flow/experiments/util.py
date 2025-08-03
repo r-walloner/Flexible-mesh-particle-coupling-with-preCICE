@@ -61,6 +61,8 @@ def generate_run(
     with open(path / "precice-config.xml", "w") as file:
         file.write(f"""
 <precice-configuration experimental="true">
+                   
+  <profiling mode="off" />
 
   <data:vector name="Velocity" />
   <data:scalar name="Time" />
