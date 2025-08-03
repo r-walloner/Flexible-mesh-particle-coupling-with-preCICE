@@ -13,14 +13,14 @@ support_radius = 0.5  # only used for rbf
 
 method = "euler_explicit"
 
-for time_step in [10**-i for i in range(1, 7)]:
+for time_step in [10**-i for i in range(1, 6)]:
     output_interval = int(max(1, final_time / time_step / 100))
 
     for mapping in [
         "nearest-neighbor",
         # "rbf-pum-direct",
     ]:
-        for refinement in range(4, 9, 2):
+        for refinement in range(3, 8, 2):
             # Only generate different refinements for nearest-neighbor
             if refinement != 7 and mapping != "nearest-neighbor":
                 continue
