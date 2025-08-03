@@ -2,9 +2,10 @@ import numpy as np
 import pathlib
 import matplotlib.pyplot as plt
 import json
+import pyvista as pv
 
 script_dir = pathlib.Path(__file__).parent.resolve()
-data_dir = script_dir / "data" / "particle_velocity"
+runs_dir = script_dir / "runs"
 reference_file = script_dir / "reference_data" / "Song Park 2020 - fine.csv"
 
 
@@ -46,19 +47,39 @@ plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlat
 plt.plot(song_sim[:,0], song_sim[:,1], label='Song and Park', color="black")
 
 
-# Load and plot flux data
-files = list(data_dir.glob("*.json"))
-files.sort()
-for file in files:
-    with open(file, "r") as f:
-        data = json.load(f)
+# Load and plot particle velocity data
+runs = sorted(run for run in runs_dir.iterdir() if run.is_dir())
+for run in runs:
 
-    time = data["time"]
-    particle_velocity = data["particle_velocity"]
+    # Read run parameters
+    with open(run / "parameters.json", "r") as f:
+        parameters = json.load(f)
 
-    plt.plot(time, particle_velocity, label=file.stem)
+    time_list = []
+    velocity_list = []
 
+    # Check if particle data exists
+    data_dir = run / "particle-liggghts" / "out"
+    if not data_dir.exists():
+        print(f"{run.name} does not contain data, skipping")
+        continue
 
+    # Iterate over timesteps
+    for timestep_file in data_dir.glob("particles_*.vtu"):
+        timestep: pv.UnstructuredGrid = pv.read(timestep_file)
+
+        if timestep.number_of_points < 1:
+            continue  # We have lost our particle :(
+
+        velocity = np.linalg.norm(timestep.point_data["v"][0])
+        velocity_list.append(velocity)
+
+        timestep = int(timestep_file.stem.split("_")[-1])
+        time = timestep * parameters["particle_dt"]
+        time_list.append(time)
+
+    # Plot
+    plt.plot(time_list, velocity_list, label=run.name)
 
 plt.legend()
 
