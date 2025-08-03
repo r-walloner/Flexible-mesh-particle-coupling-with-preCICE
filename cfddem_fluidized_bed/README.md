@@ -25,9 +25,6 @@ Generates the particle mass flux plot from the results within the `runs/` direct
 ### `reference_data/`
 Data from [Link](https://doi.org/10.1016/j.ces.2005.01.027) we use to validate against.
 
-### `figures/`
-Figures from the thesis.
-
 ## Reproducing results
 
 ### Requirements

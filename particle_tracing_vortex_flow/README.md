@@ -20,9 +20,6 @@ The runs are organized in subdirectories.
 Each directory level coresponds to one parameter.
 E.g. the `euler_explicit/nearest-neighbor/timestep-0.01/refinement-4/` directory contains the run with the paramenters: `euler_explicit` integration scheme, `nearest-neighbor` mapping, `0.01` timestep size and `4` grid refinement steps.
 
-### `figures/`
-Figures from the thesis.
-
 ## Reproducing results
 
 ### Requirements

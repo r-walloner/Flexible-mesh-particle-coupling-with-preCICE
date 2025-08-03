@@ -25,9 +25,6 @@ Generate the particle velocity plot from the results within the `runs/` director
 ### `reference_data/`
 Data from [Song and Park](https://doi.org/10.3390/jmse8120983) we use to validate against.
 
-### `figures/`
-Figures from the thesis.
-
 ## Reproducing results
 
 ### Requirements
