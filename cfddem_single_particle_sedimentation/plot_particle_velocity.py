@@ -43,7 +43,7 @@ song_theoretical = reference_data[:, -2:][~np.isnan(reference_data[:, -2])]
 song_sim = song_sim[song_sim[:, 0].argsort()]
 song_theoretical = song_theoretical[song_theoretical[:, 0].argsort()]
 
-plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Empirical Correlation', color="black", linestyle="--")
+plt.plot(song_theoretical[:,0], song_theoretical[:,1], label='Reference', color="black", linestyle="--")
 plt.plot(song_sim[:,0], song_sim[:,1], label='Song and Park', color="black")
 
 
