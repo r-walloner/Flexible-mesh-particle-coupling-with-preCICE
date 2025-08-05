@@ -137,18 +137,23 @@ for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
 
 
 # Used for accuracy table
-# for particle_drag_model in ["zhao_shan", "gidaspow"]:
-#     p["particle_drag_model"] = particle_drag_model
+# for fluid_cells in [(25, 75, 25), (6, 18, 6)]:
+#     p["fluid_cells"] = fluid_cells
 
-#     for d, rho in zip(
-#         [2e-3, 1e-3, 0.5e-3, 0.25e-3, 0.125e-3],
-#         [2463, 2488, 2523, 2571, 2494]):
-#         p["particle_diameter"] = d
-#         p["particle_density"] = rho
+#     for particle_drag_model in ["zhao_shan", "gidaspow"]:
+#         p["particle_drag_model"] = particle_drag_model
 
-#         if d < 0.5e-3:
-#             p["read_mapping_radius"] = 0.1
-#         else:
-#             p["read_mapping_radius"] = 0.5
+#         for d, rho in zip(
+#             [2e-3, 1e-3, 0.5e-3, 0.25e-3, 0.125e-3],
+#             [2463, 2488, 2523, 2571, 2494]):
+#             p["particle_diameter"] = d
+#             p["particle_density"] = rho
 
-#         generate_run(p)
+#             if d < 0.5e-3:
+#                 p["read_mapping_radius"] = 0.1
+#             else:
+#                 p["read_mapping_radius"] = 0.5
+
+#             p["write_mapping_radius"] = 4 * d
+
+#             generate_run(p)
