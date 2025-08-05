@@ -30,9 +30,33 @@ plt.rcParams.update(
 # plt.title("Settling velocity of a single particle")
 plt.grid(True)
 plt.xlabel("x [m]")
-plt.ylabel(r"Average particle z-flux [$\text{kg}/(\text{m}^2 \text{s})$]")
+plt.ylabel(r"Average particle Y-flux [$\text{kg}/(\text{m}^2\, \text{s})$]")
 plt.xlim(-0.075, 0.075)
-plt.ylim(-850, 850)
+plt.ylim(-850, 1100)
+
+
+# Load and plot reference data
+reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
+link_exp = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
+link_sim_min = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
+link_sim_old = reference_data[:, 4:6][~np.isnan(reference_data[:, 4])]
+link_sim_koch = reference_data[:, 6:8][~np.isnan(reference_data[:, 6])]
+
+# Offset x-coordinates of reference data to match simulation
+link_exp[:, 0] -= 0.075
+link_sim_min[:, 0] -= 0.075
+link_sim_old[:, 0] -= 0.075
+link_sim_koch[:, 0] -= 0.075
+
+link_exp = link_exp[link_exp[:, 0].argsort()]
+link_sim_min = link_sim_min[link_sim_min[:, 0].argsort()]
+link_sim_old = link_sim_old[link_sim_old[:, 0].argsort()]
+link_sim_koch = link_sim_koch[link_sim_koch[:, 0].argsort()]
+
+plt.scatter(link_exp[:,0], link_exp[:,1], label='Link et al. - experiment', color="black")
+# plt.plot(link_sim_min[:,0], link_sim_min[:,1], label='Link 2005 - sim - min', color="black", linestyle="-.")
+plt.plot(link_sim_old[:,0], link_sim_old[:,1], label='Link et al. - simulation - Gidaspow', color="black", linestyle=":")
+plt.plot(link_sim_koch[:,0], link_sim_koch[:,1], label='Link et al. - simulation - Koch and Hill', color="black", linestyle="--")
 
 
 # Determine what runs to read
@@ -102,30 +126,9 @@ for run in runs:
     plt.plot(x_coords, flux_avg, label=run.name)
 
 
-# Load and plot reference data
-reference_data = np.genfromtxt(reference_data_path, delimiter=",", skip_header=2)
-link_exp = reference_data[:, 0:2][~np.isnan(reference_data[:, 0])]
-link_sim_min = reference_data[:, 2:4][~np.isnan(reference_data[:, 2])]
-link_sim_old = reference_data[:, 4:6][~np.isnan(reference_data[:, 4])]
-link_sim_koch = reference_data[:, 6:8][~np.isnan(reference_data[:, 6])]
-
-# Offset x-coordinates of reference data to match simulation
-link_exp[:, 0] -= 0.075
-link_sim_min[:, 0] -= 0.075
-link_sim_old[:, 0] -= 0.075
-link_sim_koch[:, 0] -= 0.075
-
-link_exp = link_exp[link_exp[:, 0].argsort()]
-link_sim_min = link_sim_min[link_sim_min[:, 0].argsort()]
-link_sim_old = link_sim_old[link_sim_old[:, 0].argsort()]
-link_sim_koch = link_sim_koch[link_sim_koch[:, 0].argsort()]
-
-plt.scatter(link_exp[:,0], link_exp[:,1], label='Link 2005 - exp', color="black")
-# plt.plot(link_sim_min[:,0], link_sim_min[:,1], label='Link 2005 - sim - min', color="black", linestyle="-.")
-plt.plot(link_sim_old[:,0], link_sim_old[:,1], label='Link 2005 - sim - gidaspow', color="black", linestyle=":")
-plt.plot(link_sim_koch[:,0], link_sim_koch[:,1], label='Link 2005 - sim - koch', color="black", linestyle="--")
-
 plt.legend()
+
+plt.savefig(script_dir / "figures" / "fb_particle_flux.pdf", bbox_inches="tight")
 plt.show()
     
 
