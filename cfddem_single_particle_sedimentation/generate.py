@@ -140,7 +140,7 @@ for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
 # for fluid_cells in [(25, 75, 25), (6, 18, 6)]:
 #     p["fluid_cells"] = fluid_cells
 
-#     for particle_drag_model in ["zhao_shan", "gidaspow"]:
+#     for particle_drag_model in ["zhao_shan", "gidaspow", "koch_hill"]:
 #         p["particle_drag_model"] = particle_drag_model
 
 #         for d, rho in zip(
