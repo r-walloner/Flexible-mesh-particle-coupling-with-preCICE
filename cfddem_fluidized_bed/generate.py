@@ -109,6 +109,10 @@ def generate_run(p: Parameters, run_name: str = None):
 
     
 
+# ------------------------------------------------------------------------------
+# Modify the section below to configure what runs to generate
+# ------------------------------------------------------------------------------
+
 
 # Set default parameters
 p = Parameters(
@@ -158,11 +162,11 @@ p["fluid_subdomains"] = (1, 2, 1)
 p["particle_total_subdomains"] = 6
 
 # Generate one run
-# generate_run(p, "test")
+generate_run(p)
 
 
 # Generate runs for different drag models
-# for drag_model in ["gidaspow", "koch_hill", "zhao_shan"]:
+# for drag_model in ["gidaspow", "koch_hill"]:
 #     p["particle_drag_model"] = drag_model
 
 #     generate_run(p)

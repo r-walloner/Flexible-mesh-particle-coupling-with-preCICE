@@ -58,6 +58,6 @@ For the current parameters set in `generate.py` the file `template/0/alphaSolid`
 If you change any parameters that affect the initial condition of the simulation, you need to regenrate the initial data for `alphaSolid` as described below, otherwise the fluid solver will crash after a few time steps.
 1. Generate run using `generate.py`.
 2. In `system/controlDict` of the generated run, set `writeInterval` to equal `deltaT` and disable `writeCompression`.
-3. Run for two time steps.
+3. Run until the fluid solver completes its second time step. Note that, initially, the particle solver runs uncoupled to allow the particles to settle.
 4. Overwrite `0/alphaSolid` with the `alphaSolid` from the second time step (e.g., `0.00002/alphaSolid`).
 5. Restore `writeInterval` and `writeCompression` to their original values and clean the case. Now, the run is ready to be executed.
