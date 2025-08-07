@@ -51,10 +51,10 @@ repartition_times = [(i * repartition_interval + 1) * dt for i in range(1, 50)]
 for t in repartition_times:
     plt.axvline(x=t, color="gray", linestyle="dotted", linewidth=1)
 
-# Ideal load balancing for 4 ranks and 768 particles
+# Ideal load balancing for 4 ranks and 12288 particles
 plt.plot(
     [0, 0.22],
-    [768 / 4, 768 / 4],
+    [12288 / 4, 12288 / 4],
     linestyle="--",
     color="black",
     label="Ideal load balancing",
@@ -74,8 +74,8 @@ for idx, (rank, particles) in enumerate(sorted(particles_in_rank.items())):
 plt.xlabel("Time [s]")
 plt.ylabel("Particle count per rank")
 
-plt.xlim(0, 0.22)
-plt.ylim(0, 680)
+plt.xlim(1e-3, 0.22)
+plt.ylim(0, 10800)
 
 
 
